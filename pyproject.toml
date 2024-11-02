@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "switcher_client"
+dynamic = ["version", "readme", "dependencies"]
+authors = [{name='Roger Floriano (petruki)', email='switcher.project@gmail.com'}]
+description = "Switcher Client SDK for Python"
+license = { text = "MIT" }
+classifiers = [
+	"Programming Language :: Python :: 3.6",
+	"Programming Language :: Python :: 3.7",
+	"Programming Language :: Python :: 3.8",
+	"Programming Language :: Python :: 3.9",
+	"Programming Language :: Python :: 3.10",
+	"Programming Language :: Python :: 3.11",
+	"Programming Language :: Python :: 3.12",
+	"Programming Language :: Python :: Implementation :: CPython",
+	"License :: OSI Approved :: MIT License",
+	"Operating System :: OS Independent",
+]
+requires-python = ">=3.6"
+
+[project.urls]
+Homepage = "https://github.com/switcherapi"
+
+[tool.setuptools.packages.find]
+include = ["switcher_client*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "switcher_client.version.__version__" }
+readme = { file = ["README.md"], content-type = "text/markdown" }
+dependencies = { file = ["requirements.txt"] }
