@@ -42,7 +42,7 @@ from switcher.client import Client
 Client.build_context(
     domain='My Domain',
     url='https://api.switcherapi.com',
-    apiKey='[API_KEY]',
+    api_key='[API_KEY]',
     component='MyApp',
     environment='default'
 )
@@ -52,7 +52,7 @@ switcher = Client.get_switcher()
 
 - **domain**: Domain name.
 - **url**: (optional) Swither-API endpoint.
-- **apiKey**: (optional) Switcher-API key generated to your component.
+- **api_key**: (optional) Switcher-API key generated to your component.
 - **component**: (optional) Application name.
 - **environment**: (optional) Environment name. Production environment is named as 'default'.
 
@@ -65,7 +65,7 @@ from switcher.client import Client
 Client.build_context(
     domain='My Domain',
     url='https://api.switcherapi.com',
-    apiKey='[API_KEY]',
+    api_key='[API_KEY]',
     component='MyApp',
     environment='default',
     options={

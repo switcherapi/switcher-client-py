@@ -7,7 +7,7 @@ install-test:
 	pip install -r tests/requirements.txt
 
 test:
-	pytest -v --cov=./ --cov-report xml
+	pytest -v --cov=./switcher_client --cov-report xml
 
 cover:
 	coverage html
