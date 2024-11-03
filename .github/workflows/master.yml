@@ -28,7 +28,7 @@ jobs:
         run: pip install -r tests/requirements.txt
       
       - name: Test
-        run: pytest -v --cov=./ --cov-report xml
+        run: pytest -v --cov=./switcher_client --cov-report xml
 
       - name: Fix code coverage path
         working-directory: ./
