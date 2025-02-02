@@ -3,7 +3,7 @@ import pytest
 from switcher_client import Client, ContextOptions
 
 def test_context():
-    """ Test building and verifying context """
+    """ Should build and verify context """
 
     Client.build_context(
         domain='My Domain',
@@ -23,7 +23,7 @@ def test_context():
         pytest.fail(f'Context verification failed: {e}')
 
 def test_clear_context():
-    """ Test clearing context """
+    """ Should clear context """
 
     Client.build_context(
         domain='My Domain',
@@ -38,7 +38,7 @@ def test_clear_context():
         Client.verify_context()
 
 def test_context_with_optionals():
-    """ Test building context with optional parameters - local and snapshot_location """
+    """ Should build context with optional parameters - local and snapshot_location """
 
     Client.build_context(
         domain='My Domain',
