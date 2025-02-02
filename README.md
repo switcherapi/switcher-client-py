@@ -9,6 +9,7 @@ A Python SDK for Switcher API
 
 [![Master CI](https://github.com/switcherapi/switcher-client-py/actions/workflows/master.yml/badge.svg)](https://github.com/switcherapi/switcher-client-py/actions/workflows/master.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=switcherapi_switcher-client-py&metric=alert_status)](https://sonarcloud.io/dashboard?id=switcherapi_switcher-client-py)
+[![Known Vulnerabilities](https://snyk.io/test/github/switcherapi/switcher-client-py/badge.svg)](https://snyk.io/test/github/switcherapi/switcher-client-py)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Slack: Switcher-HQ](https://img.shields.io/badge/slack-@switcher/hq-blue.svg?logo=slack)](https://switcher-hq.slack.com/)
 
@@ -97,14 +98,14 @@ There are a few different ways to call the API using the JavaScript module.
 Here are some examples:
 
 1. **No parameters**
-Invoking the API can be done by instantiating the switcher and calling *isItOn* passing its key as a parameter.
+Invoking the API can be done by instantiating the switcher and calling *is_on* passing its key as a parameter.
 
 
 ```python
 switcher = Client.get_switcher()
-switcher.check('FEATURE01')
+switcher.is_on('FEATURE01')
 # or
-result, reason, metadata = switcher.detail().check('FEATURE01')
+result, reason, metadata = switcher.detail().is_on('FEATURE01')
 ```
 
 2. **Strategy validation - preparing input**
@@ -112,14 +113,14 @@ Loading information into the switcher can be made by using *prepare*, in case yo
 
 ```python
 switcher.check_value('USER_1').prepare('FEATURE01')
-switcher.check()
+switcher.is_on()
 ```
 
 3. **Strategy validation - all-in-one execution**
 All-in-one method is fast and include everything you need to execute a complex call to the API.
 
 ```python
-result, reason, metadata = switcher.detail().check_value('User 1').check_network('192.168.0.1').check('FEATURE01')
+result, reason, metadata = switcher.detail().check_value('User 1').check_network('192.168.0.1').is_on('FEATURE01')
 ```
 
 4. **Throttle**
@@ -127,7 +128,7 @@ Throttling is useful when placing Feature Flags at critical code blocks require 
 API calls will happen asynchronously and the result returned is based on the last API response.
 
 ```python
-switcher.throttle(1000).check('FEATURE01')
+switcher.throttle(1000).is_on('FEATURE01')
 ```
 
 In order to capture issues that may occur during the process, it is possible to log the error by subscribing to the error events.
@@ -141,7 +142,7 @@ Forcing Switchers to resolve remotely can help you define exclusive features tha
 This feature is ideal if you want to run the SDK in local mode but still want to resolve a specific switcher remotely.
 
 ```python
-switcher.remote().check('FEATURE01')
+switcher.remote().is_on('FEATURE01')
 ```
 
 ## Built-in mock feature
@@ -149,13 +150,13 @@ You can also bypass your switcher configuration by invoking 'Client.assume'. Thi
 
 ```python
 Client.assume('FEATURE01').true()
-switcher.check('FEATURE01') # True
+switcher.is_on('FEATURE01') # True
 
 Client.forget('FEATURE01')
-switcher.check('FEATURE01') # Now, it's going to return the result retrieved from the API or the Snaopshot file
+switcher.is_on('FEATURE01') # Now, it's going to return the result retrieved from the API or the Snaopshot file
 
 Client.assume('FEATURE01').false().with_metadata({ 'message': 'Feature is disabled' }) # Include metadata to emulate Relay response
-response = switcher.detail().check('FEATURE01') # False
+response = switcher.detail().is_on('FEATURE01') # False
 print(response.metadata['message']) # Feature is disabled
 ```
 

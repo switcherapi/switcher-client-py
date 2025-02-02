@@ -1,7 +1,9 @@
 from typing import Optional
 
+from switcher_client.lib.remote_auth import RemoteAuth
 from switcher_client.context import Context, ContextOptions
 from switcher_client.context import DEFAULT_ENVIRONMENT
+from switcher_client.switcher import Switcher
 
 class Client:
     context: Optional[Context] = None
@@ -26,6 +28,7 @@ class Client:
             
         """
         Client.context = Context(domain, url, api_key, component, environment, options)
+        RemoteAuth.init(Client.context)
 
     @staticmethod
     def clear_context():
@@ -35,3 +38,9 @@ class Client:
     def verify_context():
         if not Client.context:
             raise ValueError('Context is not set')
+
+    @staticmethod
+    def get_switcher(key: str = None) -> Switcher:
+        """ Get a switcher by key """
+        Client.verify_context()
+        return Switcher(Client.context, key)
