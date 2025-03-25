@@ -1,6 +1,5 @@
 from typing import Optional
 
-from switcher_client.errors import RemoteAuthError
 from switcher_client.lib.remote import Remote
 from switcher_client.context import Context
 
