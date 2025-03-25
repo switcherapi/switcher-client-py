@@ -2,11 +2,14 @@ from typing import Optional
 
 from switcher_client.context import Context
 from switcher_client.lib.remote_auth import RemoteAuth
+from switcher_client.lib.remote import Remote
 
 class Switcher:
     def __init__(self, context: Context, key: str = None):
         self.context = context
         self.key = key
+        self.input = {}
+        self.show_details = False
 
     def is_on(self, key: str = None) -> bool:
         """ Execute criteria """
@@ -31,6 +34,8 @@ class Switcher:
 
     def __execute_remote_criteria(self):
         """ Execute remote criteria """
-        RemoteAuth.get_token()
+        token = RemoteAuth.get_token()
         RemoteAuth.get_exp()
-        return True
+
+        response_criteria = Remote.check_criteria(token, self.context, self.key, self.input, self.show_details)
+        return response_criteria.result
