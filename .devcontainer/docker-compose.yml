@@ -1,0 +1,11 @@
+version: '3.9'
+
+services:
+
+  switcherpy-sdk:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
