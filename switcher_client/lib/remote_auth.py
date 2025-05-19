@@ -1,29 +1,17 @@
-from typing import Optional
-
 from switcher_client.lib.remote import Remote
-from switcher_client.context import Context
+from switcher_client.lib.globals.global_context import Context
+from switcher_client.lib.globals import GlobalAuth
 
 class RemoteAuth:
-    __context: Optional[Context] = None
-    __token = None
-    __exp = None
+    __context: Context = Context.empty()
 
     @staticmethod
     def init(context: Context):
         RemoteAuth.__context = context
-        RemoteAuth.__token = None
-        RemoteAuth.__exp = None
+        GlobalAuth.init(context.url)
 
     @staticmethod
     def auth():
         token, exp = Remote.auth(RemoteAuth.__context)
-        RemoteAuth.__token = token
-        RemoteAuth.__exp = exp
-
-    @staticmethod
-    def get_token():
-        return RemoteAuth.__token
-
-    @staticmethod
-    def get_exp():
-        return RemoteAuth.__exp
+        GlobalAuth.set_token(token)
+        GlobalAuth.set_exp(exp)

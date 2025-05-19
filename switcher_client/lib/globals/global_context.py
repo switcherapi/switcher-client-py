@@ -14,3 +14,14 @@ class Context:
         self.component = component
         self.environment = environment
         self.options = options
+    
+    @classmethod
+    def empty(cls):
+        return cls(
+            domain='',
+            url='',
+            api_key='',
+            component='',
+            environment=DEFAULT_ENVIRONMENT,
+            options=ContextOptions()
+        )

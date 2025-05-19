@@ -1,5 +1,5 @@
 from .client import Client
-from .context import ContextOptions
+from .lib.globals.global_context import ContextOptions
 
 __all__ = [
     'Client',
