@@ -57,7 +57,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: pip install -r tests/requirements.txt
+          pip install pipenv
+          pipenv install --dev
       
       - name: Test
-        run: pytest -v
+        run: pipenv run pytest -v
