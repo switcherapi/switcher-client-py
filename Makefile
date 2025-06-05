@@ -1,10 +1,7 @@
-.PHONY: install install-test test cover build
+.PHONY: install test cover build
 
 install:
-	pip install -r requirements.txt
-
-install-test:
-	pip install -r tests/requirements.txt
+	pipenv install --dev
 
 test:
 	pytest -v --cov=./switcher_client --cov-report xml

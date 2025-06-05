@@ -30,7 +30,9 @@ jobs:
           python-version: ${{ github.event.inputs.python }}
 
       - name: Install dependencies
-        run: pip install -r tests/requirements.txt
+        run: |
+          pip install pipenv
+          pipenv install --dev
       
       - name: Test
-        run: pytest -v
+        run: pipenv run pytest -v
