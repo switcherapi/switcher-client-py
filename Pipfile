@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 requests = "==2.32.4"
 
+# Managed dependencies and security patches
+urllib3 = ">=2.5.0"
+
 [dev-packages]
 pytest = "==8.4.0"
 pytest-cov = "==6.1.1"
