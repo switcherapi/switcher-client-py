@@ -5,6 +5,7 @@ from switcher_client.errors import RemoteAuthError
 from switcher_client.errors import RemoteCriteriaError
 from switcher_client.lib.globals.global_context import Context
 from switcher_client.lib.types import ResultDetail
+from switcher_client.switcher_data import SwitcherData
 
 class Remote:
 
@@ -29,12 +30,11 @@ class Remote:
     
     @staticmethod
     def check_criteria(
-        token: Optional[str], context: Context, 
-        key: Optional[str], input: dict = {}, show_details = True) -> ResultDetail:
+        token: Optional[str], context: Context, switcher: SwitcherData) -> ResultDetail:
         """ Check criteria """
 
-        url = f'{context.url}/criteria?showReason={str(show_details).lower()}&key={key}'
-        response = Remote.do_post(url, input, Remote.get_header(token))
+        url = f'{context.url}/criteria?showReason={str(switcher.show_details).lower()}&key={switcher.key}'
+        response = Remote.do_post(url, switcher.input, Remote.get_header(token))
         
         if response.status_code == 200:
             json_response = response.json()

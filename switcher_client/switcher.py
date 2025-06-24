@@ -4,13 +4,12 @@ from switcher_client.lib.globals.global_context import Context
 from switcher_client.lib.remote_auth import RemoteAuth
 from switcher_client.lib.globals import GlobalAuth
 from switcher_client.lib.remote import Remote
+from switcher_client.switcher_data import SwitcherData
 
-class Switcher:
+class Switcher(SwitcherData):
     def __init__(self, context: Context, key: Optional[str] = None):
+        super().__init__(key) 
         self.context = context
-        self.key = key
-        self.input = {}
-        self.show_details = False
 
     def is_on(self, key: Optional[str] = None) -> bool:
         """ Execute criteria """
@@ -38,5 +37,5 @@ class Switcher:
         token = GlobalAuth.get_token()
         GlobalAuth.get_exp()
 
-        response_criteria = Remote.check_criteria(token, self.context, self.key, self.input, self.show_details)
+        response_criteria = Remote.check_criteria(token, self.context, self)
         return response_criteria.result
