@@ -3,11 +3,9 @@ from typing import Optional
 class GlobalAuth:
     __token = None
     __exp = None
-    __url = None
 
     @staticmethod
     def init(url: Optional[str]):
-        GlobalAuth.__url = url
         GlobalAuth.__token = None
         GlobalAuth.__exp = None
 
@@ -18,10 +16,6 @@ class GlobalAuth:
     @staticmethod
     def get_exp():
         return GlobalAuth.__exp
-    
-    @staticmethod
-    def get_url():
-        return GlobalAuth.__url
     
     @staticmethod
     def set_token(token: str):
