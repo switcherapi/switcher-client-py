@@ -19,6 +19,29 @@ def test_remote():
     # test
     assert switcher.is_on('MY_SWITCHER')
 
+@responses.activate
+def test_remote_with_input():
+    """ Should call the remote API with success using input parameters """
+
+    # given
+    given_auth()
+    given_check_criteria(response={'result': True}, match=[
+        responses.matchers.json_params_matcher({
+            'entry': [{
+                'strategy': 'VALUE_VALIDATION',
+                'input': 'user_id'
+            }]
+        })
+    ])
+    given_context()
+
+    switcher = Client.get_switcher()
+
+    # test
+    assert switcher \
+        .check_value('user_id') \
+        .is_on('MY_SWITCHER')
+
 def test_remote_err_no_key():
     """ Should raise an exception when no key is provided """
 
@@ -82,10 +105,11 @@ def given_auth(status=200, token='[token]', exp=int(round(time.time() * 1000))):
         status=status
     )
 
-def given_check_criteria(status=200, key='MY_SWITCHER', response={}, show_details=False):
+def given_check_criteria(status=200, key='MY_SWITCHER', response={}, show_details=False, match=[]):
     responses.add(
         responses.POST,
         f'https://api.switcherapi.com/criteria?showReason={str(show_details).lower()}&key={key}',
         json=response,
-        status=status
+        status=status,
+        match=match
     )

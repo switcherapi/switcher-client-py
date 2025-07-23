@@ -9,24 +9,35 @@ from switcher_client.switcher_data import SwitcherData
 class Switcher(SwitcherData):
     def __init__(self, context: Context, key: Optional[str] = None):
         super().__init__(key) 
-        self.context = context
+        self._context = context
 
     def is_on(self, key: Optional[str] = None) -> bool:
         """ Execute criteria """
-        result = False
-
         self.__validate_args(key)
-        self.__execute_api_checks()
-        result = self.__execute_remote_criteria()
+        return self.__submit()
+    
+    def __submit(self) -> bool:
+        """ Submit criteria for execution (local or remote) """
 
-        return result
+        self.__validate()
+        self.__execute_api_checks()
+        return self.__execute_remote_criteria()
+    
+    def __validate(self) -> 'Switcher':
+        """ Validates client settings for remote API calls """
+        errors = []
+
+        if not self._key:
+            errors.append('Missing key field')
+
+        if errors:
+            raise ValueError(f"Something went wrong: {', '.join(errors)}")
+        
+        return self
 
     def __validate_args(self, key: Optional[str] = None):
-        if self.key is None:
-            self.key = key
-
-        if self.key is None:
-            raise ValueError('Key is required')
+        if key is not None:
+            self._key = key
 
     def __execute_api_checks(self):
         """ Assure API is available and token is valid """
@@ -37,5 +48,5 @@ class Switcher(SwitcherData):
         token = GlobalAuth.get_token()
         GlobalAuth.get_exp()
 
-        response_criteria = Remote.check_criteria(token, self.context, self)
+        response_criteria = Remote.check_criteria(token, self._context, self)
         return response_criteria.result
