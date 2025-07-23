@@ -33,8 +33,9 @@ class Remote:
         token: Optional[str], context: Context, switcher: SwitcherData) -> ResultDetail:
         """ Check criteria """
 
-        url = f'{context.url}/criteria?showReason={str(switcher.show_details).lower()}&key={switcher.key}'
-        response = Remote.do_post(url, switcher.input, Remote.get_header(token))
+        url = f'{context.url}/criteria?showReason={str(switcher._show_details).lower()}&key={switcher._key}'
+        entry = Remote.__get_entry(switcher._input)
+        response = Remote.do_post(url, entry, Remote.get_header(token))
         
         if response.status_code == 200:
             json_response = response.json()
@@ -48,6 +49,7 @@ class Remote:
     @staticmethod
     def do_post(url, data, headers) -> requests.Response:
         """ Perform a POST request """
+        print(data)
         return requests.post(url, json=data, headers=headers)
     
     @staticmethod
@@ -56,3 +58,17 @@ class Remote:
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json',
         }
+    
+    @staticmethod
+    def __get_entry(input: list):
+        entry = []
+        for strategy_type, input_value in input:
+            entry.append({
+                'strategy': strategy_type,
+                'input': input_value
+            })
+            
+        if not entry:
+            return None
+        
+        return {'entry': entry}
