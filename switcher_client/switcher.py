@@ -4,6 +4,7 @@ from switcher_client.lib.globals.global_context import Context
 from switcher_client.lib.remote_auth import RemoteAuth
 from switcher_client.lib.globals import GlobalAuth
 from switcher_client.lib.remote import Remote
+from switcher_client.lib.types import ResultDetail
 from switcher_client.switcher_data import SwitcherData
 
 class Switcher(SwitcherData):
@@ -13,15 +14,23 @@ class Switcher(SwitcherData):
 
     def is_on(self, key: Optional[str] = None) -> bool:
         """ Execute criteria """
+        self._show_details = False
+        self.__validate_args(key)
+        return self.__submit().result
+    
+    def is_on_with_details(self, key: Optional[str] = None) -> ResultDetail:
+        """ Execute criteria with details """
+        self._show_details = True
         self.__validate_args(key)
         return self.__submit()
     
-    def __submit(self) -> bool:
+    def __submit(self) -> ResultDetail:
         """ Submit criteria for execution (local or remote) """
-
         self.__validate()
         self.__execute_api_checks()
-        return self.__execute_remote_criteria()
+        response = self.__execute_remote_criteria()
+
+        return response
     
     def __validate(self) -> 'Switcher':
         """ Validates client settings for remote API calls """
@@ -49,4 +58,4 @@ class Switcher(SwitcherData):
         GlobalAuth.get_exp()
 
         response_criteria = Remote.check_criteria(token, self._context, self)
-        return response_criteria.result
+        return response_criteria

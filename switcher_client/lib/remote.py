@@ -41,7 +41,8 @@ class Remote:
             json_response = response.json()
             return ResultDetail(
                 result=json_response['result'],
-                reason=json_response.get('reason', None)
+                reason=json_response.get('reason', None),
+                metadata=json_response.get('metadata', {})
             )
 
         raise RemoteCriteriaError(f'[check_criteria] failed with status: {response.status_code}')
@@ -49,7 +50,6 @@ class Remote:
     @staticmethod
     def do_post(url, data, headers) -> requests.Response:
         """ Perform a POST request """
-        print(data)
         return requests.post(url, json=data, headers=headers)
     
     @staticmethod

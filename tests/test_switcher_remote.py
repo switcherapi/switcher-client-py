@@ -41,6 +41,30 @@ def test_remote_with_input():
     assert switcher \
         .check_value('user_id') \
         .is_on('MY_SWITCHER')
+    
+@responses.activate
+def test_remote_with_details():
+    """ Should call the remote API with success using detailed response """
+
+    # given
+    given_auth()
+    given_check_criteria(
+        response={
+            'result': True,
+            'reason': 'Success',
+            'metadata': {'key': 'value'}
+        },
+        show_details=True)
+    given_context()
+
+    switcher = Client.get_switcher()
+
+    # test
+    response = switcher.is_on_with_details('MY_SWITCHER')
+    assert response
+    assert response.reason == 'Success'
+    assert response.result is True
+    assert response.metadata == {'key': 'value'}
 
 def test_remote_err_no_key():
     """ Should raise an exception when no key is provided """
