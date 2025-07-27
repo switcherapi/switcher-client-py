@@ -105,7 +105,10 @@ Invoking the API can be done by instantiating the switcher and calling *is_on* p
 switcher = Client.get_switcher()
 switcher.is_on('FEATURE01')
 # or
-result, reason, metadata = switcher.detail().is_on('FEATURE01')
+response = switcher.is_on_with_details('FEATURE01')
+print(response.result)  # True or False
+print(response.reason)  # Reason for the result
+print(response.metadata)  # Additional metadata if available
 ```
 
 2. **Strategy validation - preparing input**
@@ -120,7 +123,7 @@ switcher.is_on()
 All-in-one method is fast and include everything you need to execute a complex call to the API.
 
 ```python
-result, reason, metadata = switcher.detail().check_value('User 1').check_network('192.168.0.1').is_on('FEATURE01')
+switcher.check_value('User 1').check_network('192.168.0.1').is_on('FEATURE01')
 ```
 
 4. **Throttle**
@@ -156,7 +159,7 @@ Client.forget('FEATURE01')
 switcher.is_on('FEATURE01') # Now, it's going to return the result retrieved from the API or the Snaopshot file
 
 Client.assume('FEATURE01').false().with_metadata({ 'message': 'Feature is disabled' }) # Include metadata to emulate Relay response
-response = switcher.detail().is_on('FEATURE01') # False
+response = switcher.is_on_with_details('FEATURE01') # False
 print(response.metadata['message']) # Feature is disabled
 ```
 
