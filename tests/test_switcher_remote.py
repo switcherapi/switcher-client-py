@@ -1,9 +1,12 @@
+from typing import Optional
+
 import pytest
 import responses
 import time
 
 from switcher_client.errors import RemoteAuthError
-from switcher_client import Client, ContextOptions
+from switcher_client import Client
+from switcher_client.lib.globals.global_auth import GlobalAuth
 
 @responses.activate
 def test_remote():
@@ -41,6 +44,28 @@ def test_remote_with_input():
     assert switcher \
         .check_value('user_id') \
         .is_on('MY_SWITCHER')
+
+@responses.activate
+def test_remote_with_prepare():
+    """ Should prepare call the remote API with success """
+
+    # given
+    given_auth()
+    given_check_criteria(response={'result': True}, match=[
+        responses.matchers.json_params_matcher({
+            'entry': [{
+                'strategy': 'VALUE_VALIDATION',
+                'input': 'user_id'
+            }]
+        })
+    ])
+    given_context()
+
+    switcher = Client.get_switcher()
+
+    # test
+    switcher.check_value('user_id').prepare('MY_SWITCHER')
+    assert switcher.is_on()
     
 @responses.activate
 def test_remote_with_details():
@@ -66,17 +91,55 @@ def test_remote_with_details():
     assert response.result is True
     assert response.metadata == {'key': 'value'}
 
+@responses.activate
+def test_remote_renew_token():
+    """ Should renew the token when it is expired """
+
+    # given
+    given_auth(status=200, token='[expired_token]', exp=int(round(time.time())) - 3600)
+    given_auth(status=200, token='[new_token]', exp=int(round(time.time())) + 3600)
+    given_check_criteria(response={'result': True})
+    given_context()
+
+    switcher = Client.get_switcher()
+
+    # test
+    switcher.is_on('MY_SWITCHER')
+    assert GlobalAuth.get_token() == '[expired_token]'
+    switcher.is_on('MY_SWITCHER')
+    assert GlobalAuth.get_token() == '[new_token]'
+
+@responses.activate
 def test_remote_err_no_key():
     """ Should raise an exception when no key is provided """
 
     # given
+    given_auth()
     given_context()
 
     switcher = Client.get_switcher()
     
     # test
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError) as excinfo:
         switcher.is_on()
+
+    assert 'Missing key field' in str(excinfo.value)
+
+@responses.activate
+def test_remote_err_no_token():
+    """ Should raise an exception when no token is provided """
+
+    # given
+    given_auth(status=200, token=None)
+    given_context()
+
+    switcher = Client.get_switcher()
+
+    # test
+    with pytest.raises(ValueError) as excinfo:
+        switcher.is_on('MY_SWITCHER')
+
+    assert 'Missing token field' in str(excinfo.value)
 
 @responses.activate
 def test_remote_err_invalid_api_key():
@@ -121,7 +184,7 @@ def given_context(url='https://api.switcherapi.com', api_key='[API_KEY]'):
         component='switcher-playground'
     )
 
-def given_auth(status=200, token='[token]', exp=int(round(time.time() * 1000))):
+def given_auth(status=200, token: Optional[str]='[token]', exp=int(round(time.time() * 1000))):
     responses.add(
         responses.POST,
         'https://api.switcherapi.com/criteria/auth',
