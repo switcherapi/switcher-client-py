@@ -12,22 +12,25 @@ class Switcher(SwitcherData):
         super().__init__(key) 
         self._context = context
 
+    def prepare(self, key: Optional[str] = None):
+        """ Checks API credentials and connectivity """
+        self.__validate_args(key)
+        RemoteAuth.auth()
+
     def is_on(self, key: Optional[str] = None) -> bool:
         """ Execute criteria """
         self._show_details = False
-        self.__validate_args(key)
+        self.__validate_args(key, details=False)
         return self.__submit().result
     
     def is_on_with_details(self, key: Optional[str] = None) -> ResultDetail:
         """ Execute criteria with details """
-        self._show_details = True
-        self.__validate_args(key)
+        self.__validate_args(key, details=True)
         return self.__submit()
     
     def __submit(self) -> ResultDetail:
         """ Submit criteria for execution (local or remote) """
         self.__validate()
-        self.__execute_api_checks()
         response = self.__execute_remote_criteria()
 
         return response
@@ -39,18 +42,27 @@ class Switcher(SwitcherData):
         if not self._key:
             errors.append('Missing key field')
 
+        self.__execute_api_checks()
+        if not GlobalAuth.get_token():
+            errors.append('Missing token field')
+
         if errors:
             raise ValueError(f"Something went wrong: {', '.join(errors)}")
         
         return self
 
-    def __validate_args(self, key: Optional[str] = None):
+    def __validate_args(self, key: Optional[str] = None, details: Optional[bool] = None):
         if key is not None:
             self._key = key
 
+        if details is not None:
+            self._show_details = details
+
     def __execute_api_checks(self):
         """ Assure API is available and token is valid """
-        RemoteAuth.auth()
+        RemoteAuth.check_health()
+        if RemoteAuth.is_token_expired():
+            self.prepare(self._key)
 
     def __execute_remote_criteria(self):
         """ Execute remote criteria """
