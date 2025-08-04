@@ -52,3 +52,22 @@ def test_context_with_optionals():
 
     assert options.local == True
     assert options.snapshot_location == './snapshots'
+
+def test_load_from_snapshot():
+    """ Should load Domain from snapshot file """
+
+    Client.build_context(
+        domain='My Domain',
+        options=ContextOptions(
+            local=True,
+            snapshot_location='./snapshots'
+        )
+    )
+
+    # verify initial snapshot version
+    assert Client.snapshot_version() == 0
+
+    # test
+    version = Client.load_snapshot()
+    assert Client.snapshot_version() == 1
+    assert version == Client.snapshot_version()
