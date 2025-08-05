@@ -4,7 +4,7 @@ from switcher_client.lib.globals.global_snapshot import GlobalSnapshot
 from switcher_client.lib.remote_auth import RemoteAuth
 from switcher_client.lib.globals.global_context import Context, ContextOptions
 from switcher_client.lib.globals.global_context import DEFAULT_ENVIRONMENT
-from switcher_client.lib.snapshot import load_domain
+from switcher_client.lib.snapshot_loader import load_domain
 from switcher_client.lib.utils import get
 from switcher_client.switcher import Switcher
 
