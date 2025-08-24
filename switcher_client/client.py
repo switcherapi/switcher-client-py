@@ -1,10 +1,10 @@
 from typing import Optional
 
-from switcher_client.lib.globals.global_snapshot import GlobalSnapshot
+from switcher_client.lib.globals.global_snapshot import GlobalSnapshot, LoadSnapshotOptions
 from switcher_client.lib.remote_auth import RemoteAuth
 from switcher_client.lib.globals.global_context import Context, ContextOptions
 from switcher_client.lib.globals.global_context import DEFAULT_ENVIRONMENT
-from switcher_client.lib.snapshot_loader import load_domain
+from switcher_client.lib.snapshot_loader import load_domain, validate_snapshot
 from switcher_client.lib.utils import get
 from switcher_client.switcher import Switcher
 
@@ -62,15 +62,39 @@ class Client:
     
 
     @staticmethod
-    def load_snapshot() -> int:
+    def load_snapshot(options: Optional[LoadSnapshotOptions] = None) -> int:
         """ Load Domain from snapshot """
-        
+        snapshot_options = get(options, LoadSnapshotOptions())
+
         GlobalSnapshot.init(load_domain(
             get(Client.context.options.snapshot_location, ''),
             get(Client.context.environment, DEFAULT_ENVIRONMENT)
         ))
 
+        if Client._is_check_snapshot_available(snapshot_options.fetch_remote):
+            Client.check_snapshot()
+
         return Client.snapshot_version()
+    
+    @staticmethod
+    def check_snapshot():
+        """ Verifies if the current snapshot file is updated
+            Return true if an update has been made
+        """
+
+        if RemoteAuth.is_token_expired():
+            RemoteAuth.auth()
+
+        snapshot = validate_snapshot(
+            context=Client.context,
+            snapshot_version=Client.snapshot_version(),
+        )
+
+        if snapshot is not None:
+            GlobalSnapshot.init(snapshot)
+            return True
+        
+        return False
 
     @staticmethod
     def snapshot_version() -> int:
@@ -81,3 +105,7 @@ class Client:
             return 0
         
         return snapshot.data.domain.version
+    
+    @staticmethod
+    def _is_check_snapshot_available(fetch_remote = False) -> bool:
+        return Client.snapshot_version() == 0 and (fetch_remote or not Client.context.options.local)
