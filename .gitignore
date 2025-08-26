@@ -21,6 +21,7 @@ coverage.xml
 *,cover
 cover
 .pytest_cache
+.env
 
 # PyBuilder
 target/

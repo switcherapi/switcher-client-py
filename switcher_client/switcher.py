@@ -67,7 +67,4 @@ class Switcher(SwitcherData):
     def __execute_remote_criteria(self):
         """ Execute remote criteria """
         token = GlobalAuth.get_token()
-        GlobalAuth.get_exp()
-
-        response_criteria = Remote.check_criteria(token, self._context, self)
-        return response_criteria
+        return Remote.check_criteria(token, self._context, self)

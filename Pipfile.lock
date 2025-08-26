@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d0e7b44cbef4f6903ff6d8344b65d073b62bbddf3dc1efc1c346ad7eebeb5bba"
+            "sha256": "e448721c9d47614d23dde79507e3619cad88076113f423692c0420a34b165677"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -467,6 +467,10 @@
             "index": "pypi",
             "markers": "python_version >= '3.8'",
             "version": "==0.25.8"
+        },
+        "switcher-client": {
+            "editable": true,
+            "file": "."
         },
         "urllib3": {
             "hashes": [
