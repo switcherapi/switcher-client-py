@@ -38,7 +38,7 @@ https://github.com/switcherapi/switcher-api
 The context properties stores all information regarding connectivity.
 
 ```python
-from switcher.client import Client
+from switcher_client import Client
 
 Client.build_context(
     domain='My Domain',
@@ -61,7 +61,7 @@ switcher = Client.get_switcher()
 You can also activate features such as local and silent mode:
 
 ```python
-from switcher.client import Client
+from switcher_client import Client, ContextOptions
 
 Client.build_context(
     domain='My Domain',
@@ -69,27 +69,27 @@ Client.build_context(
     api_key='[API_KEY]',
     component='MyApp',
     environment='default',
-    options={
-        'local': True,
-        'logger': True,
-        'snapshotLocation': './snapshot/',
-        'snapshotAutoUpdateInterval': 3,
-        'silentMode': '5m',
-        'certPath': './certs/ca.pem'
-    })
+    options=ContextOptions(
+        local: True,
+        logger: True,
+        snapshot_location: './snapshot/',
+        snapshot_auto_update_interval: 3,
+        silent_mode: '5m',
+        cert_path: './certs/ca.pem'
+    ))
 
 switcher = Client.get_switcher()
 ```
 
 - **local**: If activated, the client will only fetch the configuration inside your snapshot file. The default value is 'false'
 - **logger**: If activated, it is possible to retrieve the last results from a given Switcher key using Client.getLogger('KEY')
-- **snapshotLocation**: Location of snapshot files. The default value is './snapshot/'
-- **snapshotAutoUpdateInterval**: Enable Snapshot Auto Update given an interval in seconds (default: 0 disabled).
-- **silentMode**: Enable contigency given the time for the client to retry - e.g. 5s (s: seconds - m: minutes - h: hours)
-- **regexSafe**: Enable REGEX Safe mode - Prevent agaist reDOS attack (default: true).
-- **regexMaxBlackList**: Number of entries cached when REGEX Strategy fails to perform (reDOS safe) - default: 50
-- **regexMaxTimeLimit**: Time limit (ms) used by REGEX workers (reDOS safe) - default - 3000ms
-- **certPath**: Path to the certificate file used to establish a secure connection with the API.
+- **snapshot_location**: Location of snapshot files. The default value is './snapshot/'
+- **snapshot_auto_update_interval**: Enable Snapshot Auto Update given an interval in seconds (default: 0 disabled).
+- **silent_mode**: Enable contigency given the time for the client to retry - e.g. 5s (s: seconds - m: minutes - h: hours)
+- **regex_safe**: Enable REGEX Safe mode - Prevent agaist reDOS attack (default: true).
+- **regex_max_black_list**: Number of entries cached when REGEX Strategy fails to perform (reDOS safe) - default: 50
+- **regex_max_time_limit**: Time limit (ms) used by REGEX workers (reDOS safe) - default - 3000ms
+- **cert_path**: Path to the certificate file used to establish a secure connection with the API.
 
 (*) regexSafe is a feature that prevents your application from being exposed to a reDOS attack. It is recommended to keep this feature enabled.<br>
 

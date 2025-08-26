@@ -13,3 +13,4 @@ urllib3 = ">=2.5.0"
 pytest = "==8.4.1"
 pytest-cov = "==6.2.1"
 responses = "==0.25.8"
+switcher-client = {file = ".", editable = true}

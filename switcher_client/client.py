@@ -71,7 +71,7 @@ class Client:
             get(Client.context.environment, DEFAULT_ENVIRONMENT)
         ))
 
-        if Client._is_check_snapshot_available(snapshot_options.fetch_remote):
+        if Client.__is_check_snapshot_available(snapshot_options.fetch_remote):
             Client.check_snapshot()
 
         return Client.snapshot_version()
@@ -107,5 +107,5 @@ class Client:
         return snapshot.data.domain.version
     
     @staticmethod
-    def _is_check_snapshot_available(fetch_remote = False) -> bool:
+    def __is_check_snapshot_available(fetch_remote = False) -> bool:
         return Client.snapshot_version() == 0 and (fetch_remote or not Client.context.options.local)
