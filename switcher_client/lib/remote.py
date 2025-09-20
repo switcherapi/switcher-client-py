@@ -1,5 +1,6 @@
 import json
-import requests
+import httpx
+
 from typing import Optional
 
 from switcher_client.errors import RemoteAuthError, RemoteError
@@ -10,11 +11,12 @@ from switcher_client.lib.utils import get
 from switcher_client.switcher_data import SwitcherData
 
 class Remote:
+    _client: Optional[httpx.Client] = None
 
     @staticmethod
     def auth(context: Context):
         url = f'{context.url}/criteria/auth'
-        response = Remote.do_post(url, {
+        response = Remote.__do_post(url, {
             'domain': context.domain,
             'component': context.component,
             'environment': context.environment,
@@ -29,12 +31,10 @@ class Remote:
         raise RemoteAuthError('Invalid API key')
     
     @staticmethod
-    def check_criteria(
-        token: Optional[str], context: Context, switcher: SwitcherData) -> ResultDetail:
-
+    def check_criteria(token: Optional[str], context: Context, switcher: SwitcherData) -> ResultDetail:
         url = f'{context.url}/criteria?showReason={str(switcher._show_details).lower()}&key={switcher._key}'
         entry = Remote.__get_entry(switcher._input)
-        response = Remote.do_post(url, entry, Remote.get_header(token))
+        response = Remote.__do_post(url, entry, Remote.__get_header(token))
         
         if response.status_code == 200:
             json_response = response.json()
@@ -49,7 +49,7 @@ class Remote:
     @staticmethod
     def check_snapshot_version(token: Optional[str], context: Context, snapshot_version: int) -> bool:
         url = f'{context.url}/criteria/snapshot_check/{snapshot_version}'
-        response = Remote.do_get(url, Remote.get_header(token))
+        response = Remote.__do_get(url, Remote.__get_header(token))
         
         if response.status_code == 200:
             return response.json().get('status', False)
@@ -79,23 +79,39 @@ class Remote:
             """
         }
 
-        response = Remote.do_post(f'{context.url}/graphql', data, Remote.get_header(token))
+        response = Remote.__do_post(f'{context.url}/graphql', data, Remote.__get_header(token))
 
         if response.status_code == 200:
             return json.dumps(response.json(), indent=4)
         
         raise RemoteError(f'[resolve_snapshot] failed with status: {response.status_code}')
     
-    @staticmethod
-    def do_post(url, data, headers) -> requests.Response:
-        return requests.post(url, json=data, headers=headers)
+    @classmethod
+    def __get_client(cls) -> httpx.Client:
+        if cls._client is None or cls._client.is_closed:
+            cls._client = httpx.Client(
+                timeout=30.0,
+                limits=httpx.Limits(
+                    max_keepalive_connections=20,
+                    max_connections=100,
+                    keepalive_expiry=30.0
+                ),
+                http2=True
+            )
+        return cls._client
 
     @staticmethod
-    def do_get(url, headers=None) -> requests.Response:
-        return requests.get(url, headers=headers)
+    def __do_post(url, data, headers) -> httpx.Response:
+        client = Remote.__get_client()
+        return client.post(url, json=data, headers=headers)
 
     @staticmethod
-    def get_header(token: Optional[str]):
+    def __do_get(url, headers=None) -> httpx.Response:
+        client = Remote.__get_client()
+        return client.get(url, headers=headers)
+
+    @staticmethod
+    def __get_header(token: Optional[str]):
         return {
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json',
