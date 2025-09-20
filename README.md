@@ -220,3 +220,20 @@ Client.schedule_snapshot_auto_update(3000, {
     'reject': lambda err: print(err)
 })
 ```
+
+# Contributing
+We welcome contributions to the Switcher Client SDK for Python! If you have suggestions, improvements, or bug fixes, please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Make your changes and commit them with clear messages.
+4. Submit a pull request detailing your changes and the problem they solve.
+
+Thank you for helping us improve the Switcher Client SDK!
+
+### Requirements
+- Python 3.9 or higher
+- Virtualenv - `pip install virtualenv`
+- Create a virtual environment - `python3 -m venv .venv`
+- Install Pipenv - `pip install pipenv`
+- Check Makefile for all available commands
