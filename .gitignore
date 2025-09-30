@@ -22,6 +22,7 @@ coverage.xml
 cover
 .pytest_cache
 .env
+tests/snapshots/temp/
 
 # PyBuilder
 target/
