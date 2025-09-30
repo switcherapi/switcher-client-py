@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Callable
 
 from switcher_client.lib.globals.global_snapshot import GlobalSnapshot, LoadSnapshotOptions
 from switcher_client.lib.remote_auth import RemoteAuth
@@ -7,6 +7,9 @@ from switcher_client.lib.globals.global_context import DEFAULT_ENVIRONMENT
 from switcher_client.lib.snapshot_loader import load_domain, validate_snapshot
 from switcher_client.lib.utils import get
 from switcher_client.switcher import Switcher
+
+class SwitcherOptions:
+    SNAPSHOT_AUTO_UPDATE_INTERVAL = 'snapshot_auto_update_interval'
 
 class Client:
     context: Context = Context.empty()
@@ -35,8 +38,22 @@ class Client:
         # Default values
         GlobalSnapshot.clear()
 
+        # Build Options
+        if options is not None:
+            Client.__build_options(options)
+
         # Initialize Auth
         RemoteAuth.init(Client.context)
+
+    @staticmethod
+    def __build_options(options: ContextOptions):
+        options_handler = {
+            SwitcherOptions.SNAPSHOT_AUTO_UPDATE_INTERVAL: lambda: Client.schedule_snapshot_auto_update()
+        }
+        
+        for option_key, handler in options_handler.items():
+            if hasattr(options, option_key) and getattr(options, option_key) is not None:
+                handler()
 
     @staticmethod
     def clear_context():
@@ -95,6 +112,17 @@ class Client:
             return True
         
         return False
+    
+    @staticmethod
+    def schedule_snapshot_auto_update(interval: Optional[int] = None, callback: Optional[Callable] = None):
+        """ Schedule Snapshot auto update """
+        callback = get(callback, lambda *_: None)
+
+        if interval is not None:
+            Client.context.options.snapshot_auto_update_interval = interval
+
+        if Client.__is_auto_update_snapshot_available():
+            callback(None, True)
 
     @staticmethod
     def snapshot_version() -> int:
@@ -109,3 +137,8 @@ class Client:
     @staticmethod
     def __is_check_snapshot_available(fetch_remote = False) -> bool:
         return Client.snapshot_version() == 0 and (fetch_remote or not Client.context.options.local)
+    
+    @staticmethod
+    def __is_auto_update_snapshot_available() -> bool:
+        return Client.context.options.snapshot_auto_update_interval is not None and \
+               Client.context.options.snapshot_auto_update_interval > 0

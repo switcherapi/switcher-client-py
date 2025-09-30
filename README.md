@@ -71,11 +71,11 @@ Client.build_context(
     environment='default',
     options=ContextOptions(
         local: True,
-        logger: True,
+        logger: True, # TODO
         snapshot_location: './snapshot/',
         snapshot_auto_update_interval: 3,
-        silent_mode: '5m',
-        cert_path: './certs/ca.pem'
+        silent_mode: '5m', # TODO
+        cert_path: './certs/ca.pem' # TODO
     ))
 
 switcher = Client.get_switcher()
@@ -126,7 +126,7 @@ All-in-one method is fast and include everything you need to execute a complex c
 switcher.check_value('User 1').check_network('192.168.0.1').is_on('FEATURE01')
 ```
 
-4. **Throttle**
+4. [TODO] **Throttle**
 Throttling is useful when placing Feature Flags at critical code blocks require zero-latency without having to switch to local.
 API calls will happen asynchronously and the result returned is based on the last API response.
 
@@ -140,7 +140,7 @@ In order to capture issues that may occur during the process, it is possible to 
 Client.subscribe_notify_error(lambda error: print(error))
 ```
 
-5. **Hybrid mode**
+5. [TODO] **Hybrid mode**
 Forcing Switchers to resolve remotely can help you define exclusive features that cannot be resolved locally.
 This feature is ideal if you want to run the SDK in local mode but still want to resolve a specific switcher remotely.
 
@@ -148,7 +148,7 @@ This feature is ideal if you want to run the SDK in local mode but still want to
 switcher.remote().is_on('FEATURE01')
 ```
 
-## Built-in mock feature
+## [TODO] Built-in mock feature
 You can also bypass your switcher configuration by invoking 'Client.assume'. This is perfect for your test code where you want to test both scenarios when the switcher is true and false.
 
 ```python
@@ -193,7 +193,7 @@ Auto load Snapshot from API passing true as second argument.
 Client.load_snapshot()
 ```
 
-## Watch for Snapshot file changes
+## [TODO] Watch for Snapshot file changes
 Activate and monitor snapshot changes using this feature. Optionally, you can implement any action based on the callback response.
 
 ```python
@@ -215,10 +215,10 @@ You can also schedule a snapshot update using the method below.<br>
 It allows you to run the Client SDK in local mode (zero latency) and still have the snapshot updated automatically.
 
 ```python
-Client.schedule_snapshot_auto_update(3000, {
-    'success': lambda updated: print('Snapshot updated', updated),
-    'reject': lambda err: print(err)
-})
+Client.schedule_snapshot_auto_update(
+    interval=60, 
+    callback=lambda error, updated: print('Snapshot updated' if not error else error)
+)
 ```
 
 # Contributing

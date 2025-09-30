@@ -76,6 +76,27 @@ def test_resolve_snapshot_error(httpx_mock):
 
     assert '[resolve_snapshot] failed with status: 500' in str(excinfo.value)
 
+def test_auto_update_snapshot():
+    """ WIP: Should auto-update snapshot every second """
+
+    # given
+    given_context(
+        snapshot_location='tests/snapshots', 
+        environment='default_load_1', 
+        snapshot_auto_update_interval=1
+    )
+    
+    callback_args = []
+
+    # test
+    Client.schedule_snapshot_auto_update(interval=1,
+        callback=lambda error, updated: callback_args.append((error, updated))
+    )
+
+    error, updated = callback_args[0]
+    assert error is None
+    assert updated
+
 # Helpers
 
 def given_auth(httpx_mock: HTTPXMock, status=200, token: Optional[str]='[token]', exp=int(round(time.time() * 1000))):
@@ -105,7 +126,8 @@ def given_resolve_snapshot(httpx_mock: HTTPXMock, status_code=200, data=[]):
 def given_context(url='https://api.switcherapi.com', 
                   api_key='[API_KEY]', 
                   environment=DEFAULT_ENVIRONMENT,
-                  snapshot_location=None):
+                  snapshot_location=None,
+                  snapshot_auto_update_interval=None):
     Client.build_context(
         url=url,
         api_key=api_key,
@@ -114,7 +136,8 @@ def given_context(url='https://api.switcherapi.com',
         environment=environment,
         options=ContextOptions(
             local=True,
-            snapshot_location=snapshot_location
+            snapshot_location=snapshot_location,
+            snapshot_auto_update_interval=snapshot_auto_update_interval
         )
     )
 
