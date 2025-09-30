@@ -5,7 +5,7 @@ class GlobalAuth:
     __exp = None
 
     @staticmethod
-    def init(url: Optional[str]):
+    def init():
         GlobalAuth.__token = None
         GlobalAuth.__exp = None
 

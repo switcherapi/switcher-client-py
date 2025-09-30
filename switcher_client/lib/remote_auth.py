@@ -10,7 +10,7 @@ class RemoteAuth:
     @staticmethod
     def init(context: Context):
         RemoteAuth.__context = context
-        GlobalAuth.init(context.url)
+        GlobalAuth.init()
 
     @staticmethod
     def auth():

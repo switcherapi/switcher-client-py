@@ -29,7 +29,7 @@ def test_load_from_snapshot_empty():
         environment='generated-clean',
         options=ContextOptions(
             local=True,
-            snapshot_location='./tests/snapshots'
+            snapshot_location='./tests/snapshots/temp'
         )
     )
 
