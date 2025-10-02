@@ -51,3 +51,11 @@ def validate_snapshot(
         return Snapshot(graphql_response.get('data', '{}'))
     
     return None
+
+def save_snapshot(snapshot: Snapshot, snapshot_location: str, environment: str):
+    """ Save snapshot to file """
+
+    os.makedirs(snapshot_location, exist_ok=True)
+    snapshot_file = f"{snapshot_location}/{environment}.json"
+    with open(snapshot_file, 'w') as file:
+        json.dump(snapshot.to_dict(), file, indent=4)

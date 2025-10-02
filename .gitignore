@@ -23,6 +23,7 @@ cover
 .pytest_cache
 .env
 tests/snapshots/temp/
+tests/playground/snapshots/temp
 
 # PyBuilder
 target/
