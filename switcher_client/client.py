@@ -5,7 +5,7 @@ from switcher_client.lib.remote_auth import RemoteAuth
 from switcher_client.lib.globals.global_context import Context, ContextOptions
 from switcher_client.lib.globals.global_context import DEFAULT_ENVIRONMENT
 from switcher_client.lib.snapshot_auto_updater import SnapshotAutoUpdater
-from switcher_client.lib.snapshot_loader import load_domain, validate_snapshot
+from switcher_client.lib.snapshot_loader import load_domain, validate_snapshot, save_snapshot
 from switcher_client.lib.utils import get
 from switcher_client.switcher import Switcher
 
@@ -109,13 +109,21 @@ class Client:
         )
 
         if snapshot is not None:
+            if Client.context.options.snapshot_location is not None:
+                save_snapshot(
+                    snapshot=snapshot, 
+                    snapshot_location=get(Client.context.options.snapshot_location, ''), 
+                    environment=get(Client.context.environment, DEFAULT_ENVIRONMENT)
+                )
+
             GlobalSnapshot.init(snapshot)
             return True
         
         return False
     
     @staticmethod
-    def schedule_snapshot_auto_update(interval: Optional[int] = None, callback: Optional[Callable] = None):
+    def schedule_snapshot_auto_update(interval: Optional[int] = None, 
+                                      callback: Optional[Callable[[Optional[Exception], bool], None]] = None):
         """ Schedule Snapshot auto update """
         callback = get(callback, lambda *_: None)
 

@@ -216,8 +216,10 @@ It allows you to run the Client SDK in local mode (zero latency) and still have 
 
 ```python
 Client.schedule_snapshot_auto_update(
-    interval=60, 
-    callback=lambda error, updated: print('Snapshot updated' if not error else error)
+    interval=60,
+    callback=lambda error, updated: (
+        print(f"Snapshot updated to version: {Client.snapshot_version()}") if updated else None
+    )
 )
 ```
 

@@ -45,6 +45,7 @@ class Relay:
 class Snapshot:
     def __init__(self, json_data: dict):
         data = json_data
+        self._original_data = json_data
         self.data = SnapshotData()
         self.data.domain = self._parse_domain(data.get('domain', {}))
 
@@ -113,3 +114,8 @@ class Snapshot:
         relay.activated = relay_data.get('activated')
         
         return relay
+
+    def to_dict(self) -> dict:
+        """ Convert Snapshot back to dictionary format for JSON serialization """
+        
+        return {'data': self._original_data}
