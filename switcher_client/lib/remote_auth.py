@@ -30,3 +30,17 @@ class RemoteAuth:
             return True
         
         return float(exp) < time()
+    
+    @staticmethod
+    def is_valid():
+        required_fields = [
+            ('url', RemoteAuth.__context.url),
+            ('component', RemoteAuth.__context.component),
+            ('api_key', RemoteAuth.__context.api_key),
+        ]
+
+        errors = [name for name, value in required_fields if not value]
+        if errors:
+            raise ValueError(f"Something went wrong: Missing or empty required fields ({', '.join(errors)})")
+
+        

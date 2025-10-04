@@ -57,25 +57,8 @@ class Client:
                 handler()
 
     @staticmethod
-    def clear_context():
-        Client.context = Context.empty()
-
-    @staticmethod
-    def verify_context():
-        required_fields = [
-            Client.context.domain,
-            Client.context.url,
-            Client.context.api_key,
-            Client.context.component
-        ]
-
-        if any(field is None or field == '' for field in required_fields):
-            raise ValueError('Context is not set')
-
-    @staticmethod
     def get_switcher(key: Optional[str] = None) -> Switcher:
         """ Get a switcher by key """
-        Client.verify_context()
         return Switcher(Client.context, key)
     
 

@@ -1,41 +1,10 @@
 import pytest
+import time
+
+from typing import Optional
+from pytest_httpx import HTTPXMock
 
 from switcher_client import Client, ContextOptions
-
-def test_context():
-    """ Should build and verify context """
-
-    Client.build_context(
-        domain='My Domain',
-        url='https://api.switcherapi.com',
-        api_key='[API_KEY]',
-        component='MyApp'
-    )
-
-    try:
-        Client.verify_context()
-
-        assert Client.context.domain == 'My Domain'
-        assert Client.context.url == 'https://api.switcherapi.com'
-        assert Client.context.api_key == '[API_KEY]'
-        assert Client.context.component == 'MyApp'
-    except ValueError as e:
-        pytest.fail(f'Context verification failed: {e}')
-
-def test_clear_context():
-    """ Should clear context """
-
-    Client.build_context(
-        domain='My Domain',
-        url='https://api.switcherapi.com',
-        api_key='[API_KEY]',
-        component='MyApp'
-    )
-
-    Client.clear_context()
-
-    with pytest.raises(ValueError):
-        Client.verify_context()
 
 def test_context_with_optionals():
     """ Should build context with optional parameters - local and snapshot_location """
@@ -52,3 +21,26 @@ def test_context_with_optionals():
 
     assert options.local == True
     assert options.snapshot_location == './tests/snapshots'
+
+def test_context_remote_validation():
+    """ Should raise error when missing required fields for remote """
+    
+    Client.build_context(
+        domain='My Domain'
+    )
+
+    # test
+    with pytest.raises(ValueError) as excinfo:
+        Client.get_switcher().validate() # used by is_on()
+    
+    assert 'Missing or empty required fields (url, component, api_key)' in str(excinfo.value)
+
+# Helpers
+
+def given_auth(httpx_mock: HTTPXMock, status=200, token: Optional[str]='[token]', exp=int(round(time.time() * 1000))):
+    httpx_mock.add_response(
+        url='https://api.switcherapi.com/criteria/auth',
+        method='POST',
+        status_code=status,
+        json={'token': token, 'exp': exp}
+    )

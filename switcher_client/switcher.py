@@ -30,15 +30,17 @@ class Switcher(SwitcherData):
     
     def __submit(self) -> ResultDetail:
         """ Submit criteria for execution (local or remote) """
-        self.__validate()
+        self.validate()
         response = self.__execute_remote_criteria()
 
         return response
     
-    def __validate(self) -> 'Switcher':
+    def validate(self) -> 'Switcher':
         """ Validates client settings for remote API calls """
         errors = []
 
+        RemoteAuth.is_valid()
+        
         if not self._key:
             errors.append('Missing key field')
 
