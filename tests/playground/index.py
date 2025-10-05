@@ -37,7 +37,7 @@ def load_snapshot_from_remote():
 
     setup_context(ContextOptions(
         local=True,
-        snapshot_location='snapshots/temp'
+        snapshot_location='tests/playground/snapshots/temp'
     ))
 
     Client.load_snapshot(LoadSnapshotOptions(
@@ -50,7 +50,7 @@ def auto_update_snapshot():
     """ Use case: Auto update snapshot """
     setup_context(ContextOptions(
         local=True,
-        snapshot_location='snapshots/temp',
+        snapshot_location='tests/playground/snapshots/temp',
         snapshot_auto_update_interval=10
     ))
 

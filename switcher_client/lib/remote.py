@@ -82,7 +82,7 @@ class Remote:
         response = Remote.__do_post(f'{context.url}/graphql', data, Remote.__get_header(token))
 
         if response.status_code == 200:
-            return json.dumps(response.json(), indent=4)
+            return json.dumps(response.json().get('data', {}), indent=4)
         
         raise RemoteError(f'[resolve_snapshot] failed with status: {response.status_code}')
     

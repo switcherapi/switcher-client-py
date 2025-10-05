@@ -14,10 +14,8 @@ def load_domain(snapshot_location: str, environment: str):
 
     if not os.path.exists(snapshot_file):
         json_data = {
-            'data': {
-                'domain': {
-                    'version': 0,
-                }
+            'domain': {
+                'version': 0,
             }
         }
 
@@ -30,7 +28,7 @@ def load_domain(snapshot_location: str, environment: str):
         with open(snapshot_file, 'r') as file:
             json_data = json.load(file)
 
-    snapshot = Snapshot(json_data.get('data', {}))
+    snapshot = Snapshot(json_data.get('domain', {}))
 
     return snapshot
 
@@ -48,7 +46,7 @@ def validate_snapshot(
     if not status:
         snapshot_str = Remote.resolve_snapshot(GlobalAuth.get_token(), context)
         graphql_response = json.loads(snapshot_str or '{}')
-        return Snapshot(graphql_response.get('data', '{}'))
+        return Snapshot(graphql_response.get('domain', '{}'))
     
     return None
 

@@ -134,7 +134,7 @@ class Client:
         if snapshot is None:
             return 0
         
-        return snapshot.data.domain.version
+        return snapshot.domain.version
     
     @staticmethod
     def __is_check_snapshot_available(fetch_remote = False) -> bool:

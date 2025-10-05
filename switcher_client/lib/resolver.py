@@ -1,5 +1,5 @@
 from switcher_client.errors import LocalCriteriaError
-from switcher_client.lib.types import Config, Group, ResultDetail, Snapshot, SnapshotData
+from switcher_client.lib.types import Config, Domain, Group, ResultDetail, Snapshot
 from switcher_client.switcher_data import SwitcherData
 
 class Resolver:
@@ -9,14 +9,14 @@ class Resolver:
         if not snapshot:
             raise LocalCriteriaError("Snapshot not loaded. Try to use 'Client.load_snapshot()'")
 
-        return Resolver.__check_domain(snapshot.data, switcher)
+        return Resolver.__check_domain(snapshot.domain, switcher)
     
     @staticmethod
-    def __check_domain(data: SnapshotData, switcher: SwitcherData) -> ResultDetail:
-        if data.domain.activated is False:
+    def __check_domain(domain: Domain, switcher: SwitcherData) -> ResultDetail:
+        if domain.activated is False:
             return ResultDetail.disabled("Domain is disabled")
 
-        return Resolver.__check_group(data.domain.group, switcher)
+        return Resolver.__check_group(domain.group, switcher)
     
     @staticmethod
     def __check_group(groups: list[Group], switcher: SwitcherData) -> ResultDetail:

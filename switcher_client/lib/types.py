@@ -14,10 +14,6 @@ class ResultDetail:
     def success(reason: str = "Success", metadata: Optional[dict] = None) -> 'ResultDetail':
         return ResultDetail(result=True, reason=reason, metadata=metadata)
 
-class SnapshotData:
-    def __init__(self):
-        self.domain: Domain
-
 class Domain:
     def __init__(self):
         self.name: str
@@ -52,10 +48,8 @@ class Relay:
 
 class Snapshot:
     def __init__(self, json_data: dict):
-        data = json_data
         self._original_data = json_data
-        self.data = SnapshotData()
-        self.data.domain = self._parse_domain(data.get('domain', {}))
+        self.domain = self._parse_domain(json_data)
 
     def _parse_domain(self, domain_data: dict) -> Domain:
         """ Parse domain data from JSON """
@@ -126,4 +120,4 @@ class Snapshot:
     def to_dict(self) -> dict:
         """ Convert Snapshot back to dictionary format for JSON serialization """
         
-        return {'data': self._original_data}
+        return {'domain': self._original_data}
