@@ -1,10 +1,18 @@
-from typing import Optional, List
+from typing import Optional
 
 class ResultDetail:
-    def __init__(self, result: bool, reason: str, metadata: dict):
+    def __init__(self, result: bool, reason: Optional[str], metadata: Optional[dict] = None):
         self.result = result
         self.reason = reason
         self.metadata = metadata
+
+    @staticmethod
+    def disabled(reason: str, metadata: Optional[dict] = None) -> 'ResultDetail':
+        return ResultDetail(result=False, reason=reason, metadata=metadata)
+
+    @staticmethod
+    def success(reason: str = "Success", metadata: Optional[dict] = None) -> 'ResultDetail':
+        return ResultDetail(result=True, reason=reason, metadata=metadata)
 
 class SnapshotData:
     def __init__(self):
@@ -12,35 +20,35 @@ class SnapshotData:
 
 class Domain:
     def __init__(self):
-        self.name: Optional[str] = None
+        self.name: str
         self.version: int = 0
-        self.activated: Optional[bool] = None
-        self.group: Optional[List[Group]] = None
+        self.activated: bool
+        self.group: list[Group]
 
 class Group:
     def __init__(self):
-        self.name: Optional[str] = None
-        self.activated: Optional[bool] = None
-        self.config: Optional[List[Config]] = None
+        self.name: str
+        self.activated: bool
+        self.config: list[Config]
 
 class Config:
     def __init__(self):
-        self.key: Optional[str] = None
-        self.activated: Optional[bool] = None
-        self.strategies: Optional[List[StrategyConfig]] = None
+        self.key: str
+        self.activated: bool
+        self.strategies: Optional[list[StrategyConfig]] = None
         self.relay: Optional[Relay] = None
 
 class StrategyConfig:
     def __init__(self):
-        self.strategy: Optional[str] = None
-        self.activated: Optional[bool] = None
-        self.operation: Optional[str] = None
-        self.values: Optional[List[str]] = None
+        self.strategy: str
+        self.activated: bool
+        self.operation: str
+        self.values: list[str]
 
 class Relay:
     def __init__(self):
-        self.type: Optional[str] = None
-        self.activated: Optional[bool] = None
+        self.type: str
+        self.activated: bool
 
 class Snapshot:
     def __init__(self, json_data: dict):
@@ -53,8 +61,8 @@ class Snapshot:
         """ Parse domain data from JSON """
 
         domain = Domain()
-        domain.name = domain_data.get('name')
-        domain.activated = domain_data.get('activated')
+        domain.name = domain_data.get('name', '')
+        domain.activated = domain_data.get('activated', False)
         domain.version = domain_data.get('version', 0)
         
         if 'group' in domain_data and domain_data['group']:
@@ -68,9 +76,9 @@ class Snapshot:
         """ Parse group data from JSON """
 
         group = Group()
-        group.name = group_data.get('name')
-        group.activated = group_data.get('activated')
-        
+        group.name = group_data.get('name', '')
+        group.activated = group_data.get('activated', False)
+
         if 'config' in group_data and group_data['config']:
             group.config = []
             for config_data in group_data['config']:
@@ -82,9 +90,9 @@ class Snapshot:
         """ Parse config data from JSON """
 
         config = Config()
-        config.key = config_data.get('key')
-        config.activated = config_data.get('activated')
-        
+        config.key = config_data.get('key', '')
+        config.activated = config_data.get('activated', False)
+
         if 'strategies' in config_data and config_data['strategies']:
             config.strategies = []
             for strategy_data in config_data['strategies']:
@@ -99,10 +107,10 @@ class Snapshot:
         """ Parse strategy data from JSON """
 
         strategy = StrategyConfig()
-        strategy.strategy = strategy_data.get('strategy')
-        strategy.activated = strategy_data.get('activated')
-        strategy.operation = strategy_data.get('operation')
-        strategy.values = strategy_data.get('values')
+        strategy.strategy = strategy_data.get('strategy', '')
+        strategy.activated = strategy_data.get('activated', False)
+        strategy.operation = strategy_data.get('operation', '')
+        strategy.values = strategy_data.get('values', [])
         
         return strategy
 
@@ -110,9 +118,9 @@ class Snapshot:
         """ Parse relay data from JSON """
 
         relay = Relay()
-        relay.type = relay_data.get('type')
-        relay.activated = relay_data.get('activated')
-        
+        relay.type = relay_data.get('type', '')
+        relay.activated = relay_data.get('activated', False)
+
         return relay
 
     def to_dict(self) -> dict:

@@ -1,9 +1,11 @@
 from typing import Optional
 
 from switcher_client.lib.globals.global_context import Context
+from switcher_client.lib.globals.global_snapshot import GlobalSnapshot
 from switcher_client.lib.remote_auth import RemoteAuth
 from switcher_client.lib.globals import GlobalAuth
 from switcher_client.lib.remote import Remote
+from switcher_client.lib.resolver import Resolver
 from switcher_client.lib.types import ResultDetail
 from switcher_client.switcher_data import SwitcherData
 
@@ -11,6 +13,7 @@ class Switcher(SwitcherData):
     def __init__(self, context: Context, key: Optional[str] = None):
         super().__init__(key) 
         self._context = context
+        self.__validate_args(key)
 
     def prepare(self, key: Optional[str] = None):
         """ Checks API credentials and connectivity """
@@ -30,6 +33,9 @@ class Switcher(SwitcherData):
     
     def __submit(self) -> ResultDetail:
         """ Submit criteria for execution (local or remote) """
+        if (self._context.options.local):
+            return self.__execute_local_criteria()
+
         self.validate()
         response = self.__execute_remote_criteria()
 
@@ -70,3 +76,7 @@ class Switcher(SwitcherData):
         """ Execute remote criteria """
         token = GlobalAuth.get_token()
         return Remote.check_criteria(token, self._context, self)
+    
+    def __execute_local_criteria(self):
+        """ Execute local criteria """
+        return Resolver.check_criteria(GlobalSnapshot.snapshot(), self)
