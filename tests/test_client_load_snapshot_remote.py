@@ -205,7 +205,7 @@ def given_resolve_snapshot(httpx_mock: HTTPXMock, status_code=200, data=[], is_r
         url='https://api.switcherapi.com/graphql',
         method='POST',
         status_code=status_code,
-        json={'data': data},
+        json={'data': { 'domain': data}},
         is_reusable=is_reusable
     )
 
@@ -229,7 +229,7 @@ def given_context(url='https://api.switcherapi.com',
 
 def load_snapshot_fixture(file_path: str):
     with open(file_path, 'r') as f:
-        return json.loads(f.read()).get('data', {})
+        return json.loads(f.read()).get('domain', {})
     
 def delete_snapshot_file(snapshot_location: str, environment: str):
     snapshot_file = f"{snapshot_location}/{environment}.json"
