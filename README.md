@@ -19,46 +19,104 @@ A Python SDK for Switcher API
 
 ![Switcher API: Python Client: Cloud-based Feature Flag API](https://github.com/switcherapi/switcherapi-assets/blob/master/logo/switcherapi_python_client.png)
 
-# About  
-Python SDK for working with Switcher-API.
-https://github.com/switcherapi/switcher-api
+</div>
 
-- Flexible and robust functions that will keep your code clean and maintainable.
-- Able to work locally using a snapshot file downloaded from your remote Switcher-API Domain.
-- Silent mode is a hybrid configuration that automatically enables a contingent sub-process in case of any connectivity issue.
-- Built-in mock implementation for clear and easy implementation of automated testing.
-- Easy to setup. Switcher Context is responsible to manage all the complexity between your application and API.
+---
 
-# Usage
+## Table of Contents
 
-## Install  
-`pip install switcher-client`
+- [🚀 Quick Start](#🚀-quick-start)
+- [📦 Installation](#📦-installation)
+- [🔧 Configuration](#🔧-configuration)
+- [📖 Usage Examples](#📖-usage-examples)
+- [🎛️ Advanced Features](#🎛️-advanced-features)
+- [🔄 Snapshot Management](#🔄-snapshot-management)
+- [🧪 Testing & Development](#🧪-testing--development)
+- [🤝 Contributing](#🤝-contributing)
 
-## Module initialization
-The context properties stores all information regarding connectivity.
+---
+
+## 🌟 About
+
+The **Switcher Client SDK for Python** provides seamless integration with [Switcher-API](https://github.com/switcherapi/switcher-api), enabling powerful feature flag management in your Python applications.
+
+### ✨ Key Features
+
+- 🎯 **Clean & Maintainable**: Flexible and robust functions that keep your code organized
+- 🏠 **Local Mode**: Work offline using snapshot files from your Switcher-API Domain
+- 🔄 **Silent Mode**: Hybrid configuration with automatic fallback for connectivity issues
+- 🧪 **Built-in Mocking**: Easy implementation of automated testing with mock support
+- ⚡ **Zero Latency**: Local snapshot execution for high-performance scenarios
+- 🛡️ **Secure**: Built-in protection against ReDoS attacks with regex safety features
+- 📊 **Monitoring**: Comprehensive logging and error handling capabilities
+
+## 🚀 Quick Start
+
+Get up and running in just a few lines of code:
+
+```python
+from switcher_client import Client
+
+# Initialize the client
+Client.build_context(
+    domain='My Domain',
+    url='https://api.switcherapi.com',
+    api_key='[YOUR_API_KEY]',
+    component='MyApp',
+    environment='default'
+)
+
+# Use feature flags
+switcher = Client.get_switcher()
+if switcher.is_on('FEATURE_TOGGLE'):
+    print("Feature is enabled!")
+```
+
+## 📦 Installation
+
+Install the Switcher Client SDK using pip:
+
+```bash
+pip install switcher-client
+```
+
+### System Requirements
+- **Python**: 3.9+ (supports 3.9, 3.10, 3.11, 3.12, 3.13)
+- **Operating System**: Cross-platform (Windows, macOS, Linux)
+
+## 🔧 Configuration
+
+### Basic Setup
+
+Initialize the Switcher Client with your domain configuration:
 
 ```python
 from switcher_client import Client
 
 Client.build_context(
-    domain='My Domain',
-    url='https://api.switcherapi.com',
-    api_key='[API_KEY]',
-    component='MyApp',
-    environment='default'
+    domain='My Domain',                 # Your Switcher domain name
+    url='https://api.switcherapi.com',  # Switcher-API endpoint (optional)
+    api_key='[YOUR_API_KEY]',           # Your component's API key (optional)
+    component='MyApp',                  # Your application name (optional)
+    environment='default'               # Environment ('default' for production)
 )
 
 switcher = Client.get_switcher()
 ```
 
-- **domain**: Domain name.
-- **url**: (optional) Swither-API endpoint.
-- **api_key**: (optional) Switcher-API key generated to your component.
-- **component**: (optional) Application name.
-- **environment**: (optional) Environment name. Production environment is named as 'default'.
+#### Configuration Parameters
 
-## Options
-You can also activate features such as local and silent mode:
+| Parameter | Required | Description | Default |
+|-----------|----------|-------------|---------|
+| `domain` | ✅ | Your Switcher domain name | - |
+| `url` |  | Switcher-API endpoint | `https://api.switcherapi.com` |
+| `api_key` |  | API key for your component | - |
+| `component` |  | Your application identifier | - |
+| `environment` |  | Target environment | `default` |
+
+### Advanced Configuration
+
+Enable additional features like local mode, silent mode, and security options:
 
 ```python
 from switcher_client import Client, ContextOptions
@@ -66,153 +124,151 @@ from switcher_client import Client, ContextOptions
 Client.build_context(
     domain='My Domain',
     url='https://api.switcherapi.com',
-    api_key='[API_KEY]',
+    api_key='[YOUR_API_KEY]',
     component='MyApp',
     environment='default',
     options=ContextOptions(
-        local: True,
-        logger: True, # TODO
-        snapshot_location: './snapshot/',
-        snapshot_auto_update_interval: 3,
-        silent_mode: '5m', # TODO
-        cert_path: './certs/ca.pem' # TODO
-    ))
+        local=True,                              # Enable local mode
+        logger=True,                             # 🚧 TODO: Enable logging
+        snapshot_location='./snapshot/',         # Snapshot files location
+        snapshot_auto_update_interval=3,         # Auto-update interval (seconds)
+        silent_mode='5m',                        # 🚧 TODO: Silent mode retry time
+        cert_path='./certs/ca.pem'               # 🚧 TODO: Certificate path
+    )
+)
 
 switcher = Client.get_switcher()
 ```
 
-- **local**: If activated, the client will only fetch the configuration inside your snapshot file. The default value is 'false'
-- **logger**: If activated, it is possible to retrieve the last results from a given Switcher key using Client.getLogger('KEY')
-- **snapshot_location**: Location of snapshot files. The default value is './snapshot/'
-- **snapshot_auto_update_interval**: Enable Snapshot Auto Update given an interval in seconds (default: 0 disabled).
-- **silent_mode**: Enable contigency given the time for the client to retry - e.g. 5s (s: seconds - m: minutes - h: hours)
-- **regex_safe**: Enable REGEX Safe mode - Prevent agaist reDOS attack (default: true).
-- **regex_max_black_list**: Number of entries cached when REGEX Strategy fails to perform (reDOS safe) - default: 50
-- **regex_max_time_limit**: Time limit (ms) used by REGEX workers (reDOS safe) - default - 3000ms
-- **cert_path**: Path to the certificate file used to establish a secure connection with the API.
+#### Advanced Options Reference
 
-(*) regexSafe is a feature that prevents your application from being exposed to a reDOS attack. It is recommended to keep this feature enabled.<br>
+| Option | Type | Description | Default |
+|--------|------|-------------|---------|
+| `local` | `bool` | Use local snapshot files only (zero latency) | `False` |
+| `snapshot_location` | `str` | Directory for snapshot files | `'./snapshot/'` |
+| `snapshot_auto_update_interval` | `int` | Auto-update interval in seconds (0 = disabled) | `0` |
+| `regex_safe` | `bool` | Enable ReDoS attack protection | `True` |
+| `regex_max_black_list` | `int` | Max cached entries for failed regex | `50` |
+| `regex_max_time_limit` | `int` | Regex execution time limit (ms) | `3000` |
 
-## Executing
-There are a few different ways to call the API using the JavaScript module.
-Here are some examples:
+#### 🔒 Security Features
 
-1. **No parameters**
-Invoking the API can be done by instantiating the switcher and calling *is_on* passing its key as a parameter.
+- **ReDoS Protection**: The `regex_safe` feature prevents Regular Expression Denial of Service attacks
+- **Certificate Support**: Use custom certificates for secure API connections  
+- **Time Limits**: Configurable timeouts prevent long-running regex operations
 
+> ⚠️ **Security Note**: Keep `regex_safe` enabled to protect against ReDoS attacks
+
+## 📖 Usage Examples
+
+### Basic Feature Flag Checking
+
+The simplest way to check if a feature is enabled:
 
 ```python
 switcher = Client.get_switcher()
-switcher.is_on('FEATURE01')
-# or
-response = switcher.is_on_with_details('FEATURE01')
-print(response.result)  # True or False
-print(response.reason)  # Reason for the result
-print(response.metadata)  # Additional metadata if available
+
+# Simple boolean check
+if switcher.is_on('FEATURE_LOGIN_V2'):
+    # Use new login system
+    new_login()
+else:
+    # Use legacy login
+    legacy_login()
 ```
 
-2. **Strategy validation - preparing input**
-Loading information into the switcher can be made by using *prepare*, in case you want to include input from a different place of your code. Otherwise, it is also possible to include everything in the same call.
+### Detailed Response Information
+
+Get comprehensive information about the feature flag evaluation:
 
 ```python
-switcher.check_value('USER_1').prepare('FEATURE01')
-switcher.is_on()
+response = switcher.is_on_with_details('FEATURE_LOGIN_V2')
+
+print(f"Feature enabled: {response.result}")     # True or False
+print(f"Reason: {response.reason}")              # Evaluation reason
+print(f"Metadata: {response.metadata}")          # Additional context
 ```
 
-3. **Strategy validation - all-in-one execution**
-All-in-one method is fast and include everything you need to execute a complex call to the API.
+### Strategy-Based Feature Flags
+
+#### Method 1: Prepare and Execute
+
+Load validation data separately, useful for complex applications:
 
 ```python
-switcher.check_value('User 1').check_network('192.168.0.1').is_on('FEATURE01')
+# Prepare the validation context
+switcher.check_value('USER_123').prepare('USER_FEATURE')
+
+# Execute when ready
+if switcher.is_on():
+    enable_user_feature()
 ```
 
-4. [TODO] **Throttle**
-Throttling is useful when placing Feature Flags at critical code blocks require zero-latency without having to switch to local.
-API calls will happen asynchronously and the result returned is based on the last API response.
+#### Method 2: All-in-One Execution
+
+Chain multiple validation strategies for comprehensive feature control:
 
 ```python
+# Validate user, network, and other criteria in one call
+is_enabled = switcher.check_value('premium_user') \
+                    .check_network('192.168.1.0/24') \
+                    .is_on('PREMIUM_FEATURES')
+
+if is_enabled:
+    show_premium_dashboard()
+```
+
+### Error Handling
+
+Subscribe to error notifications for robust error management:
+
+```python
+# Set up error handling
+Client.subscribe_notify_error(lambda error: print(f"Switcher Error: {error}"))
+```
+
+## 🎛️ Advanced Features
+
+### 🚧 Planned Features
+
+The following features are currently in development:
+
+#### Throttling (Coming Soon)
+```python
+# 🚧 TODO: Zero-latency async execution
 switcher.throttle(1000).is_on('FEATURE01')
 ```
 
-In order to capture issues that may occur during the process, it is possible to log the error by subscribing to the error events.
-
+#### Hybrid Mode (Coming Soon)  
 ```python
-Client.subscribe_notify_error(lambda error: print(error))
-```
-
-5. [TODO] **Hybrid mode**
-Forcing Switchers to resolve remotely can help you define exclusive features that cannot be resolved locally.
-This feature is ideal if you want to run the SDK in local mode but still want to resolve a specific switcher remotely.
-
-```python
+# 🚧 TODO: Force remote resolution for specific features
 switcher.remote().is_on('FEATURE01')
 ```
 
-## [TODO] Built-in mock feature
-You can also bypass your switcher configuration by invoking 'Client.assume'. This is perfect for your test code where you want to test both scenarios when the switcher is true and false.
+## 🔄 Snapshot Management
+
+### Loading Snapshots
+
+Load configuration snapshots from the API for local/offline usage:
 
 ```python
-Client.assume('FEATURE01').true()
-switcher.is_on('FEATURE01') # True
-
-Client.forget('FEATURE01')
-switcher.is_on('FEATURE01') # Now, it's going to return the result retrieved from the API or the Snaopshot file
-
-Client.assume('FEATURE01').false().with_metadata({ 'message': 'Feature is disabled' }) # Include metadata to emulate Relay response
-response = switcher.is_on_with_details('FEATURE01') # False
-print(response.metadata['message']) # Feature is disabled
-```
-
-**Enabling Test Mode**
-You may want to enable this feature while using Switcher Client with automated testing.
-It prevents the Switcher Client from locking snapshot files even after the test execution.
-
-To enable this feature, it is recommended to place the following on your test setup files:
-
-```python
-Client.enable_test_mode()
-```
-
-**Smoke Test**
-Validate Switcher Keys on your testing pipelines before deploying a change.
-Switcher Keys may not be configured correctly and can cause your code to have undesired results.
-
-This feature will validate using the context provided to check if everything is up and running.
-In case something is missing, this operation will throw an exception pointing out which Switcher Keys are not configured.
-
-```python
-Client.check_switchers(['FEATURE01', 'FEATURE02'])
-```
-
-## Loading Snapshot from the API
-This step is optional if you want to load a copy of the configuration that can be used to eliminate latency when local mode is activated.<br>
-Activate watchSnapshot optionally passing true in the arguments.<br>
-Auto load Snapshot from API passing true as second argument.
-
-```python
+# Download and save snapshot from API
 Client.load_snapshot()
 ```
 
-## [TODO] Watch for Snapshot file changes
-Activate and monitor snapshot changes using this feature. Optionally, you can implement any action based on the callback response.
+### Version Management
+
+Check your current snapshot version:
 
 ```python
-Client.watch_snapshot({
-    'success': lambda: print('In-memory snapshot updated'),
-    'reject': lambda err: print(err)
-})
+# Verify snapshot version
+version_info = Client.check_snapshot()
+print(f"Current snapshot version: {Client.snapshot_version()}")
 ```
 
-## Snapshot version check
-For convenience, an implementation of a domain version checker is available if you have external processes that manage snapshot files.
+### Automated Updates
 
-```python
-Client.check_snapshot()
-```
-
-## Snapshot Update Scheduler
-You can also schedule a snapshot update using the method below.<br>
-It allows you to run the Client SDK in local mode (zero latency) and still have the snapshot updated automatically.
+Schedule automatic snapshot updates for zero-latency local mode:
 
 ```python
 Client.schedule_snapshot_auto_update(
@@ -223,7 +279,63 @@ Client.schedule_snapshot_auto_update(
 )
 ```
 
-# Contributing
+### 🚧 Snapshot Monitoring (Coming Soon)
+
+```python
+# 🚧 TODO: Watch for snapshot file changes
+Client.watch_snapshot({
+    'success': lambda: print('In-memory snapshot updated'),
+    'reject': lambda err: print(f'Update failed: {err}')
+})
+```
+
+## 🧪 Testing & Development
+
+### Built-in Mocking (Coming Soon)
+
+> 🚧 **Note**: The mocking features are currently under development
+
+The SDK will include powerful mocking capabilities for testing:
+
+```python
+# 🚧 TODO: Mock feature states for testing
+Client.assume('FEATURE01').true()
+assert switcher.is_on('FEATURE01') == True
+
+Client.forget('FEATURE01')  # Reset to normal behavior
+
+# 🚧 TODO: Mock with metadata
+Client.assume('FEATURE01').false().with_metadata({
+    'message': 'Feature is disabled'
+})
+response = switcher.is_on_with_details('FEATURE01')
+assert response.result == False
+assert response.metadata['message'] == 'Feature is disabled'
+```
+
+### Test Mode Configuration
+
+```python
+# 🚧 TODO: Enable test mode to prevent file locking
+Client.enable_test_mode()
+```
+
+### Configuration Validation
+
+Validate your feature flag configuration before deployment:
+
+```python
+# Verify that all required switchers are configured
+try:
+    Client.check_switchers(['FEATURE_LOGIN', 'FEATURE_DASHBOARD', 'FEATURE_PAYMENTS'])
+    print("✅ All switchers are properly configured")
+except Exception as e:
+    print(f"❌ Configuration error: {e}")
+```
+
+This validation helps prevent deployment issues by ensuring all required feature flags are properly set up in your Switcher domain.
+
+## 🤝 Contributing
 We welcome contributions to the Switcher Client SDK for Python! If you have suggestions, improvements, or bug fixes, please follow these steps:
 
 1. Fork the repository.
