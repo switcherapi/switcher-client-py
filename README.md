@@ -129,7 +129,7 @@ Client.build_context(
     environment='default',
     options=ContextOptions(
         local=True,                              # Enable local mode
-        logger=True,                             # 🚧 TODO: Enable logging
+        logger=True,                             # Enable logging
         snapshot_location='./snapshot/',         # Snapshot files location
         snapshot_auto_update_interval=3,         # Auto-update interval (seconds)
         silent_mode='5m',                        # 🚧 TODO: Silent mode retry time
