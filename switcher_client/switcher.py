@@ -7,6 +7,7 @@ from switcher_client.lib.globals import GlobalAuth
 from switcher_client.lib.remote import Remote
 from switcher_client.lib.resolver import Resolver
 from switcher_client.lib.types import ResultDetail
+from switcher_client.lib.utils.execution_logger import ExecutionLogger
 from switcher_client.switcher_data import SwitcherData
 
 class Switcher(SwitcherData):
@@ -75,8 +76,17 @@ class Switcher(SwitcherData):
     def __execute_remote_criteria(self):
         """ Execute remote criteria """
         token = GlobalAuth.get_token()
-        return Remote.check_criteria(token, self._context, self)
+        response = Remote.check_criteria(token, self._context, self)
+
+        if self.__can_log():
+            ExecutionLogger.add(response, self._key, self._input)
+
+        return response
     
     def __execute_local_criteria(self):
         """ Execute local criteria """
         return Resolver.check_criteria(GlobalSnapshot.snapshot(), self)
+    
+    def __can_log(self) -> bool:
+        """ Check if logging is enabled """
+        return self._context.options.logger and self._key is not None
