@@ -6,6 +6,7 @@ from switcher_client.lib.globals.global_context import Context, ContextOptions
 from switcher_client.lib.globals.global_context import DEFAULT_ENVIRONMENT
 from switcher_client.lib.snapshot_auto_updater import SnapshotAutoUpdater
 from switcher_client.lib.snapshot_loader import load_domain, validate_snapshot, save_snapshot
+from switcher_client.lib.utils.execution_logger import ExecutionLogger
 from switcher_client.lib.utils import get
 from switcher_client.switcher import Switcher
 
@@ -135,6 +136,16 @@ class Client:
             return 0
         
         return snapshot.domain.version
+
+    @staticmethod
+    def get_execution(switcher: Switcher) -> ExecutionLogger:
+        """Retrieve execution log given a switcher"""
+        return ExecutionLogger.get_execution(switcher._key, switcher._input)
+
+    @staticmethod
+    def clear_logger() -> None:
+        """Clear all logged executions"""
+        ExecutionLogger.clear_logger()
     
     @staticmethod
     def __is_check_snapshot_available(fetch_remote = False) -> bool:
