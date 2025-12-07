@@ -1,3 +1,4 @@
+from datetime import datetime
 from abc import ABCMeta
 from typing import Optional, Self
 
@@ -9,6 +10,8 @@ class SwitcherData(metaclass=ABCMeta):
         self._key = key
         self._input = []
         self._show_details = False
+        self._throttle_period = 0
+        self._next_refresh_time = 0 # timestamp
 
     def check(self, strategy_type: str, input: str)-> Self:
         """ Adds a strategy for validation """
@@ -19,3 +22,12 @@ class SwitcherData(metaclass=ABCMeta):
     def check_value(self, input: str) -> Self:
         """ Adds VALUE_VALIDATION input for strategy validation """
         return self.check(VALUE_VALIDATION, input)
+    
+    def throttle(self, period: int) -> Self:
+        """ Sets throttle period in milliseconds """
+        self._throttle_period = period
+
+        if self._next_refresh_time == 0:
+            self._next_refresh_time = int(datetime.now().timestamp() * 1000) + period
+
+        return self
