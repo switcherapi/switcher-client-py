@@ -25,32 +25,32 @@ A Python SDK for Switcher API
 
 ## Table of Contents
 
-- [🚀 Quick Start](#-quick-start)
-- [📦 Installation](#-installation)
-- [🔧 Configuration](#-configuration)
-- [📖 Usage Examples](#-usage-examples)
-- [🎛️ Advanced Features](#-advanced-features)
-- [🔄 Snapshot Management](#-snapshot-management)
-- [🧪 Testing & Development](#-testing--development)
-- [🤝 Contributing](#-contributing)
+- [Quick Start](#-quick-start)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [Usage Examples](#-usage-examples)
+- [Advanced Features](#-advanced-features)
+- [Snapshot Management](#-snapshot-management)
+- [Testing & Development](#-testing--development)
+- [Contributing](#-contributing)
 
 ---
 
-## 🌟 About
+## About
 
 The **Switcher Client SDK for Python** provides seamless integration with [Switcher-API](https://github.com/switcherapi/switcher-api), enabling powerful feature flag management in your Python applications.
 
-### ✨ Key Features
+### Key Features
 
-- 🎯 **Clean & Maintainable**: Flexible and robust functions that keep your code organized
-- 🏠 **Local Mode**: Work offline using snapshot files from your Switcher-API Domain
-- 🔄 **Silent Mode**: Hybrid configuration with automatic fallback for connectivity issues
-- 🧪 **Built-in Mocking**: Easy implementation of automated testing with mock support
-- ⚡ **Zero Latency**: Local snapshot execution for high-performance scenarios
-- 🛡️ **Secure**: Built-in protection against ReDoS attacks with regex safety features
-- 📊 **Monitoring**: Comprehensive logging and error handling capabilities
+- **Clean & Maintainable**: Flexible and robust functions that keep your code organized
+- **Local Mode**: Work offline using snapshot files from your Switcher-API Domain
+- **Silent Mode**: Hybrid configuration with automatic fallback for connectivity issues
+- **Built-in Mocking**: Easy implementation of automated testing with mock support
+- **Zero Latency**: Local snapshot execution for high-performance scenarios
+- **Secure**: Built-in protection against ReDoS attacks with regex safety features
+- **Monitoring**: Comprehensive logging and error handling capabilities
 
-## 🚀 Quick Start
+## Quick Start
 
 Get up and running in just a few lines of code:
 
@@ -72,7 +72,7 @@ if switcher.is_on('FEATURE_TOGGLE'):
     print("Feature is enabled!")
 ```
 
-## 📦 Installation
+## Installation
 
 Install the Switcher Client SDK using pip:
 
@@ -84,7 +84,7 @@ pip install switcher-client
 - **Python**: 3.9+ (supports 3.9, 3.10, 3.11, 3.12, 3.13)
 - **Operating System**: Cross-platform (Windows, macOS, Linux)
 
-## 🔧 Configuration
+## Configuration
 
 ### Basic Setup
 
@@ -151,7 +151,7 @@ switcher = Client.get_switcher()
 | `regex_max_black_list` | `int` | Max cached entries for failed regex | `50` |
 | `regex_max_time_limit` | `int` | Regex execution time limit (ms) | `3000` |
 
-#### 🔒 Security Features
+#### Security Features
 
 - **ReDoS Protection**: The `regex_safe` feature prevents Regular Expression Denial of Service attacks
 - **Certificate Support**: Use custom certificates for secure API connections  
@@ -159,7 +159,7 @@ switcher = Client.get_switcher()
 
 > ⚠️ **Security Note**: Keep `regex_safe` enabled to protect against ReDoS attacks
 
-## 📖 Usage Examples
+## Usage Examples
 
 ### Basic Feature Flag Checking
 
@@ -227,9 +227,9 @@ Subscribe to error notifications for robust error management:
 Client.subscribe_notify_error(lambda error: print(f"Switcher Error: {error}"))
 ```
 
-## 🎛️ Advanced Features
+## Advanced Features
 
-### 🚧 Planned Features
+### Planned Features
 
 The following features are currently in development:
 
@@ -245,7 +245,7 @@ switcher.throttle(1000).is_on('FEATURE01')
 switcher.remote().is_on('FEATURE01')
 ```
 
-## 🔄 Snapshot Management
+## Snapshot Management
 
 ### Loading Snapshots
 
@@ -279,7 +279,7 @@ Client.schedule_snapshot_auto_update(
 )
 ```
 
-### 🚧 Snapshot Monitoring (Coming Soon)
+### Snapshot Monitoring (Coming Soon)
 
 ```python
 # 🚧 TODO: Watch for snapshot file changes
@@ -289,7 +289,7 @@ Client.watch_snapshot({
 })
 ```
 
-## 🧪 Testing & Development
+## Testing & Development
 
 ### Built-in Mocking (Coming Soon)
 
@@ -335,7 +335,7 @@ except Exception as e:
 
 This validation helps prevent deployment issues by ensuring all required feature flags are properly set up in your Switcher domain.
 
-## 🤝 Contributing
+## Contributing
 We welcome contributions to the Switcher Client SDK for Python! If you have suggestions, improvements, or bug fixes, please follow these steps:
 
 1. Fork the repository.
