@@ -2,11 +2,14 @@ from enum import Enum
 from typing import Optional
 from datetime import datetime
 
+from .utils.payload_reader import parse_json, payload_reader
+
 class StrategiesType(Enum):
     VALUE = "VALUE_VALIDATION"
     NUMERIC = "NUMERIC_VALIDATION"
     DATE = "DATE_VALIDATION"
     TIME = "TIME_VALIDATION"
+    PAYLOAD = "PAYLOAD"
 
 class OperationsType(Enum):
     EXIST = "EXIST"
@@ -16,6 +19,8 @@ class OperationsType(Enum):
     GREATER = "GREATER"
     LOWER = "LOWER"
     BETWEEN = "BETWEEN"
+    HAS_ONE = "HAS_ONE"
+    HAS_ALL = "HAS_ALL"
 
 def process_operation(strategy_config: dict, input_value: str) -> Optional[bool]:
     strategy = strategy_config.get('strategy')
@@ -31,6 +36,8 @@ def process_operation(strategy_config: dict, input_value: str) -> Optional[bool]
             return __process_date(operation, values, input_value)
         case StrategiesType.TIME.value:
             return __process_time(operation, values, input_value)
+        case StrategiesType.PAYLOAD.value:
+            return __process_payload(operation, values, input_value)
             
 def __process_value(operation: str, values: list, input_value: str) -> Optional[bool]:
     match operation:
@@ -96,6 +103,20 @@ def __process_time(operation: str, values: list, input_value: str) -> Optional[b
             return any(time_input >= v for v in time_values)
         case OperationsType.BETWEEN.value:
             return time_values[0] <= time_input <= time_values[1]
+        
+def __process_payload(operation: str, values: list, input_value: str) -> Optional[bool]:
+    input_json = parse_json(input_value)
+    if input_json is None:
+        return False
+    
+    keys = payload_reader(input_json)
+    
+    match operation:
+        case OperationsType.HAS_ONE.value:
+            return any(value in keys for value in values)
+        case OperationsType.HAS_ALL.value:
+            return all(value in keys for value in values)
+
         
 def __parse_datetime(date_str: str):
     """Parse datetime string that can be either date-only or datetime format."""
