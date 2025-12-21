@@ -6,6 +6,7 @@ class StrategiesType(Enum):
     VALUE = "VALUE_VALIDATION"
     NUMERIC = "NUMERIC_VALIDATION"
     DATE = "DATE_VALIDATION"
+    TIME = "TIME_VALIDATION"
 
 class OperationsType(Enum):
     EXIST = "EXIST"
@@ -28,6 +29,8 @@ def process_operation(strategy_config: dict, input_value: str) -> Optional[bool]
             return __process_numeric(operation, values, input_value)
         case StrategiesType.DATE.value:
             return __process_date(operation, values, input_value)
+        case StrategiesType.TIME.value:
+            return __process_time(operation, values, input_value)
             
 def __process_value(operation: str, values: list, input_value: str) -> Optional[bool]:
     match operation:
@@ -78,6 +81,21 @@ def __process_date(operation: str, values: list, input_value: str) -> Optional[b
             return any(date_input >= v for v in date_values)
         case OperationsType.BETWEEN.value:
             return date_values[0] <= date_input <= date_values[1]
+        
+def __process_time(operation: str, values: list, input_value: str) -> Optional[bool]:
+    try:
+        time_input = datetime.strptime(input_value, '%H:%M').time()
+        time_values = [datetime.strptime(v, '%H:%M').time() for v in values]
+    except ValueError:
+        return None
+
+    match operation:
+        case OperationsType.LOWER.value:
+            return any(time_input <= v for v in time_values)
+        case OperationsType.GREATER.value:
+            return any(time_input >= v for v in time_values)
+        case OperationsType.BETWEEN.value:
+            return time_values[0] <= time_input <= time_values[1]
         
 def __parse_datetime(date_str: str):
     """Parse datetime string that can be either date-only or datetime format."""
