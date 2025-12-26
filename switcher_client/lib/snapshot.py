@@ -1,8 +1,11 @@
+import re
+
 from enum import Enum
 from typing import Optional
 from datetime import datetime
 
 from .utils.payload_reader import parse_json, payload_reader
+from .utils.ipcidr import IPCIDR
 
 class StrategiesType(Enum):
     VALUE = "VALUE_VALIDATION"
@@ -10,6 +13,7 @@ class StrategiesType(Enum):
     DATE = "DATE_VALIDATION"
     TIME = "TIME_VALIDATION"
     PAYLOAD = "PAYLOAD"
+    NETWORK = "NETWORK"
 
 class OperationsType(Enum):
     EXIST = "EXIST"
@@ -23,6 +27,8 @@ class OperationsType(Enum):
     HAS_ALL = "HAS_ALL"
 
 def process_operation(strategy_config: dict, input_value: str) -> Optional[bool]:
+    """Process the operation based on strategy configuration and input value."""
+
     strategy = strategy_config.get('strategy')
     operation = strategy_config.get('operation', '')
     values = strategy_config.get('values', [])
@@ -38,8 +44,12 @@ def process_operation(strategy_config: dict, input_value: str) -> Optional[bool]
             return __process_time(operation, values, input_value)
         case StrategiesType.PAYLOAD.value:
             return __process_payload(operation, values, input_value)
+        case StrategiesType.NETWORK.value:
+            return __process_network(operation, values, input_value)
             
 def __process_value(operation: str, values: list, input_value: str) -> Optional[bool]:
+    """ Process VALUE strategy operations."""
+
     match operation:
         case OperationsType.EXIST.value:
             return input_value in values
@@ -51,6 +61,8 @@ def __process_value(operation: str, values: list, input_value: str) -> Optional[
             return input_value not in values
         
 def __process_numeric(operation: str, values: list, input_value: str) -> Optional[bool]:
+    """ Process NUMERIC strategy operations."""
+
     try:
         numeric_input = float(input_value)
     except ValueError:
@@ -75,6 +87,8 @@ def __process_numeric(operation: str, values: list, input_value: str) -> Optiona
             return numeric_input >= numeric_values[0] and numeric_input <= numeric_values[1]
 
 def __process_date(operation: str, values: list, input_value: str) -> Optional[bool]:
+    """ Process DATE strategy operations."""
+
     try:
         date_input = __parse_datetime(input_value)
         date_values = [__parse_datetime(v) for v in values]
@@ -90,6 +104,8 @@ def __process_date(operation: str, values: list, input_value: str) -> Optional[b
             return date_values[0] <= date_input <= date_values[1]
         
 def __process_time(operation: str, values: list, input_value: str) -> Optional[bool]:
+    """ Process TIME strategy operations."""
+
     try:
         time_input = datetime.strptime(input_value, '%H:%M').time()
         time_values = [datetime.strptime(v, '%H:%M').time() for v in values]
@@ -105,6 +121,8 @@ def __process_time(operation: str, values: list, input_value: str) -> Optional[b
             return time_values[0] <= time_input <= time_values[1]
         
 def __process_payload(operation: str, values: list, input_value: str) -> Optional[bool]:
+    """ Process PAYLOAD strategy operations."""
+
     input_json = parse_json(input_value)
     if input_json is None:
         return False
@@ -116,6 +134,48 @@ def __process_payload(operation: str, values: list, input_value: str) -> Optiona
             return any(value in keys for value in values)
         case OperationsType.HAS_ALL.value:
             return all(value in keys for value in values)
+
+def __process_network(operation: str, values: list, input_value: str) -> Optional[bool]:
+    """Process NETWORK strategy operations."""
+
+    cidr_regex = re.compile(r'^(\d{1,3}\.){3}\d{1,3}(\/(\d|[1-2]\d|3[0-2]))$')
+    
+    match operation:
+        case OperationsType.EXIST.value:
+            return __process_network_exist(input_value, values, cidr_regex)
+        case OperationsType.NOT_EXIST.value:
+            return __process_network_not_exist(input_value, values, cidr_regex)
+    
+    return False
+
+def __process_network_exist(input_value: str, values: list, cidr_regex) -> bool:
+    """Check if input IP exists in any of the network ranges/IPs."""
+
+    for value in values:
+        if cidr_regex.match(value):
+            cidr = IPCIDR(value)
+            if cidr.is_ip4_in_cidr(input_value):
+                return True
+        else:
+            if input_value in values:
+                return True
+                
+    return False
+
+def __process_network_not_exist(input_value: str, values: list, cidr_regex) -> bool:
+    """Check if input IP does not exist in any of the network ranges/IPs."""
+
+    result = []
+    for element in values:
+        if cidr_regex.match(element):
+            cidr = IPCIDR(element)
+            if cidr.is_ip4_in_cidr(input_value):
+                result.append(element)
+        else:
+            if input_value in values:
+                result.append(element)
+    
+    return len(result) == 0
 
         
 def __parse_datetime(date_str: str):
