@@ -6,6 +6,7 @@ from datetime import datetime
 
 from .utils.payload_reader import parse_json, payload_reader
 from .utils.ipcidr import IPCIDR
+from .utils.timed_match import TimedMatch
 
 class StrategiesType(Enum):
     VALUE = "VALUE_VALIDATION"
@@ -14,6 +15,7 @@ class StrategiesType(Enum):
     TIME = "TIME_VALIDATION"
     PAYLOAD = "PAYLOAD"
     NETWORK = "NETWORK"
+    REGEX = "REGEX"
 
 class OperationsType(Enum):
     EXIST = "EXIST"
@@ -46,6 +48,8 @@ def process_operation(strategy_config: dict, input_value: str) -> Optional[bool]
             return __process_payload(operation, values, input_value)
         case StrategiesType.NETWORK.value:
             return __process_network(operation, values, input_value)
+        case StrategiesType.REGEX.value:
+            return __process_regex(operation, values, input_value)
             
 def __process_value(operation: str, values: list, input_value: str) -> Optional[bool]:
     """ Process VALUE strategy operations."""
@@ -177,6 +181,20 @@ def __process_network_not_exist(input_value: str, values: list, cidr_regex) -> b
     
     return len(result) == 0
 
+def __process_regex(operation: str, values: list, input_value: str) -> Optional[bool]:
+    """ Process REGEX strategy operations with timeout protection."""
+
+    match operation:
+        case OperationsType.EXIST.value:
+            return TimedMatch.try_match(values, input_value, use_fullmatch=False)
+        case OperationsType.NOT_EXIST.value:
+            result = TimedMatch.try_match(values, input_value, use_fullmatch=False)
+            return not result
+        case OperationsType.EQUAL.value:
+            return TimedMatch.try_match(values, input_value, use_fullmatch=True)
+        case OperationsType.NOT_EQUAL.value:
+            result = TimedMatch.try_match(values, input_value, use_fullmatch=True)
+            return not result
         
 def __parse_datetime(date_str: str):
     """Parse datetime string that can be either date-only or datetime format."""

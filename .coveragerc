@@ -1,0 +1,13 @@
+[run]
+omit = 
+    switcher_client/lib/utils/timed_match/worker.py
+    */tests/*
+    */test_*
+    */__init__.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
