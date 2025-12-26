@@ -28,7 +28,7 @@ jobs:
           pipenv install --dev
       
       - name: Test
-        run: pipenv run pytest -v --cov=./switcher_client --cov-report xml
+        run: pipenv run pytest -v --cov=./switcher_client --cov-report xml --cov-config=.coveragerc
 
       - name: SonarCloud Scan
         uses: sonarsource/sonarqube-scan-action@v7.0.0
