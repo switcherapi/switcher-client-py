@@ -2,6 +2,7 @@ import json
 import pytest
 from typing import Dict, List, Any
 
+from switcher_client.lib.utils.payload_reader import payload_reader
 from switcher_client.lib.snapshot import OperationsType, StrategiesType, process_operation
 
 class TestPayloadStrategy:
@@ -58,12 +59,8 @@ class TestPayloadStrategy:
             'activated': True
         }
     
-    # Note: These tests will need payloadReader implementation
-    @pytest.mark.skip(reason="payloadReader not yet implemented")
     def test_should_read_keys_from_payload_1(self, fixture_values2):
         """Should read keys from payload #1."""
-
-        from switcher_client.lib.utils.payload_reader import payload_reader
         
         keys = payload_reader(json.loads(fixture_values2))
         expected_keys = [
@@ -79,11 +76,8 @@ class TestPayloadStrategy:
         ]
         assert all(key in keys for key in expected_keys)
     
-    @pytest.mark.skip(reason="payloadReader not yet implemented")
     def test_should_read_keys_from_payload_2(self, fixture_values3):
         """Should read keys from payload #2."""
-
-        from switcher_client.lib.utils.payload_reader import payload_reader
         
         keys = payload_reader(json.loads(fixture_values3))
         expected_keys = [
@@ -95,11 +89,8 @@ class TestPayloadStrategy:
         ]
         assert all(key in keys for key in expected_keys)
     
-    @pytest.mark.skip(reason="payloadReader not yet implemented")
     def test_should_read_keys_from_payload_with_array_values(self):
         """Should read keys from payload with array values."""
-
-        from switcher_client.lib.utils.payload_reader import payload_reader
         
         test_payload = {
             'order': {
