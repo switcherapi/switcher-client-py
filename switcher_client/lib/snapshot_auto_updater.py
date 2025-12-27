@@ -20,7 +20,7 @@ class SnapshotAutoUpdater:
         SnapshotAutoUpdater._stop_event = threading.Event() 
         
         SnapshotAutoUpdater._timer_thread = threading.Thread(
-            target=SnapshotAutoUpdater.__update_worker,
+            target=SnapshotAutoUpdater._update_worker,
             args=(interval, check_snapshot, callback),
             daemon=True,
             name="SnapshotAutoUpdater"
@@ -42,7 +42,7 @@ class SnapshotAutoUpdater:
         SnapshotAutoUpdater._stop_event = None
 
     @staticmethod
-    def __update_worker(interval: int, check_snapshot: Callable[[], bool], callback: Callable[[Optional[Exception], bool], None]) -> None:
+    def _update_worker(interval: int, check_snapshot: Callable[[], bool], callback: Callable[[Optional[Exception], bool], None]) -> None:
         stop_event = SnapshotAutoUpdater._stop_event
 
         time.sleep(interval) # delay start

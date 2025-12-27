@@ -14,31 +14,31 @@ class Switcher(SwitcherData):
     def __init__(self, context: Context, key: Optional[str] = None):
         super().__init__(key) 
         self._context = context
-        self.__validate_args(key)
+        self._validate_args(key)
 
     def prepare(self, key: Optional[str] = None):
         """ Checks API credentials and connectivity """
-        self.__validate_args(key)
+        self._validate_args(key)
         RemoteAuth.auth()
 
     def is_on(self, key: Optional[str] = None) -> bool:
         """ Execute criteria """
         self._show_details = False
-        self.__validate_args(key, details=False)
-        return self.__submit().result
+        self._validate_args(key, details=False)
+        return self._submit().result
     
     def is_on_with_details(self, key: Optional[str] = None) -> ResultDetail:
         """ Execute criteria with details """
-        self.__validate_args(key, details=True)
-        return self.__submit()
+        self._validate_args(key, details=True)
+        return self._submit()
     
-    def __submit(self) -> ResultDetail:
+    def _submit(self) -> ResultDetail:
         """ Submit criteria for execution (local or remote) """
         if (self._context.options.local):
-            return self.__execute_local_criteria()
+            return self._execute_local_criteria()
 
         self.validate()
-        response = self.__execute_remote_criteria()
+        response = self._execute_remote_criteria()
 
         return response
     
@@ -51,7 +51,7 @@ class Switcher(SwitcherData):
         if not self._key:
             errors.append('Missing key field')
 
-        self.__execute_api_checks()
+        self._execute_api_checks()
         if not GlobalAuth.get_token():
             errors.append('Missing token field')
 
@@ -60,33 +60,33 @@ class Switcher(SwitcherData):
         
         return self
 
-    def __validate_args(self, key: Optional[str] = None, details: Optional[bool] = None):
+    def _validate_args(self, key: Optional[str] = None, details: Optional[bool] = None):
         if key is not None:
             self._key = key
 
         if details is not None:
             self._show_details = details
 
-    def __execute_api_checks(self):
+    def _execute_api_checks(self):
         """ Assure API is available and token is valid """
         RemoteAuth.check_health()
         if RemoteAuth.is_token_expired():
             self.prepare(self._key)
 
-    def __execute_remote_criteria(self):
+    def _execute_remote_criteria(self):
         """ Execute remote criteria """
         token = GlobalAuth.get_token()
         response = Remote.check_criteria(token, self._context, self)
 
-        if self.__can_log():
+        if self._can_log():
             ExecutionLogger.add(response, self._key, self._input)
 
         return response
     
-    def __execute_local_criteria(self):
+    def _execute_local_criteria(self):
         """ Execute local criteria """
         return Resolver.check_criteria(GlobalSnapshot.snapshot(), self)
     
-    def __can_log(self) -> bool:
+    def _can_log(self) -> bool:
         """ Check if logging is enabled """
         return self._context.options.logger and self._key is not None

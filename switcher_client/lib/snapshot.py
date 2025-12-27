@@ -37,21 +37,21 @@ def process_operation(strategy_config: dict, input_value: str) -> Optional[bool]
     
     match strategy:
         case StrategiesType.VALUE.value:
-            return __process_value(operation, values, input_value)
+            return _process_value(operation, values, input_value)
         case StrategiesType.NUMERIC.value:
-            return __process_numeric(operation, values, input_value)
+            return _process_numeric(operation, values, input_value)
         case StrategiesType.DATE.value:
-            return __process_date(operation, values, input_value)
+            return _process_date(operation, values, input_value)
         case StrategiesType.TIME.value:
-            return __process_time(operation, values, input_value)
+            return _process_time(operation, values, input_value)
         case StrategiesType.PAYLOAD.value:
-            return __process_payload(operation, values, input_value)
+            return _process_payload(operation, values, input_value)
         case StrategiesType.NETWORK.value:
-            return __process_network(operation, values, input_value)
+            return _process_network(operation, values, input_value)
         case StrategiesType.REGEX.value:
-            return __process_regex(operation, values, input_value)
+            return _process_regex(operation, values, input_value)
             
-def __process_value(operation: str, values: list, input_value: str) -> Optional[bool]:
+def _process_value(operation: str, values: list, input_value: str) -> Optional[bool]:
     """ Process VALUE strategy operations."""
 
     match operation:
@@ -64,7 +64,7 @@ def __process_value(operation: str, values: list, input_value: str) -> Optional[
         case OperationsType.NOT_EQUAL.value:
             return input_value not in values
         
-def __process_numeric(operation: str, values: list, input_value: str) -> Optional[bool]:
+def _process_numeric(operation: str, values: list, input_value: str) -> Optional[bool]:
     """ Process NUMERIC strategy operations."""
 
     try:
@@ -90,12 +90,12 @@ def __process_numeric(operation: str, values: list, input_value: str) -> Optiona
         case OperationsType.BETWEEN.value:
             return numeric_input >= numeric_values[0] and numeric_input <= numeric_values[1]
 
-def __process_date(operation: str, values: list, input_value: str) -> Optional[bool]:
+def _process_date(operation: str, values: list, input_value: str) -> Optional[bool]:
     """ Process DATE strategy operations."""
 
     try:
-        date_input = __parse_datetime(input_value)
-        date_values = [__parse_datetime(v) for v in values]
+        date_input = _parse_datetime(input_value)
+        date_values = [_parse_datetime(v) for v in values]
     except ValueError:
         return None
 
@@ -107,7 +107,7 @@ def __process_date(operation: str, values: list, input_value: str) -> Optional[b
         case OperationsType.BETWEEN.value:
             return date_values[0] <= date_input <= date_values[1]
         
-def __process_time(operation: str, values: list, input_value: str) -> Optional[bool]:
+def _process_time(operation: str, values: list, input_value: str) -> Optional[bool]:
     """ Process TIME strategy operations."""
 
     try:
@@ -124,7 +124,7 @@ def __process_time(operation: str, values: list, input_value: str) -> Optional[b
         case OperationsType.BETWEEN.value:
             return time_values[0] <= time_input <= time_values[1]
         
-def __process_payload(operation: str, values: list, input_value: str) -> Optional[bool]:
+def _process_payload(operation: str, values: list, input_value: str) -> Optional[bool]:
     """ Process PAYLOAD strategy operations."""
 
     input_json = parse_json(input_value)
@@ -139,20 +139,20 @@ def __process_payload(operation: str, values: list, input_value: str) -> Optiona
         case OperationsType.HAS_ALL.value:
             return all(value in keys for value in values)
 
-def __process_network(operation: str, values: list, input_value: str) -> Optional[bool]:
+def _process_network(operation: str, values: list, input_value: str) -> Optional[bool]:
     """Process NETWORK strategy operations."""
 
     cidr_regex = re.compile(r'^(\d{1,3}\.){3}\d{1,3}(\/(\d|[1-2]\d|3[0-2]))$')
     
     match operation:
         case OperationsType.EXIST.value:
-            return __process_network_exist(input_value, values, cidr_regex)
+            return _process_network_exist(input_value, values, cidr_regex)
         case OperationsType.NOT_EXIST.value:
-            return __process_network_not_exist(input_value, values, cidr_regex)
+            return _process_network_not_exist(input_value, values, cidr_regex)
     
     return False
 
-def __process_network_exist(input_value: str, values: list, cidr_regex) -> bool:
+def _process_network_exist(input_value: str, values: list, cidr_regex) -> bool:
     """Check if input IP exists in any of the network ranges/IPs."""
 
     for value in values:
@@ -166,7 +166,7 @@ def __process_network_exist(input_value: str, values: list, cidr_regex) -> bool:
                 
     return False
 
-def __process_network_not_exist(input_value: str, values: list, cidr_regex) -> bool:
+def _process_network_not_exist(input_value: str, values: list, cidr_regex) -> bool:
     """Check if input IP does not exist in any of the network ranges/IPs."""
 
     result = []
@@ -181,7 +181,7 @@ def __process_network_not_exist(input_value: str, values: list, cidr_regex) -> b
     
     return len(result) == 0
 
-def __process_regex(operation: str, values: list, input_value: str) -> Optional[bool]:
+def _process_regex(operation: str, values: list, input_value: str) -> Optional[bool]:
     """ Process REGEX strategy operations with timeout protection."""
 
     match operation:
@@ -196,7 +196,7 @@ def __process_regex(operation: str, values: list, input_value: str) -> Optional[
             result = TimedMatch.try_match(values, input_value, use_fullmatch=True)
             return not result
         
-def __parse_datetime(date_str: str):
+def _parse_datetime(date_str: str):
     """Parse datetime string that can be either date-only or datetime format."""
 
     formats = ['%Y-%m-%dT%H:%M', '%Y-%m-%d']

@@ -42,13 +42,13 @@ class Client:
 
         # Build Options
         if options is not None:
-            Client.__build_options(options)
+            Client._build_options(options)
 
         # Initialize Auth
         RemoteAuth.init(Client.context)
 
     @staticmethod
-    def __build_options(options: ContextOptions):
+    def _build_options(options: ContextOptions):
         options_handler = {
             SwitcherOptions.SNAPSHOT_AUTO_UPDATE_INTERVAL: lambda: Client.schedule_snapshot_auto_update()
         }
@@ -73,7 +73,7 @@ class Client:
             get(Client.context.environment, DEFAULT_ENVIRONMENT)
         ))
 
-        if Client.__is_check_snapshot_available(snapshot_options.fetch_remote):
+        if Client._is_check_snapshot_available(snapshot_options.fetch_remote):
             Client.check_snapshot()
 
         return Client.snapshot_version()
@@ -148,5 +148,5 @@ class Client:
         ExecutionLogger.clear_logger()
     
     @staticmethod
-    def __is_check_snapshot_available(fetch_remote = False) -> bool:
+    def _is_check_snapshot_available(fetch_remote = False) -> bool:
         return Client.snapshot_version() == 0 and (fetch_remote or not Client.context.options.local)
