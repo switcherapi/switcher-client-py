@@ -1,6 +1,6 @@
 import json
-from typing import Any, List, Union
 
+from typing import Any, List, Union
 
 def payload_reader(payload: Any) -> List[str]:
     """Extract all field keys from a JSON payload structure.

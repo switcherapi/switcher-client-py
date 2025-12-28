@@ -1,5 +1,6 @@
 from typing import Optional, Callable, List
-from switcher_client.lib.types import ResultDetail
+
+from ...lib.types import ResultDetail
 
 # Global logger storage
 _logger: List['ExecutionLogger'] = []

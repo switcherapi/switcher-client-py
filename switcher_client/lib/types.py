@@ -41,6 +41,17 @@ class StrategyConfig:
         self.operation: str
         self.values: list[str]
 
+class Entry:
+    def __init__(self, strategy: str, input: str):
+        self.strategy = strategy
+        self.input = input
+
+    def to_dict(self) -> dict:
+        return {
+            'strategy': self.strategy,
+            'input': self.input
+        }
+
 class Relay:
     def __init__(self):
         self.type: str

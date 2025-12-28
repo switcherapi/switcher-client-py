@@ -1,14 +1,15 @@
 from typing import Optional, Callable
 
-from switcher_client.lib.globals.global_snapshot import GlobalSnapshot, LoadSnapshotOptions
-from switcher_client.lib.remote_auth import RemoteAuth
-from switcher_client.lib.globals.global_context import Context, ContextOptions
-from switcher_client.lib.globals.global_context import DEFAULT_ENVIRONMENT
-from switcher_client.lib.snapshot_auto_updater import SnapshotAutoUpdater
-from switcher_client.lib.snapshot_loader import load_domain, validate_snapshot, save_snapshot
-from switcher_client.lib.utils.execution_logger import ExecutionLogger
-from switcher_client.lib.utils import get
-from switcher_client.switcher import Switcher
+from .lib.globals.global_snapshot import GlobalSnapshot, LoadSnapshotOptions
+from .lib.remote_auth import RemoteAuth
+from .lib.globals.global_context import Context, ContextOptions
+from .lib.globals.global_context import DEFAULT_ENVIRONMENT
+from .lib.snapshot_auto_updater import SnapshotAutoUpdater
+from .lib.snapshot_loader import load_domain, validate_snapshot, save_snapshot
+from .lib.utils.execution_logger import ExecutionLogger
+from .lib.utils.timed_match.timed_match import TimedMatch
+from .lib.utils import get
+from .switcher import Switcher
 
 class SwitcherOptions:
     SNAPSHOT_AUTO_UPDATE_INTERVAL = 'snapshot_auto_update_interval'
@@ -146,6 +147,14 @@ class Client:
     def clear_logger() -> None:
         """Clear all logged executions"""
         ExecutionLogger.clear_logger()
+
+    @staticmethod
+    def clear_resources() -> None:
+        """ Clear all resources used by the Client """
+        Client.terminate_snapshot_auto_update()
+        ExecutionLogger.clear_logger()
+        GlobalSnapshot.clear()
+        TimedMatch.terminate_worker()
     
     @staticmethod
     def _is_check_snapshot_available(fetch_remote = False) -> bool:

@@ -1,12 +1,10 @@
 import multiprocessing
-import signal
-import os
 import time
 
 from typing import List, Optional, Any
 from dataclasses import dataclass
 
-from switcher_client.lib.utils.timed_match.worker import TaskType, WorkerResult, WorkerTask, persistent_regex_worker
+from .worker import TaskType, WorkerResult, WorkerTask, persistent_regex_worker
 
 # Default constants
 DEFAULT_REGEX_MAX_TIME_LIMIT = 3000  # 3 seconds in milliseconds

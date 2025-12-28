@@ -3,12 +3,11 @@ import httpx
 
 from typing import Optional
 
-from switcher_client.errors import RemoteAuthError, RemoteError
-from switcher_client.errors import RemoteCriteriaError
-from switcher_client.lib.globals.global_context import DEFAULT_ENVIRONMENT, Context
-from switcher_client.lib.types import ResultDetail
-from switcher_client.lib.utils import get
-from switcher_client.switcher_data import SwitcherData
+from ..errors import RemoteAuthError, RemoteError, RemoteCriteriaError
+from ..lib.globals.global_context import DEFAULT_ENVIRONMENT, Context
+from ..lib.types import ResultDetail
+from ..lib.utils import get, get_entry
+from ..switcher_data import SwitcherData
 
 class Remote:
     _client: Optional[httpx.Client] = None
@@ -33,8 +32,8 @@ class Remote:
     @staticmethod
     def check_criteria(token: Optional[str], context: Context, switcher: SwitcherData) -> ResultDetail:
         url = f'{context.url}/criteria?showReason={str(switcher._show_details).lower()}&key={switcher._key}'
-        entry = Remote._get_entry(switcher._input)
-        response = Remote._do_post(url, entry, Remote._get_header(token))
+        entry = get_entry(switcher._input)
+        response = Remote._do_post(url, { 'entry': [e.to_dict() for e in entry] }, Remote._get_header(token))
         
         if response.status_code == 200:
             json_response = response.json()
@@ -116,17 +115,3 @@ class Remote:
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json',
         }
-    
-    @staticmethod
-    def _get_entry(input: list):
-        entry = []
-        for strategy_type, input_value in input:
-            entry.append({
-                'strategy': strategy_type,
-                'input': input_value
-            })
-            
-        if not entry:
-            return None
-        
-        return {'entry': entry}

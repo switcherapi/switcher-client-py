@@ -1,5 +1,3 @@
-from typing import Optional
-
 class GlobalAuth:
     __token = None
     __exp = None

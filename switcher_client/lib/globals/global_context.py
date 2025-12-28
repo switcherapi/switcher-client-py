@@ -1,6 +1,5 @@
 from typing import Optional
 
-
 DEFAULT_ENVIRONMENT = 'default'
 DEFAULT_LOCAL = False
 

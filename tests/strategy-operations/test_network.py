@@ -1,7 +1,8 @@
 import pytest
-from typing import Dict, List, Any
+from typing import List
 
 from switcher_client.lib.snapshot import OperationsType, StrategiesType, process_operation
+from switcher_client.lib.types import StrategyConfig
 
 class TestNetworkStrategy:
     """Test suite for Strategy [NETWORK] tests."""
@@ -21,14 +22,14 @@ class TestNetworkStrategy:
         """Multiple IP addresses mock data."""
         return ['192.168.56.56', '192.168.56.57', '192.168.56.58']
     
-    def given_strategy_config(self, operation: str, values: List[str]) -> Dict[str, Any]:
+    def given_strategy_config(self, operation: str, values: List[str]) -> StrategyConfig:
         """Create a strategy configuration for NETWORK strategy."""
-        return {
-            'strategy': StrategiesType.NETWORK.value,
-            'operation': operation,
-            'values': values,
-            'activated': True
-        }
+        strategy_config = StrategyConfig()
+        strategy_config.strategy = StrategiesType.NETWORK.value
+        strategy_config.operation = operation
+        strategy_config.values = values
+        strategy_config.activated = True
+        return strategy_config
     
     def test_should_agree_when_input_range_exist(self, mock_values1):
         """Should agree when input range EXIST."""

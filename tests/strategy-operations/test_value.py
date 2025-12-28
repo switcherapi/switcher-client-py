@@ -1,7 +1,8 @@
 import pytest
-from typing import Dict, List, Any
+from typing import List
 
 from switcher_client.lib.snapshot import OperationsType, StrategiesType, process_operation
+from switcher_client.lib.types import StrategyConfig
 
 class TestValueStrategy:
     """Test suite for Strategy [VALUE] tests."""
@@ -16,13 +17,14 @@ class TestValueStrategy:
         """Multiple users mock data."""
         return ['USER_1', 'USER_2']
     
-    def given_strategy_config(self, operation: str, values: List[str]) -> Dict[str, Any]:
-        return {
-            'strategy': StrategiesType.VALUE.value,
-            'operation': operation,
-            'values': values,
-            'activated': True
-        }
+    def given_strategy_config(self, operation: str, values: List[str]) -> StrategyConfig:
+        """Create a strategy configuration for VALUE strategy."""
+        strategy_config = StrategyConfig()
+        strategy_config.strategy = StrategiesType.VALUE.value
+        strategy_config.operation = operation
+        strategy_config.values = values
+        strategy_config.activated = True
+        return strategy_config
     
     def test_should_agree_when_input_exist(self, mock_values1):
         """Should agree when input EXIST."""

@@ -1,8 +1,8 @@
 from time import time
 
-from switcher_client.lib.remote import Remote
-from switcher_client.lib.globals.global_context import Context
-from switcher_client.lib.globals import GlobalAuth
+from .remote import Remote
+from .globals.global_context import Context
+from .globals import GlobalAuth
 
 class RemoteAuth:
     __context: Context = Context.empty()
@@ -42,5 +42,3 @@ class RemoteAuth:
         errors = [name for name, value in required_fields if not value]
         if errors:
             raise ValueError(f"Something went wrong: Missing or empty required fields ({', '.join(errors)})")
-
-        

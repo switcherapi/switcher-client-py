@@ -4,6 +4,8 @@ from enum import Enum
 from typing import Optional
 from datetime import datetime
 
+from switcher_client.lib.types import StrategyConfig
+
 from .utils.payload_reader import parse_json, payload_reader
 from .utils.ipcidr import IPCIDR
 from .utils.timed_match import TimedMatch
@@ -13,9 +15,9 @@ class StrategiesType(Enum):
     NUMERIC = "NUMERIC_VALIDATION"
     DATE = "DATE_VALIDATION"
     TIME = "TIME_VALIDATION"
-    PAYLOAD = "PAYLOAD"
-    NETWORK = "NETWORK"
-    REGEX = "REGEX"
+    PAYLOAD = "PAYLOAD_VALIDATION"
+    NETWORK = "NETWORK_VALIDATION"
+    REGEX = "REGEX_VALIDATION"
 
 class OperationsType(Enum):
     EXIST = "EXIST"
@@ -28,12 +30,12 @@ class OperationsType(Enum):
     HAS_ONE = "HAS_ONE"
     HAS_ALL = "HAS_ALL"
 
-def process_operation(strategy_config: dict, input_value: str) -> Optional[bool]:
+def process_operation(strategy_config: StrategyConfig, input_value: str) -> Optional[bool]:
     """Process the operation based on strategy configuration and input value."""
 
-    strategy = strategy_config.get('strategy')
-    operation = strategy_config.get('operation', '')
-    values = strategy_config.get('values', [])
+    strategy = strategy_config.strategy
+    operation = strategy_config.operation
+    values = strategy_config.values
     
     match strategy:
         case StrategiesType.VALUE.value:

@@ -1,5 +1,6 @@
 from switcher_client.client import Client, ContextOptions
 from switcher_client.errors import LocalCriteriaError
+from switcher_client.lib.utils.timed_match.timed_match import TimedMatch
 
 def test_local():
     """ Should use local Snapshot to evaluate the switcher """
@@ -13,6 +14,51 @@ def test_local():
     # test
     assert snapshot_version == 1
     assert switcher.is_on('FF2FOR2022')
+
+def test_local_with_strategy():
+    """ Should use local Snapshot to evaluate the switcher with strategy """
+
+    # given
+    given_context('tests/snapshots')
+    Client.load_snapshot()
+
+    switcher = Client.get_switcher()
+
+    # test
+    assert switcher \
+        .check_value('Japan') \
+        .check_network('10.0.0.3') \
+        .is_on('FF2FOR2020')
+    
+def test_local_with_strategy_no_input():
+    """ Should return disabled when no input is provided for the strategy """
+
+    # given
+    given_context('tests/snapshots')
+    Client.load_snapshot()
+
+    switcher = Client.get_switcher()
+
+    # test
+    assert switcher.is_on('FF2FOR2020') is False
+
+def test_local_with_strategy_no_matching_input():
+    """ Should return disabled when no matching input is provided for the strategy """
+
+    # given
+    TimedMatch.set_max_time_limit(100)
+    given_context('tests/snapshots')
+    Client.load_snapshot()
+
+    switcher = Client.get_switcher()
+
+    # test
+    assert switcher \
+        .check_regex('123') \
+        .is_on('FF2FOR2024') is False
+    
+    # teardown
+    Client.clear_resources()
 
 def test_local_domain_disabled():
     """ Should return disabled when domain is deactivated """
@@ -52,6 +98,19 @@ def test_local_config_disabled():
     # test
     assert snapshot_version == 1
     assert switcher.is_on('FF2FOR2031') is False
+
+def test_local_strategy_disabled():
+    """ Should return disabled when strategy is deactivated """
+
+    # given
+    given_context('tests/snapshots')
+    snapshot_version = Client.load_snapshot()
+
+    switcher = Client.get_switcher()
+
+    # test
+    assert snapshot_version == 1
+    assert switcher.check_network('10.0.0.3').is_on('FF2FOR2021')
 
 def test_local_no_key_found():
     """ Should raise an error when no key is found in the snapshot """

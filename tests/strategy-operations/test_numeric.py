@@ -1,7 +1,8 @@
 import pytest
-from typing import Dict, List, Any
+from typing import List
 
 from switcher_client.lib.snapshot import OperationsType, StrategiesType, process_operation
+from switcher_client.lib.types import StrategyConfig
 
 class TestNumericStrategy:
     """Test suite for Strategy [NUMERIC] tests."""
@@ -21,13 +22,14 @@ class TestNumericStrategy:
         """Decimal numeric value mock data."""
         return ['1.5']
     
-    def given_strategy_config(self, operation: str, values: List[str]) -> Dict[str, Any]:
-        return {
-            'strategy': StrategiesType.NUMERIC.value,
-            'operation': operation,
-            'values': values,
-            'activated': True
-        }
+    def given_strategy_config(self, operation: str, values: List[str]) -> StrategyConfig:
+        """Create a strategy configuration for NUMERIC strategy."""
+        strategy_config = StrategyConfig()
+        strategy_config.strategy = StrategiesType.NUMERIC.value
+        strategy_config.operation = operation
+        strategy_config.values = values
+        strategy_config.activated = True
+        return strategy_config
     
     def test_should_agree_when_input_exist_in_values_string_type(self, mock_values2):
         """Should agree when input EXIST in values - String type."""
