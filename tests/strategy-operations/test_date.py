@@ -1,7 +1,8 @@
 import pytest
-from typing import Dict, List, Any
+from typing import List
 
 from switcher_client.lib.snapshot import OperationsType, StrategiesType, process_operation
+from switcher_client.lib.types import StrategyConfig
 
 class TestDateStrategy:
     """Test suite for Strategy [DATE] tests."""
@@ -21,13 +22,13 @@ class TestDateStrategy:
         """Date with time component mock data."""
         return ['2019-12-01T08:30']
     
-    def given_strategy_config(self, operation: str, values: List[str]) -> Dict[str, Any]:
-        return {
-            'strategy': StrategiesType.DATE.value,
-            'operation': operation,
-            'values': values,
-            'activated': True
-        }
+    def given_strategy_config(self, operation: str, values: List[str]) -> StrategyConfig:
+        strategy_config = StrategyConfig()
+        strategy_config.strategy = StrategiesType.DATE.value
+        strategy_config.operation = operation
+        strategy_config.values = values
+        strategy_config.activated = True
+        return strategy_config
     
     def test_should_agree_when_input_is_lower(self, mock_values1):
         """Should agree when input is LOWER."""

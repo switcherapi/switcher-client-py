@@ -1,10 +1,10 @@
 import json
 import os
 
-from switcher_client.lib.globals.global_auth import GlobalAuth
-from switcher_client.lib.globals.global_context import Context
-from switcher_client.lib.remote import Remote
-from switcher_client.lib.types import Snapshot
+from .globals.global_auth import GlobalAuth
+from .globals.global_context import Context
+from .remote import Remote
+from .types import Snapshot
 
 def load_domain(snapshot_location: str, environment: str):
     """ Load Domain from snapshot file """

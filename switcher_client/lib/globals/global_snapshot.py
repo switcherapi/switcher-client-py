@@ -1,4 +1,4 @@
-from switcher_client.lib.types import Snapshot
+from ...lib.types import Snapshot
 
 class GlobalSnapshot:
     

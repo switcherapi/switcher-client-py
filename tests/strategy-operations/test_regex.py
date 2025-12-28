@@ -1,7 +1,8 @@
 import pytest
-from typing import Dict, List, Any
+from typing import List
 
 from switcher_client.lib.snapshot import OperationsType, StrategiesType, process_operation
+from switcher_client.lib.types import StrategyConfig
 from switcher_client.lib.utils.timed_match import TimedMatch
 
 class TestRegexStrategy:
@@ -37,13 +38,14 @@ class TestRegexStrategy:
         """Simple regex pattern without word boundaries."""
         return ['USER_[0-9]{1,2}']
     
-    def given_strategy_config(self, operation: str, values: List[str]) -> Dict[str, Any]:
-        return {
-            'strategy': StrategiesType.REGEX.value,
-            'operation': operation,
-            'values': values,
-            'activated': True
-        }
+    def given_strategy_config(self, operation: str, values: List[str]) -> StrategyConfig:
+        """Create a strategy configuration for REGEX strategy."""
+        strategy_config = StrategyConfig()
+        strategy_config.strategy = StrategiesType.REGEX.value
+        strategy_config.operation = operation
+        strategy_config.values = values
+        strategy_config.activated = True
+        return strategy_config
     
     def test_should_agree_when_expect_to_exist_using_exist_operation(self, mock_values1, mock_values2):
         """Should agree when expect to exist using EXIST operation."""

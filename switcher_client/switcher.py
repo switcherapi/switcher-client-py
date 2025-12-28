@@ -1,14 +1,14 @@
 from typing import Optional
 
-from switcher_client.lib.globals.global_context import Context
-from switcher_client.lib.globals.global_snapshot import GlobalSnapshot
-from switcher_client.lib.remote_auth import RemoteAuth
-from switcher_client.lib.globals import GlobalAuth
-from switcher_client.lib.remote import Remote
-from switcher_client.lib.resolver import Resolver
-from switcher_client.lib.types import ResultDetail
-from switcher_client.lib.utils.execution_logger import ExecutionLogger
-from switcher_client.switcher_data import SwitcherData
+from .lib.globals.global_context import Context
+from .lib.globals.global_snapshot import GlobalSnapshot
+from .lib.remote_auth import RemoteAuth
+from .lib.globals import GlobalAuth
+from .lib.remote import Remote
+from .lib.resolver import Resolver
+from .lib.types import ResultDetail
+from .lib.utils.execution_logger import ExecutionLogger
+from .switcher_data import SwitcherData
 
 class Switcher(SwitcherData):
     def __init__(self, context: Context, key: Optional[str] = None):

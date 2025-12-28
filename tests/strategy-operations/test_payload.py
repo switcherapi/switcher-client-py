@@ -1,7 +1,8 @@
 import json
 import pytest
-from typing import Dict, List, Any
+from typing import List
 
+from switcher_client.lib.types import StrategyConfig
 from switcher_client.lib.utils.payload_reader import payload_reader
 from switcher_client.lib.snapshot import OperationsType, StrategiesType, process_operation
 
@@ -51,13 +52,14 @@ class TestPayloadStrategy:
             'env': 'default'
         })
     
-    def given_strategy_config(self, operation: str, values: List[str]) -> Dict[str, Any]:
-        return {
-            'strategy': StrategiesType.PAYLOAD.value,
-            'operation': operation,
-            'values': values,
-            'activated': True
-        }
+    def given_strategy_config(self, operation: str, values: List[str]) -> StrategyConfig:
+        """Create a strategy configuration for PAYLOAD strategy."""
+        strategy_config = StrategyConfig()
+        strategy_config.strategy = StrategiesType.PAYLOAD.value
+        strategy_config.operation = operation
+        strategy_config.values = values
+        strategy_config.activated = True
+        return strategy_config
     
     def test_should_read_keys_from_payload_1(self, fixture_values2):
         """Should read keys from payload #1."""

@@ -1,9 +1,9 @@
 [run]
 omit = 
     switcher_client/lib/utils/timed_match/worker.py
+    switcher_client/version.py
     */tests/*
     */test_*
-    */__init__.py
 
 [report]
 exclude_lines =

@@ -2,8 +2,7 @@ from datetime import datetime
 from abc import ABCMeta
 from typing import Optional, Self
 
-# Strategy types
-VALUE_VALIDATION = 'VALUE_VALIDATION'
+from .lib.snapshot import StrategiesType
 
 class SwitcherData(metaclass=ABCMeta):
     def __init__(self, key: Optional[str] = None):
@@ -21,7 +20,15 @@ class SwitcherData(metaclass=ABCMeta):
 
     def check_value(self, input: str) -> Self:
         """ Adds VALUE_VALIDATION input for strategy validation """
-        return self.check(VALUE_VALIDATION, input)
+        return self.check(StrategiesType.VALUE.value, input)
+    
+    def check_network(self, input: str) -> Self:
+        """ Adds NETWORK_VALIDATION input for strategy validation """
+        return self.check(StrategiesType.NETWORK.value, input)
+    
+    def check_regex(self, input: str) -> Self:
+        """ Adds REGEX_VALIDATION input for strategy validation """
+        return self.check(StrategiesType.REGEX.value, input)
     
     def throttle(self, period: int) -> Self:
         """ Sets throttle period in milliseconds """

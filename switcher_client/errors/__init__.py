@@ -15,3 +15,10 @@ class LocalCriteriaError(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
+
+__all__ = [
+    'RemoteError',
+    'RemoteAuthError',
+    'RemoteCriteriaError',
+    'LocalCriteriaError',
+]
