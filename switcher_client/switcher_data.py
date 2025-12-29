@@ -1,6 +1,6 @@
 from datetime import datetime
 from abc import ABCMeta
-from typing import Optional, Self
+from typing import Optional, Self, Union
 
 from .lib.snapshot import StrategiesType
 
@@ -29,6 +29,16 @@ class SwitcherData(metaclass=ABCMeta):
     def check_regex(self, input: str) -> Self:
         """ Adds REGEX_VALIDATION input for strategy validation """
         return self.check(StrategiesType.REGEX.value, input)
+    
+    def check_payload(self, input: Union[str, dict]) -> Self:
+        """ Adds PAYLOAD_VALIDATION input for strategy validation """
+        if isinstance(input, dict):
+            import json
+            payload_str = json.dumps(input)
+        else:
+            payload_str = input
+            
+        return self.check(StrategiesType.PAYLOAD.value, payload_str)
     
     def throttle(self, period: int) -> Self:
         """ Sets throttle period in milliseconds """

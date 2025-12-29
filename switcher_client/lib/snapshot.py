@@ -4,8 +4,7 @@ from enum import Enum
 from typing import Optional
 from datetime import datetime
 
-from switcher_client.lib.types import StrategyConfig
-
+from ..lib.types import StrategyConfig
 from .utils.payload_reader import parse_json, payload_reader
 from .utils.ipcidr import IPCIDR
 from .utils.timed_match import TimedMatch

@@ -1,11 +1,10 @@
 from typing import Optional
 
-from switcher_client.lib.types import Config, Domain, Entry, Group, ResultDetail, Snapshot, StrategyConfig
-from switcher_client.lib.snapshot import process_operation
-from switcher_client.lib.utils import get, get_entry
-from switcher_client.lib.utils import get_entry
-from switcher_client.errors import LocalCriteriaError
-from switcher_client.switcher_data import SwitcherData
+from ..lib.types import Config, Domain, Entry, Group, ResultDetail, Snapshot, StrategyConfig
+from ..lib.snapshot import process_operation
+from ..lib.utils import get, get_entry
+from ..errors import LocalCriteriaError
+from ..switcher_data import SwitcherData
 
 class Resolver:
 

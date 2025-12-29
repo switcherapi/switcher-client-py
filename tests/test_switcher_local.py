@@ -1,3 +1,5 @@
+import json
+
 from switcher_client.client import Client, ContextOptions
 from switcher_client.errors import LocalCriteriaError
 from switcher_client.lib.utils.timed_match.timed_match import TimedMatch
@@ -30,6 +32,32 @@ def test_local_with_strategy():
         .check_network('10.0.0.3') \
         .is_on('FF2FOR2020')
     
+def test_local_with_strategy_payload():
+    """ Should use local Snapshot to evaluate the switcher with payload validation strategy """
+
+    # given
+    given_context('tests/snapshots')
+    Client.load_snapshot()
+
+    switcher = Client.get_switcher()
+    payload = {
+        'id': 12345, 
+        'user': {
+            'login': 'test_user',
+            'role': 'admin'
+        }
+    }
+
+    # test (using stringified JSON)
+    assert switcher \
+        .check_payload(json.dumps(payload)) \
+        .is_on('FF2FOR2023')
+    
+    # test (using dict)
+    assert switcher \
+        .check_payload(payload) \
+        .is_on('FF2FOR2023')
+
 def test_local_with_strategy_no_input():
     """ Should return disabled when no input is provided for the strategy """
 

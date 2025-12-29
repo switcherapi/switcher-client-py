@@ -45,8 +45,8 @@ class TestTimedMatch:
         assert result is True
 
     def test_should_return_false_and_abort_processing(self):
-
         """Should return false and abort processing for ReDoS pattern."""
+        
         result = TimedMatch.try_match([NOK_RE], NOK_INPUT)
         assert result is False
 
