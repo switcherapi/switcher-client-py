@@ -1,9 +1,8 @@
 from typing import Optional, Callable
 
 from .lib.globals.global_snapshot import GlobalSnapshot, LoadSnapshotOptions
+from .lib.globals.global_context import Context, ContextOptions, DEFAULT_ENVIRONMENT
 from .lib.remote_auth import RemoteAuth
-from .lib.globals.global_context import Context, ContextOptions
-from .lib.globals.global_context import DEFAULT_ENVIRONMENT
 from .lib.snapshot_auto_updater import SnapshotAutoUpdater
 from .lib.snapshot_loader import load_domain, validate_snapshot, save_snapshot
 from .lib.utils.execution_logger import ExecutionLogger
@@ -13,6 +12,7 @@ from .switcher import Switcher
 
 class SwitcherOptions:
     SNAPSHOT_AUTO_UPDATE_INTERVAL = 'snapshot_auto_update_interval'
+    SILENT_MODE = 'silent_mode'
 
 class Client:
     _context: Context = Context.empty()
@@ -52,12 +52,20 @@ class Client:
     @staticmethod
     def _build_options(options: ContextOptions):
         options_handler = {
-            SwitcherOptions.SNAPSHOT_AUTO_UPDATE_INTERVAL: lambda: Client.schedule_snapshot_auto_update()
+            SwitcherOptions.SNAPSHOT_AUTO_UPDATE_INTERVAL: lambda: Client.schedule_snapshot_auto_update(),
+            SwitcherOptions.SILENT_MODE: lambda: Client._init_silent_mode(get(options.silent_mode, ''))
         }
         
         for option_key, handler in options_handler.items():
             if hasattr(options, option_key) and getattr(options, option_key) is not None:
                 handler()
+
+    @staticmethod
+    def _init_silent_mode(silent_mode: str):
+        if silent_mode != '':
+            RemoteAuth.set_retry_options(silent_mode)
+            Client._context.options.silent_mode = silent_mode
+            Client.load_snapshot()
 
     @staticmethod
     def get_switcher(key: Optional[str] = None) -> Switcher:

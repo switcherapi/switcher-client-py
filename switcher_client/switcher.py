@@ -37,10 +37,18 @@ class Switcher(SwitcherData):
         if (self._context.options.local):
             return self._execute_local_criteria()
 
-        self.validate()
-        response = self._execute_remote_criteria()
+        try:
+            self.validate()
+            if GlobalAuth.get_token() == 'SILENT':
+                return self._execute_local_criteria()
 
-        return response
+            return self._execute_remote_criteria()
+        except Exception as e:
+            if self._context.options.silent_mode:
+                RemoteAuth.update_silent_token()
+                return self._execute_local_criteria()
+
+            raise e
     
     def validate(self) -> 'Switcher':
         """ Validates client settings for remote API calls """

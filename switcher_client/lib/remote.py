@@ -30,6 +30,13 @@ class Remote:
         raise RemoteAuthError('Invalid API key')
     
     @staticmethod
+    def check_api_health(context: Context) -> bool:
+        url = f'{context.url}/check'
+        response = Remote._do_get(url)
+        
+        return response.status_code == 200
+    
+    @staticmethod
     def check_criteria(token: Optional[str], context: Context, switcher: SwitcherData) -> ResultDetail:
         url = f'{context.url}/criteria?showReason={str(switcher._show_details).lower()}&key={switcher._key}'
         entry = get_entry(switcher._input)
