@@ -17,7 +17,7 @@ def test_context_with_optionals():
         )
     )
 
-    options = Client.context.options
+    options = Client._context.options
 
     assert options.local == True
     assert options.snapshot_location == './tests/snapshots'
@@ -34,6 +34,20 @@ def test_context_remote_validation():
         Client.get_switcher().validate() # used by is_on()
     
     assert 'Missing or empty required fields (url, component, api_key)' in str(excinfo.value)
+
+def test_context_get_switcher_from_cache():
+    """ Should get switcher from cache if available """
+
+    Client.build_context(
+        domain='My Domain'
+    )
+
+    switcher1 = Client.get_switcher('switcher1')
+    switcher2 = Client.get_switcher('switcher1')
+    switcher3 = Client.get_switcher('')
+
+    assert switcher1 is switcher2
+    assert switcher1 is not switcher3
 
 # Helpers
 
