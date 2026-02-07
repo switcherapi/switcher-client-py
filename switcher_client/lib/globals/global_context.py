@@ -8,11 +8,13 @@ class ContextOptions:
                  local = DEFAULT_LOCAL,
                  logger = False,
                  snapshot_location: Optional[str] = None, 
-                 snapshot_auto_update_interval: Optional[int] = None):
+                 snapshot_auto_update_interval: Optional[int] = None,
+                 silent_mode: Optional[str] = None):
         self.local = local
         self.logger = logger
         self.snapshot_location = snapshot_location
         self.snapshot_auto_update_interval = snapshot_auto_update_interval
+        self.silent_mode = silent_mode
 
 class Context:
     def __init__(self, 

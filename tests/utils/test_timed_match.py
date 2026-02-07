@@ -14,44 +14,44 @@ TIMEOUT = 950    # ms - 50ms margin for worker thread to finish
 
 
 def get_timer(start_time: float) -> float:
-    """Calculate elapsed time in milliseconds."""
+    """ Calculate elapsed time in milliseconds. """
     return (time.time() - start_time) * 1000
 
 class TestTimedMatch:
-    """Timed-Match tests."""
+    """ Timed-Match tests. """
     
     @classmethod
     def setup_class(cls):
-        """Setup before all tests."""
+        """ Setup before all tests. """
         TimedMatch.initialize_worker()
     
     def setup_method(self):
-        """Setup before each test."""
+        """ Setup before each test. """
         TimedMatch.clear_blacklist()
         TimedMatch.set_max_blacklisted(50)
         TimedMatch.set_max_time_limit(1000)
     
     @classmethod
     def teardown_class(cls):
-        """Cleanup after all tests."""
+        """ Cleanup after all tests. """
         TimedMatch.terminate_worker()
         # Give processes time to fully terminate
         time.sleep(0.2)
 
     def test_should_return_true(self):
-        """Should return true for simple regex match."""
+        """ Should return true for simple regex match. """
 
         result = TimedMatch.try_match([OK_RE], OK_INPUT)
         assert result is True
 
     def test_should_return_false_and_abort_processing(self):
-        """Should return false and abort processing for ReDoS pattern."""
+        """ Should return false and abort processing for ReDoS pattern. """
         
         result = TimedMatch.try_match([NOK_RE], NOK_INPUT)
         assert result is False
 
     def test_runs_stress_tests(self):
-        """Run timing stress tests."""
+        """ Run timing stress tests. """
         
         # First run - cold start
         timer = time.time()
@@ -79,7 +79,7 @@ class TestTimedMatch:
             assert elapsed < WARM_TIME
 
     def test_should_rotate_blacklist(self):
-        """Should rotate blacklist when max size is reached."""
+        """ Should rotate blacklist when max size is reached. """
 
         TimedMatch.set_max_blacklisted(1)
 
@@ -108,7 +108,7 @@ class TestTimedMatch:
         assert elapsed < WARM_TIME
 
     def test_should_capture_blacklisted_item_from_multiple_regex_options(self):
-        """Should capture blacklisted item from multiple regex options."""
+        """ Should capture blacklisted item from multiple regex options. """
 
         TimedMatch.set_max_blacklisted(1)
 
@@ -125,7 +125,7 @@ class TestTimedMatch:
         assert elapsed < WARM_TIME
 
     def test_should_capture_blacklisted_item_from_similar_inputs(self):
-        """Should capture blacklisted item from similar inputs."""
+        """ Should capture blacklisted item from similar inputs. """
 
         TimedMatch.set_max_blacklisted(1)
 
@@ -154,7 +154,7 @@ class TestTimedMatch:
         assert elapsed < WARM_TIME
 
     def test_should_reduce_worker_timer(self):
-        """Should respect reduced worker timer setting."""
+        """ Should respect reduced worker timer setting. """
         
         TimedMatch.set_max_time_limit(500)
 

@@ -132,7 +132,7 @@ Client.build_context(
         logger=True,                             # Enable logging
         snapshot_location='./snapshot/',         # Snapshot files location
         snapshot_auto_update_interval=3,         # Auto-update interval (seconds)
-        silent_mode='5m',                        # 🚧 TODO: Silent mode retry time
+        silent_mode='5m',                        # Silent mode retry time
         cert_path='./certs/ca.pem'               # 🚧 TODO: Certificate path
     )
 )
