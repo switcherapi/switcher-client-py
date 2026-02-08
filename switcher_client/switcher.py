@@ -44,6 +44,8 @@ class Switcher(SwitcherData):
 
             return self._execute_remote_criteria()
         except Exception as e:
+            self._notify_error(e)
+            
             if self._context.options.silent_mode:
                 RemoteAuth.update_silent_token()
                 return self._execute_local_criteria()
@@ -80,6 +82,11 @@ class Switcher(SwitcherData):
         RemoteAuth.check_health()
         if RemoteAuth.is_token_expired():
             self.prepare(self._key)
+
+    def _notify_error(self, error: Exception):
+        """ Notify asynchronous error to the subscribed callback """
+        if ExecutionLogger._callback_error:
+            ExecutionLogger._callback_error(error)
 
     def _execute_remote_criteria(self):
         """ Execute remote criteria """

@@ -178,6 +178,14 @@ class Client:
         ExecutionLogger.clear_logger()
         GlobalSnapshot.clear()
         TimedMatch.terminate_worker()
+
+    @staticmethod
+    def subscribe_notify_error(callback: Callable[[Exception], None]) -> None:
+        """
+        Subscribe to notify when an asynchronous error is thrown.
+        It is usually used when throttle and silent mode are enabled.
+        """
+        ExecutionLogger.subscribe_notify_error(callback)
     
     @staticmethod
     def _is_check_snapshot_available(fetch_remote = False) -> bool:

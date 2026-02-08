@@ -62,6 +62,11 @@ class ExecutionLogger:
         """Clear all results"""
         global _logger
         _logger.clear()
+
+    @staticmethod
+    def subscribe_notify_error(callback: Callable[[Exception], None]) -> None:
+        """Subscribe to notify when an asynchronous error is thrown."""
+        ExecutionLogger._callback_error = callback
     
     @staticmethod
     def _has_execution(log: 'ExecutionLogger', key: str, input: Optional[List[List[str]]]) -> bool:
