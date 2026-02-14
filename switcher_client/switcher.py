@@ -90,18 +90,36 @@ class Switcher(SwitcherData):
 
     def _execute_remote_criteria(self):
         """ Execute remote criteria """
-        token = GlobalAuth.get_token()
-        response = Remote.check_criteria(token, self._context, self)
+        try:
+            token = GlobalAuth.get_token()
+            response = Remote.check_criteria(token, self._context, self)
 
-        if self._can_log():
-            ExecutionLogger.add(response, self._key, self._input)
+            if self._can_log():
+                ExecutionLogger.add(response, self._key, self._input)
 
-        return response
+            return response
+        except Exception as e:
+            return self._get_default_result_or_raise(e)
     
     def _execute_local_criteria(self):
         """ Execute local criteria """
-        return Resolver.check_criteria(GlobalSnapshot.snapshot(), self)
+        try:
+            response = Resolver.check_criteria(GlobalSnapshot.snapshot(), self)
+            if self._can_log():
+                ExecutionLogger.add(response, self._key, self._input)
+
+            return response
+        except Exception as e:
+            return self._get_default_result_or_raise(e)
     
     def _can_log(self) -> bool:
         """ Check if logging is enabled """
         return self._context.options.logger and self._key is not None
+    
+    def _get_default_result_or_raise(self, e) -> ResultDetail:
+        """ Get default result if set, otherwise raise the error """
+        if self._default_result is None:
+            raise e
+        
+        self._notify_error(e)
+        return ResultDetail.create(result=self._default_result, reason="Default result")

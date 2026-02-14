@@ -4,6 +4,8 @@ from switcher_client.client import Client, ContextOptions
 from switcher_client.errors import LocalCriteriaError
 from switcher_client.lib.utils.timed_match.timed_match import TimedMatch
 
+async_error = None
+
 def test_local():
     """ Should use local Snapshot to evaluate the switcher """
 
@@ -156,6 +158,25 @@ def test_local_no_key_found():
     except LocalCriteriaError as e:
         assert str(e) == "Config with key 'INVALID_KEY' not found in the snapshot"
 
+def test_local_err_check_criteria_default_result():
+    """ Should return default result when check criteria fails """
+
+    # given
+    given_context('tests/snapshots')
+    snapshot_version = Client.load_snapshot()
+
+    globals().update(async_error=None)
+    Client.subscribe_notify_error(lambda error: globals().update(async_error=str(error)))
+    switcher = Client.get_switcher()
+
+    # test
+    assert snapshot_version == 1
+    
+    feature = switcher.default_result(True).is_on_with_details('INVALID_KEY')
+    assert feature.result is True
+    assert feature.reason == 'Default result'
+    assert async_error == "Config with key 'INVALID_KEY' not found in the snapshot"
+
 def test_local_no_snapshot():
     """ Should raise an error when no snapshot is loaded """
 
@@ -177,6 +198,7 @@ def given_context(snapshot_location: str, environment: str = 'default') -> None:
         environment=environment,
         options=ContextOptions(
             local=True,
+            logger=True,
             snapshot_location=snapshot_location
         )
     )

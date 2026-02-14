@@ -8,6 +8,8 @@ from switcher_client.errors import RemoteAuthError
 from switcher_client import Client
 from switcher_client.lib.globals.global_auth import GlobalAuth
 
+async_error = None
+
 def test_remote(httpx_mock):
     """ Should call the remote API with success """
 
@@ -162,6 +164,24 @@ def test_remote_err_check_criteria(httpx_mock):
         switcher.is_on('MY_SWITCHER')
 
     assert '[check_criteria] failed with status: 500' in str(excinfo.value)
+
+def test_remote_err_check_criteria_default_result(httpx_mock):
+    """ Should return the default result when the check criteria fails """
+
+    # given
+    given_auth(httpx_mock)
+    given_check_criteria(httpx_mock, show_details=True, status=500)
+    given_context()
+
+    globals().update(async_error=None)
+    Client.subscribe_notify_error(lambda error: globals().update(async_error=str(error)))
+    switcher = Client.get_switcher()
+
+    # test
+    feature = switcher.default_result(True).is_on_with_details('MY_SWITCHER')
+    assert feature.result is True
+    assert feature.reason == 'Default result'
+    assert async_error == '[check_criteria] failed with status: 500'
 
 # Helpers
 

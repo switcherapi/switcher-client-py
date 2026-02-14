@@ -11,6 +11,7 @@ class SwitcherData(metaclass=ABCMeta):
         self._show_details = False
         self._throttle_period = 0
         self._next_refresh_time = 0 # timestamp
+        self._default_result = None
 
     def check(self, strategy_type: str, input: str)-> Self:
         """ Adds a strategy for validation """
@@ -47,4 +48,9 @@ class SwitcherData(metaclass=ABCMeta):
         if self._next_refresh_time == 0:
             self._next_refresh_time = int(datetime.now().timestamp() * 1000) + period
 
+        return self
+    
+    def default_result(self, result: bool) -> Self:
+        """ Sets the default result for the switcher """
+        self._default_result = result
         return self

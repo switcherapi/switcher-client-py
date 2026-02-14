@@ -209,9 +209,15 @@ if switcher.is_on():
 Chain multiple validation strategies for comprehensive feature control:
 
 ```python
-# Validate user, network, and other criteria in one call
-is_enabled = switcher.check_value('premium_user') \
+is_enabled = switcher \
+                    # VALUE strategy
+                    .check_value('premium_user') \
+                    # NETWORK strategy
                     .check_network('192.168.1.0/24') \
+                    # Fallback value if API fails
+                    .default_result(True) \
+                    # Cache result for 1 second
+                    .throttle(1000) \
                     .is_on('PREMIUM_FEATURES')
 
 if is_enabled:
