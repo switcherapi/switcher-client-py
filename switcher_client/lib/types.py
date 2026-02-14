@@ -7,6 +7,10 @@ class ResultDetail:
         self.metadata = metadata
 
     @staticmethod
+    def create(result: bool, reason: Optional[str], metadata: Optional[dict] = None) -> 'ResultDetail':
+        return ResultDetail(result=result, reason=reason, metadata=metadata)
+
+    @staticmethod
     def disabled(reason: str, metadata: Optional[dict] = None) -> 'ResultDetail':
         return ResultDetail(result=False, reason=reason, metadata=metadata)
 
