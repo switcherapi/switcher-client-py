@@ -85,6 +85,7 @@ def test_remote_with_details(httpx_mock):
     assert response.reason == 'Success'
     assert response.result is True
     assert response.metadata == {'key': 'value'}
+    assert isinstance(response.to_dict(), dict)
 
 def test_remote_renew_token(httpx_mock):
     """ Should renew the token when it is expired """

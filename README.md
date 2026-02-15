@@ -133,6 +133,7 @@ Client.build_context(
         snapshot_location='./snapshot/',         # Snapshot files location
         snapshot_auto_update_interval=3,         # Auto-update interval (seconds)
         silent_mode='5m',                        # Silent mode retry time
+        throttle_max_workers=2,                  # Max workers for throttling
         cert_path='./certs/ca.pem'               # 🚧 TODO: Certificate path
     )
 )
@@ -147,6 +148,8 @@ switcher = Client.get_switcher()
 | `local` | `bool` | Use local snapshot files only (zero latency) | `False` |
 | `snapshot_location` | `str` | Directory for snapshot files | `'./snapshot/'` |
 | `snapshot_auto_update_interval` | `int` | Auto-update interval in seconds (0 = disabled) | `0` |
+| `silent_mode` | `str` | Silent mode retry time (e.g., '5m' for 5 minutes) | `None` |
+| `throttle_max_workers` | `int` | Max workers for throttling feature checks | `None` |
 | `regex_safe` | `bool` | Enable ReDoS attack protection | `True` |
 | `regex_max_black_list` | `int` | Max cached entries for failed regex | `50` |
 | `regex_max_time_limit` | `int` | Regex execution time limit (ms) | `3000` |
@@ -239,9 +242,9 @@ Client.subscribe_notify_error(lambda error: print(f"Switcher Error: {error}"))
 
 The following features are currently in development:
 
-#### Throttling (Coming Soon)
+#### Throttling
 ```python
-# 🚧 TODO: Zero-latency async execution
+# Zero-latency async execution
 switcher.throttle(1000).is_on('FEATURE01')
 ```
 
