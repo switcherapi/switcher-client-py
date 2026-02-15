@@ -2,10 +2,12 @@ from datetime import datetime
 from abc import ABCMeta
 from typing import Optional, Self, Union
 
+from .lib.globals.global_context import Context
 from .lib.snapshot import StrategiesType
 
 class SwitcherData(metaclass=ABCMeta):
-    def __init__(self, key: Optional[str] = None):
+    def __init__(self, context: Context,key: Optional[str] = None):
+        self._context = context
         self._key = key
         self._input = []
         self._show_details = False
@@ -47,6 +49,9 @@ class SwitcherData(metaclass=ABCMeta):
 
         if self._next_refresh_time == 0:
             self._next_refresh_time = int(datetime.now().timestamp() * 1000) + period
+
+        if self._throttle_period > 0:
+            self._context.options.logger = True
 
         return self
     

@@ -1,15 +1,13 @@
-import pytest
 import time
 
 from typing import Optional
 from pytest_httpx import HTTPXMock
 
-from switcher_client.errors import RemoteAuthError
 from switcher_client import Client
-from switcher_client.lib.globals.global_auth import GlobalAuth
+from switcher_client.lib.globals.global_context import ContextOptions
 
 def test_throttle(httpx_mock):
-    """ TODO Should throttle remote API calls and use cached response """
+    """ Should throttle remote API calls and use cached response """
 
     # given
     given_auth(httpx_mock)
@@ -20,14 +18,23 @@ def test_throttle(httpx_mock):
     switcher.throttle(1000)  # 1 second throttle
 
     # test
-    response = switcher.is_on_with_details('MY_SWITCHER')
+    response = switcher.is_on_with_details('MY_SWITCHER_THROTTLE')
     assert response.result is True
     assert response.metadata == {}
 
-    # when - call again within throttle period
-    # response = switcher.is_on_with_details('MY_SWITCHER')
-    # assert response.result is True
-    # assert response.metadata == {'cached': True}
+    # when - call again within throttle period (no new API call should be made, cached response should be used)
+    response = switcher.is_on_with_details('MY_SWITCHER_THROTTLE')
+    assert switcher.is_on('MY_SWITCHER_THROTTLE') is True
+    assert response.result is True
+    assert response.metadata == {'cached': True}
+
+    time.sleep(1)
+
+    # when - call again outside of throttle period (new API call should be made, cached response should be updated)
+    given_check_criteria(httpx_mock, show_details=True, response={'result': False})
+    response = switcher.is_on_with_details('MY_SWITCHER_THROTTLE')
+    assert response.result is False
+    assert response.metadata == {'cached': True}
 
 # Helpers
 
@@ -36,7 +43,8 @@ def given_context(url='https://api.switcherapi.com', api_key='[API_KEY]'):
         url=url,
         api_key=api_key,
         domain='Playground',
-        component='switcher-playground'
+        component='switcher-playground',
+        options=ContextOptions(throttle_max_workers=2)
     )
 
 def given_auth(httpx_mock: HTTPXMock, status=200, token: Optional[str]='[token]', exp=int(round(time.time() * 1000))):
@@ -47,9 +55,9 @@ def given_auth(httpx_mock: HTTPXMock, status=200, token: Optional[str]='[token]'
         json={'token': token, 'exp': exp}
     )
 
-def given_check_criteria(httpx_mock: HTTPXMock, status=200, key='MY_SWITCHER', response={}, show_details=False, match=None):
+def given_check_criteria(httpx_mock: HTTPXMock, status=200, key='MY_SWITCHER_THROTTLE', response={}, show_details=False, match=None):
     httpx_mock.add_response(
-        is_reusable=True,
+        is_reusable=False,
         url=f'https://api.switcherapi.com/criteria?showReason={str(show_details).lower()}&key={key}',
         method='POST',
         status_code=status,

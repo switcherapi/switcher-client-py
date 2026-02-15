@@ -18,6 +18,13 @@ class ResultDetail:
     def success(reason: str = "Success", metadata: Optional[dict] = None) -> 'ResultDetail':
         return ResultDetail(result=True, reason=reason, metadata=metadata)
 
+    def to_dict(self) -> dict:
+        return {
+            'result': self.result,
+            'reason': self.reason,
+            'metadata': self.metadata
+        }
+
 class Domain:
     def __init__(self):
         self.name: str

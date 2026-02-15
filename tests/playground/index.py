@@ -30,6 +30,18 @@ def simple_api_call():
     monitor_thread = threading.Thread(target=monitor_run, args=(switcher,), daemon=True)
     monitor_thread.start()
 
+def simple_api_call_with_throttle():
+    """ Use case: Check Switcher using remote API with throttle """
+    setup_context(ContextOptions(
+        local=False
+    ))
+
+    switcher = Client.get_switcher(SWITCHER_KEY)
+    switcher.throttle(period=5000)  # 5 seconds
+
+    monitor_thread = threading.Thread(target=monitor_run, args=(switcher,True), daemon=True)
+    monitor_thread.start()
+
 def load_snapshot_from_remote():
     """ Use case: Load snapshot from remote API """
     global LOOP

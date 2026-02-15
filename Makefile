@@ -1,4 +1,4 @@
-.PHONY: install test cover build
+.PHONY: install test cover
 
 install:
 	pipenv install --dev
@@ -8,6 +8,3 @@ test:
 
 cover:
 	coverage html
-
-build:
-	python3 -m build
