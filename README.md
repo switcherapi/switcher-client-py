@@ -128,13 +128,14 @@ Client.build_context(
     component='MyApp',
     environment='default',
     options=ContextOptions(
-        local=True,                              # Enable local mode
-        logger=True,                             # Enable logging
-        snapshot_location='./snapshot/',         # Snapshot files location
-        snapshot_auto_update_interval=3,         # Auto-update interval (seconds)
-        silent_mode='5m',                        # Silent mode retry time
-        throttle_max_workers=2,                  # Max workers for throttling
-        cert_path='./certs/ca.pem'               # 🚧 TODO: Certificate path
+        local=True,
+        logger=True,
+        freeze=True,
+        snapshot_location='./snapshot/',
+        snapshot_auto_update_interval=3,
+        silent_mode='5m',
+        throttle_max_workers=2,
+        cert_path='./certs/ca.pem'
     )
 )
 
@@ -146,21 +147,21 @@ switcher = Client.get_switcher()
 | Option | Type | Description | Default |
 |--------|------|-------------|---------|
 | `local` | `bool` | Use local snapshot files only (zero latency) | `False` |
+| `logger` | `bool` | Enable logging/caching of feature flag evaluations | `False` |
+| `freeze` | `bool` | Enable cache-immutability responses for consistent results | `False` |
 | `snapshot_location` | `str` | Directory for snapshot files | `'./snapshot/'` |
 | `snapshot_auto_update_interval` | `int` | Auto-update interval in seconds (0 = disabled) | `0` |
 | `silent_mode` | `str` | Silent mode retry time (e.g., '5m' for 5 minutes) | `None` |
 | `throttle_max_workers` | `int` | Max workers for throttling feature checks | `None` |
-| `regex_safe` | `bool` | Enable ReDoS attack protection | `True` |
-| `regex_max_black_list` | `int` | Max cached entries for failed regex | `50` |
-| `regex_max_time_limit` | `int` | Regex execution time limit (ms) | `3000` |
+| `regex_max_black_list` | `int` | 🚧 TODO - Max cached entries for failed regex | `50` |
+| `regex_max_time_limit` | `int` | 🚧 TODO - Regex execution time limit (ms) | `3000` |
+| `cert_path` | `str` | 🚧 TODO - Path to custom certificate for API connections | `None` |
 
 #### Security Features
 
-- **ReDoS Protection**: The `regex_safe` feature prevents Regular Expression Denial of Service attacks
-- **Certificate Support**: Use custom certificates for secure API connections  
+- **ReDoS Protection**: Built-in ReDoS attack prevention with regex safety features
 - **Time Limits**: Configurable timeouts prevent long-running regex operations
-
-> ⚠️ **Security Note**: Keep `regex_safe` enabled to protect against ReDoS attacks
+- **Certificate Support**: Use custom certificates for secure API connections  
 
 ## Usage Examples
 

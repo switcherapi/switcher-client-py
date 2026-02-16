@@ -116,7 +116,8 @@ class Switcher(SwitcherData):
     def _try_cached_result(self) -> Optional[ResultDetail]:
         """ Try get cached result if throttle is enabled and criteria was recently executed """
         if self._has_throttle():
-            self.schedule_background_refresh()
+            if not self._context.options.freeze:
+                self.schedule_background_refresh()
 
             cached_result_logger = ExecutionLogger.get_execution(self._key, self._input)
             if cached_result_logger.key is not None:

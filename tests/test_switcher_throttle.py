@@ -10,41 +10,69 @@ def test_throttle(httpx_mock):
     """ Should throttle remote API calls and use cached response """
 
     # given
+    key = 'MY_SWITCHER_THROTTLE'
     given_auth(httpx_mock)
-    given_check_criteria(httpx_mock, show_details=True, response={'result': True})
+    given_check_criteria(httpx_mock, key=key, show_details=True, response={'result': True})
     given_context()
 
     switcher = Client.get_switcher()
     switcher.throttle(1000)  # 1 second throttle
 
     # test
-    response = switcher.is_on_with_details('MY_SWITCHER_THROTTLE')
+    response = switcher.is_on_with_details(key)
     assert response.result is True
     assert response.metadata == {}
 
     # when - call again within throttle period (no new API call should be made, cached response should be used)
-    response = switcher.is_on_with_details('MY_SWITCHER_THROTTLE')
-    assert switcher.is_on('MY_SWITCHER_THROTTLE') is True
+    response = switcher.is_on_with_details(key)
+    assert switcher.is_on(key) is True
     assert response.result is True
     assert response.metadata == {'cached': True}
 
     time.sleep(1)
 
     # when - call again outside of throttle period (new API call should be made, cached response should be updated)
-    given_check_criteria(httpx_mock, show_details=True, response={'result': False})
-    response = switcher.is_on_with_details('MY_SWITCHER_THROTTLE')
+    given_check_criteria(httpx_mock, key=key, show_details=True, response={'result': False})
+    response = switcher.is_on_with_details(key)
     assert response.result is False
+    assert response.metadata == {'cached': True}
+
+def test_throttle_with_freeze_options(httpx_mock):
+    """ Should prevents the background execution when using throttle with freeze option as True """
+
+    # given
+    key = 'MY_SWITCHER_THROTTLE_FREEZE'
+    given_auth(httpx_mock)
+    given_check_criteria(httpx_mock, key=key, show_details=True, response={'result': True})
+    given_context(freeze=True)
+
+    switcher = Client.get_switcher()
+    switcher.throttle(1000)  # 1 second throttle
+
+    # test
+    response = switcher.is_on_with_details(key)
+    assert response.result is True
+    assert response.metadata == {}
+
+    time.sleep(1)
+
+    # when - call again outside of throttle period (cached response should NOT be updated, unless we use Client.clear_logger())
+    response = switcher.is_on_with_details(key)
+    assert response.result is True
     assert response.metadata == {'cached': True}
 
 # Helpers
 
-def given_context(url='https://api.switcherapi.com', api_key='[API_KEY]'):
+def given_context(url='https://api.switcherapi.com', api_key='[API_KEY]', freeze=False):
     Client.build_context(
         url=url,
         api_key=api_key,
         domain='Playground',
         component='switcher-playground',
-        options=ContextOptions(throttle_max_workers=2)
+        options=ContextOptions(
+            throttle_max_workers=2,
+            freeze=freeze
+        )
     )
 
 def given_auth(httpx_mock: HTTPXMock, status=200, token: Optional[str]='[token]', exp=int(round(time.time() * 1000))):
@@ -55,7 +83,7 @@ def given_auth(httpx_mock: HTTPXMock, status=200, token: Optional[str]='[token]'
         json={'token': token, 'exp': exp}
     )
 
-def given_check_criteria(httpx_mock: HTTPXMock, status=200, key='MY_SWITCHER_THROTTLE', response={}, show_details=False, match=None):
+def given_check_criteria(httpx_mock: HTTPXMock, status=200, key='MY_SWITCHER', response={}, show_details=False, match=None):
     httpx_mock.add_response(
         is_reusable=False,
         url=f'https://api.switcherapi.com/criteria?showReason={str(show_details).lower()}&key={key}',
