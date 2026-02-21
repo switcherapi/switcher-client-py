@@ -14,6 +14,7 @@ class SwitcherData(metaclass=ABCMeta):
         self._throttle_period = 0
         self._next_refresh_time = 0 # timestamp
         self._default_result = None
+        self._force_remote = False
 
     def check(self, strategy_type: str, input: str)-> Self:
         """ Adds a strategy for validation """
@@ -53,6 +54,14 @@ class SwitcherData(metaclass=ABCMeta):
         if self._throttle_period > 0:
             self._context.options.logger = True
 
+        return self
+    
+    def remote(self, force_remote: bool = True) -> Self:
+        """ Force the use of the remote API when local is enabled """
+        if not self._context.options.local:
+            raise ValueError("Local mode is not enabled")
+
+        self._force_remote = force_remote
         return self
     
     def default_result(self, result: bool) -> Self:

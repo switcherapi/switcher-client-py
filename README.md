@@ -251,9 +251,9 @@ The following features are currently in development:
 switcher.throttle(1000).is_on('FEATURE01')
 ```
 
-#### Hybrid Mode (Coming Soon)  
+#### Hybrid Mode
 ```python
-# 🚧 TODO: Force remote resolution for specific features
+# Force remote resolution for specific features
 switcher.remote().is_on('FEATURE01')
 ```
 

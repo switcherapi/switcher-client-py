@@ -28,7 +28,9 @@ class Switcher(SwitcherData):
     def prepare(self, key: Optional[str] = None):
         """ Checks API credentials and connectivity """
         self._validate_args(key)
-        RemoteAuth.auth()
+
+        if not self._context.options.local or self._force_remote:
+            RemoteAuth.auth()
 
     def is_on(self, key: Optional[str] = None) -> bool:
         """ Execute criteria """
@@ -64,7 +66,7 @@ class Switcher(SwitcherData):
     def _submit(self) -> ResultDetail:
         """ Submit criteria for execution (local or remote) """
         # verify if query from snapshot
-        if (self._context.options.local):
+        if (self._context.options.local and not self._force_remote):
             return self._execute_local_criteria()
 
         try:

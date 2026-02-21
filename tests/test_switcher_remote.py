@@ -7,6 +7,7 @@ from pytest_httpx import HTTPXMock
 from switcher_client.errors import RemoteAuthError
 from switcher_client import Client
 from switcher_client.lib.globals.global_auth import GlobalAuth
+from switcher_client.lib.globals.global_context import ContextOptions
 
 async_error = None
 
@@ -104,6 +105,35 @@ def test_remote_renew_token(httpx_mock):
     switcher.is_on('MY_SWITCHER')
     assert GlobalAuth.get_token() == '[new_token]'
 
+def test_remote_with_remote_required_request(httpx_mock):
+    """ Should call the remote API with success for required remote request"""
+
+    # given
+    key = 'FF2FOR2022'
+    given_auth(httpx_mock)
+    given_check_criteria(httpx_mock, key=key, response={'result': True})
+    given_context(options=ContextOptions(local=True, snapshot_location='tests/snapshots'))
+    Client.load_snapshot()
+
+    switcher = Client.get_switcher()
+
+    # test
+    assert switcher.remote().is_on(key)
+
+def test_remote_err_with_remote_reqquired_request_no_local():
+    """ Should raise an exception when local mode is not enabled and remote is forced """
+
+    # given
+    given_context(options=ContextOptions(local=False))
+
+    switcher = Client.get_switcher()
+
+    # test
+    with pytest.raises(ValueError) as excinfo:
+        switcher.remote().is_on('MY_SWITCHER')
+
+    assert 'Local mode is not enabled' in str(excinfo.value)
+
 def test_remote_err_no_key(httpx_mock):
     """ Should raise an exception when no key is provided """
 
@@ -186,12 +216,13 @@ def test_remote_err_check_criteria_default_result(httpx_mock):
 
 # Helpers
 
-def given_context(url='https://api.switcherapi.com', api_key='[API_KEY]'):
+def given_context(url='https://api.switcherapi.com', api_key='[API_KEY]', options = ContextOptions()):
     Client.build_context(
         url=url,
         api_key=api_key,
         domain='Playground',
-        component='switcher-playground'
+        component='switcher-playground',
+        options=options
     )
 
 def given_auth(httpx_mock: HTTPXMock, status=200, token: Optional[str]='[token]', exp=int(round(time.time() * 1000))):
