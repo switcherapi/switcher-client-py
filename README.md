@@ -135,6 +135,8 @@ Client.build_context(
         snapshot_auto_update_interval=3,
         silent_mode='5m',
         throttle_max_workers=2,
+        regex_max_black_list=10,
+        regex_max_time_limit=100,
         cert_path='./certs/ca.pem'
     )
 )
@@ -153,8 +155,8 @@ switcher = Client.get_switcher()
 | `snapshot_auto_update_interval` | `int` | Auto-update interval in seconds (0 = disabled) | `0` |
 | `silent_mode` | `str` | Silent mode retry time (e.g., '5m' for 5 minutes) | `None` |
 | `throttle_max_workers` | `int` | Max workers for throttling feature checks | `None` |
-| `regex_max_black_list` | `int` | 🚧 TODO - Max cached entries for failed regex | `50` |
-| `regex_max_time_limit` | `int` | 🚧 TODO - Regex execution time limit (ms) | `3000` |
+| `regex_max_black_list` | `int` | Max cached entries for failed regex | `100` |
+| `regex_max_time_limit` | `int` | Regex execution time limit (ms) | `3000` |
 | `cert_path` | `str` | 🚧 TODO - Path to custom certificate for API connections | `None` |
 
 #### Security Features

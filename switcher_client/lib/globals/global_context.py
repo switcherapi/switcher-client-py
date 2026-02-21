@@ -4,6 +4,8 @@ DEFAULT_ENVIRONMENT = 'default'
 DEFAULT_LOCAL = False
 DEFAULT_LOGGER = False
 DEFAULT_FREEZE = False
+DEFAULT_REGEX_MAX_BLACKLISTED = 100
+DEFAULT_REGEX_MAX_TIME_LIMIT = 3000
 
 class ContextOptions:
     """
@@ -14,12 +16,16 @@ class ContextOptions:
     :param snapshot_auto_update_interval: The interval in milliseconds to auto-update the snapshot. If not set, it will not auto-update the snapshot
     :param silent_mode: When defined it will switch to local during the specified time before it switches back to remote, e.g. 5s (s: seconds - m: minutes - h: hours)
     :param throttle_max_workers: The maximum number of workers to use for background refresh when throttle is enabled. If None, the default value is based on the number of CPUs. Default is None
+    :param regex_max_black_list: The maximum number of blacklisted regex inputs. If not set, it will use the default value of 100
+    :param regex_max_time_limit: The maximum time limit in milliseconds for regex matching. If not set, it will use the default value of 3000 ms
     """
 
     def __init__(self, 
                  local = DEFAULT_LOCAL,
                  logger = DEFAULT_LOGGER,
                  freeze = DEFAULT_FREEZE,
+                 regex_max_black_list = DEFAULT_REGEX_MAX_BLACKLISTED,
+                 regex_max_time_limit = DEFAULT_REGEX_MAX_TIME_LIMIT,
                  snapshot_location: Optional[str] = None, 
                  snapshot_auto_update_interval: Optional[int] = None,
                  silent_mode: Optional[str] = None,
@@ -31,6 +37,8 @@ class ContextOptions:
         self.snapshot_auto_update_interval = snapshot_auto_update_interval
         self.silent_mode = silent_mode
         self.throttle_max_workers = throttle_max_workers
+        self.regex_max_black_list = regex_max_black_list
+        self.regex_max_time_limit = regex_max_time_limit
 
 class Context:
     def __init__(self, 
