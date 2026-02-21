@@ -1,8 +1,10 @@
 import json
 
+from time import time
+
 from switcher_client.client import Client, ContextOptions
 from switcher_client.errors import LocalCriteriaError
-from switcher_client.lib.utils.timed_match.timed_match import TimedMatch
+from switcher_client.lib.utils.timed_match.timed_match import DEFAULT_REGEX_MAX_BLACKLISTED, DEFAULT_REGEX_MAX_TIME_LIMIT
 
 async_error = None
 
@@ -76,8 +78,7 @@ def test_local_with_strategy_no_matching_input():
     """ Should return disabled when no matching input is provided for the strategy """
 
     # given
-    TimedMatch.set_max_time_limit(100)
-    given_context('tests/snapshots')
+    given_context(snapshot_location='tests/snapshots', regex_max_time_limit=100)
     Client.load_snapshot()
 
     switcher = Client.get_switcher()
@@ -87,6 +88,37 @@ def test_local_with_strategy_no_matching_input():
         .check_regex('123') \
         .is_on('FF2FOR2024') is False
     
+    # teardown
+    Client.clear_resources()
+
+def test_local_with_strategy_redos_input():
+    """ Should return disabled when ReDoS input is provided for the strategy """
+
+    # given
+    regex_input = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+    given_context(snapshot_location='tests/snapshots', 
+                  regex_max_black_list=1,
+                  regex_max_time_limit=100)
+    Client.load_snapshot()
+
+    switcher = Client.get_switcher()
+
+    # test
+    current_time_ms = int(time() * 1000)
+    assert switcher \
+        .check_regex(regex_input) \
+        .is_on('FF2FOR2024') is False
+    elapsed_time_ms = int(time() * 1000) - current_time_ms
+    assert elapsed_time_ms < 150 # Within TimedMatch time limit (100ms) + margin
+
+    # test blacklisted input
+    current_time_ms = int(time() * 1000)
+    assert switcher \
+        .check_regex(regex_input) \
+        .is_on('FF2FOR2024') is False
+    elapsed_time_ms = int(time() * 1000) - current_time_ms
+    assert elapsed_time_ms < 50  # Should be fast on second attempt due to blacklist
+
     # teardown
     Client.clear_resources()
 
@@ -192,13 +224,17 @@ def test_local_no_snapshot():
 
 # Helpers
 
-def given_context(snapshot_location: str, environment: str = 'default') -> None:
+def given_context(snapshot_location: str, environment: str = 'default', 
+                  regex_max_black_list = DEFAULT_REGEX_MAX_BLACKLISTED,
+                  regex_max_time_limit = DEFAULT_REGEX_MAX_TIME_LIMIT):
     Client.build_context(
         domain='Playground',
         environment=environment,
         options=ContextOptions(
             local=True,
             logger=True,
-            snapshot_location=snapshot_location
+            snapshot_location=snapshot_location,
+            regex_max_black_list=regex_max_black_list,
+            regex_max_time_limit=regex_max_time_limit
         )
     )

@@ -11,6 +11,8 @@ from .lib.utils import get
 from .switcher import Switcher
 
 class SwitcherOptions:
+    REGEX_MAX_BLACK_LIST = 'regex_max_black_list'
+    REGEX_MAX_TIME_LIMIT = 'regex_max_time_limit'
     SNAPSHOT_AUTO_UPDATE_INTERVAL = 'snapshot_auto_update_interval'
     SILENT_MODE = 'silent_mode'
 
@@ -53,7 +55,9 @@ class Client:
     def _build_options(options: ContextOptions):
         options_handler = {
             SwitcherOptions.SNAPSHOT_AUTO_UPDATE_INTERVAL: lambda: Client.schedule_snapshot_auto_update(),
-            SwitcherOptions.SILENT_MODE: lambda: Client._init_silent_mode(get(options.silent_mode, ''))
+            SwitcherOptions.SILENT_MODE: lambda: Client._init_silent_mode(get(options.silent_mode, '')),
+            SwitcherOptions.REGEX_MAX_BLACK_LIST: lambda: TimedMatch.set_max_blacklisted(options.regex_max_black_list),
+            SwitcherOptions.REGEX_MAX_TIME_LIMIT: lambda: TimedMatch.set_max_time_limit(options.regex_max_time_limit)
         }
         
         for option_key, handler in options_handler.items():
