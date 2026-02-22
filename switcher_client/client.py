@@ -83,7 +83,8 @@ class Client:
         if persisted_switcher is not None:
             return persisted_switcher
         
-        switcher = Switcher(Client._context, key_value)
+        switcher = Switcher(Client._context, key_value) \
+            .restrict_relay(Client._context.options.restrict_relay)
 
         if key_value != '':
             Client._switcher[key_value] = switcher

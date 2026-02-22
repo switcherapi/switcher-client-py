@@ -15,6 +15,7 @@ class SwitcherData(metaclass=ABCMeta):
         self._next_refresh_time = 0 # timestamp
         self._default_result = None
         self._force_remote = False
+        self._restrict_relay = True
 
     def check(self, strategy_type: str, input: str)-> Self:
         """ Adds a strategy for validation """
@@ -67,4 +68,9 @@ class SwitcherData(metaclass=ABCMeta):
     def default_result(self, result: bool) -> Self:
         """ Sets the default result for the switcher """
         self._default_result = result
+        return self
+    
+    def restrict_relay(self, restrict: bool = True) -> Self:
+        """ Allow local snapshots to ignore or require Relay verification """
+        self._restrict_relay = restrict
         return self

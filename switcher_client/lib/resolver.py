@@ -46,6 +46,9 @@ class Resolver:
         if config.activated is False:
             return ResultDetail.disabled("Config disabled")
         
+        if Resolver._has_relay_enabled(config) and switcher._restrict_relay:
+            return ResultDetail.disabled("Config has relay enabled")
+        
         if config.strategies is not None and len(config.strategies) > 0:
             return Resolver._check_strategy(config.strategies, switcher._input)
 
@@ -82,3 +85,8 @@ class Resolver:
     def _is_strategy_fulfilled(strategy_entry: list[Entry], strategy_config: StrategyConfig) -> bool:
         """ Determines if the strategy conditions are fulfilled based on the entries and configuration. """
         return len(strategy_entry) > 0 and process_operation(strategy_config, strategy_entry[0].input) is True
+    
+    @staticmethod
+    def _has_relay_enabled(config: Config) -> bool:
+        """ Checks if the config has relay enabled. """
+        return config.relay.activated if config.relay else False
