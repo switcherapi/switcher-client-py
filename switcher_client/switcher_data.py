@@ -74,3 +74,8 @@ class SwitcherData(metaclass=ABCMeta):
         """ Allow local snapshots to ignore or require Relay verification """
         self._restrict_relay = restrict
         return self
+    
+    def reset_inputs(self) -> Self:
+        """ Resets all strategy inputs """
+        self._input = []
+        return self

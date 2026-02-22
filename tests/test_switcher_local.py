@@ -35,6 +35,22 @@ def test_local_with_strategy():
         .check_value('Japan') \
         .check_network('10.0.0.3') \
         .is_on('FF2FOR2020')
+
+def test_local_with_strategy_reset_input():
+    """ Should reset strategy inputs """
+
+    # given
+    given_context('tests/snapshots')
+    Client.load_snapshot()
+
+    switcher = Client.get_switcher('FF2FOR2020') \
+        .check_value('Japan') \
+        .check_network('10.0.0.3') \
+
+    # test
+    assert switcher.is_on()
+    switcher.reset_inputs()
+    assert switcher.is_on() is False
     
 def test_local_with_strategy_payload():
     """ Should use local Snapshot to evaluate the switcher with payload validation strategy """
