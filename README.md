@@ -25,14 +25,14 @@ A Python SDK for Switcher API
 
 ## Table of Contents
 
-- [Quick Start](#-quick-start)
-- [Installation](#-installation)
-- [Configuration](#-configuration)
-- [Usage Examples](#-usage-examples)
-- [Advanced Features](#-advanced-features)
-- [Snapshot Management](#-snapshot-management)
-- [Testing & Development](#-testing--development)
-- [Contributing](#-contributing)
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage Examples](#usage-examples)
+- [Advanced Features](#advanced-features)
+- [Snapshot Management](#snapshot-management)
+- [Testing & Development](#testing--development)
+- [Contributing](#contributing)
 
 ---
 
