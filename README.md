@@ -134,6 +134,7 @@ Client.build_context(
         snapshot_location='./snapshot/',
         snapshot_auto_update_interval=3,
         silent_mode='5m',
+        restrict_relay=True,
         throttle_max_workers=2,
         regex_max_black_list=10,
         regex_max_time_limit=100,
@@ -154,6 +155,7 @@ switcher = Client.get_switcher()
 | `snapshot_location` | `str` | Directory for snapshot files | `'./snapshot/'` |
 | `snapshot_auto_update_interval` | `int` | Auto-update interval in seconds (0 = disabled) | `0` |
 | `silent_mode` | `str` | Silent mode retry time (e.g., '5m' for 5 minutes) | `None` |
+| `restrict_relay` | `bool` | 🚧 TODO - Enable relay restrictions in local mode | `True` |
 | `throttle_max_workers` | `int` | Max workers for throttling feature checks | `None` |
 | `regex_max_black_list` | `int` | Max cached entries for failed regex | `100` |
 | `regex_max_time_limit` | `int` | Regex execution time limit (ms) | `3000` |

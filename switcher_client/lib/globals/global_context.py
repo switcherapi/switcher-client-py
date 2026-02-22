@@ -4,6 +4,7 @@ DEFAULT_ENVIRONMENT = 'default'
 DEFAULT_LOCAL = False
 DEFAULT_LOGGER = False
 DEFAULT_FREEZE = False
+DEFAULT_RESTRICT_RELAY = True
 DEFAULT_REGEX_MAX_BLACKLISTED = 100
 DEFAULT_REGEX_MAX_TIME_LIMIT = 3000
 
@@ -18,14 +19,16 @@ class ContextOptions:
     :param throttle_max_workers: The maximum number of workers to use for background refresh when throttle is enabled. If None, the default value is based on the number of CPUs. Default is None
     :param regex_max_black_list: The maximum number of blacklisted regex inputs. If not set, it will use the default value of 100
     :param regex_max_time_limit: The maximum time limit in milliseconds for regex matching. If not set, it will use the default value of 3000 ms
+    :param restrict_relay: When enabled it will restrict the use of relay when local is enabled. Default is True
     """
 
     def __init__(self, 
-                 local = DEFAULT_LOCAL,
-                 logger = DEFAULT_LOGGER,
-                 freeze = DEFAULT_FREEZE,
-                 regex_max_black_list = DEFAULT_REGEX_MAX_BLACKLISTED,
-                 regex_max_time_limit = DEFAULT_REGEX_MAX_TIME_LIMIT,
+                 local: bool = DEFAULT_LOCAL,
+                 logger: bool = DEFAULT_LOGGER,
+                 freeze: bool = DEFAULT_FREEZE,
+                 regex_max_black_list: int = DEFAULT_REGEX_MAX_BLACKLISTED,
+                 regex_max_time_limit: int = DEFAULT_REGEX_MAX_TIME_LIMIT,
+                 restrict_relay: bool = DEFAULT_RESTRICT_RELAY,
                  snapshot_location: Optional[str] = None, 
                  snapshot_auto_update_interval: Optional[int] = None,
                  silent_mode: Optional[str] = None,
@@ -36,6 +39,7 @@ class ContextOptions:
         self.snapshot_location = snapshot_location
         self.snapshot_auto_update_interval = snapshot_auto_update_interval
         self.silent_mode = silent_mode
+        self.restrict_relay = restrict_relay
         self.throttle_max_workers = throttle_max_workers
         self.regex_max_black_list = regex_max_black_list
         self.regex_max_time_limit = regex_max_time_limit

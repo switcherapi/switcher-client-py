@@ -4,7 +4,7 @@ from time import time
 
 from switcher_client.client import Client, ContextOptions
 from switcher_client.errors import LocalCriteriaError
-from switcher_client.lib.utils.timed_match.timed_match import DEFAULT_REGEX_MAX_BLACKLISTED, DEFAULT_REGEX_MAX_TIME_LIMIT
+from switcher_client.lib.globals.global_context import DEFAULT_REGEX_MAX_BLACKLISTED, DEFAULT_REGEX_MAX_TIME_LIMIT, DEFAULT_RESTRICT_RELAY
 
 async_error = None
 
@@ -222,11 +222,40 @@ def test_local_no_snapshot():
     except LocalCriteriaError as e:
         assert str(e) == "Snapshot not loaded. Try to use 'Client.load_snapshot()'"
 
+def test_local_retrict_relay():
+    """ Should return disabled when Relay is enabled (using default restrict_relay behavior) """
+
+    # given
+    given_context('tests/snapshots')
+    snapshot_version = Client.load_snapshot()
+
+    switcher = Client.get_switcher()
+
+    # test
+    assert snapshot_version == 1
+    assert switcher.is_on('USECASE103') is False # relay enabled
+    assert switcher.restrict_relay(False).is_on('USECASE103') is True # relay enabled (force override)
+    assert switcher.is_on('USECASE104') is True  # relay disabled
+
+def test_local_restrict_relay_override():
+    """ Should return enabled when Relay is enabled but restrict_relay is overridden to False """
+
+    # given
+    given_context('tests/snapshots', restrict_relay=False)
+    snapshot_version = Client.load_snapshot()
+
+    switcher = Client.get_switcher()
+
+    # test
+    assert snapshot_version == 1
+    assert switcher.is_on('USECASE103')
+
 # Helpers
 
 def given_context(snapshot_location: str, environment: str = 'default', 
                   regex_max_black_list = DEFAULT_REGEX_MAX_BLACKLISTED,
-                  regex_max_time_limit = DEFAULT_REGEX_MAX_TIME_LIMIT):
+                  regex_max_time_limit = DEFAULT_REGEX_MAX_TIME_LIMIT,
+                  restrict_relay = DEFAULT_RESTRICT_RELAY):
     Client.build_context(
         domain='Playground',
         environment=environment,
@@ -235,6 +264,7 @@ def given_context(snapshot_location: str, environment: str = 'default',
             logger=True,
             snapshot_location=snapshot_location,
             regex_max_black_list=regex_max_black_list,
-            regex_max_time_limit=regex_max_time_limit
+            regex_max_time_limit=regex_max_time_limit,
+            restrict_relay=restrict_relay
         )
     )
