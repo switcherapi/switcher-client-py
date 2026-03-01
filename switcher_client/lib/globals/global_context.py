@@ -20,19 +20,21 @@ class ContextOptions:
     :param regex_max_black_list: The maximum number of blacklisted regex inputs. If not set, it will use the default value of 100
     :param regex_max_time_limit: The maximum time limit in milliseconds for regex matching. If not set, it will use the default value of 3000 ms
     :param restrict_relay: When enabled it will restrict the use of relay when local is enabled. Default is True
+    :param cert_path: The path to the SSL certificate file for secure connections. If not set, it will use the default system certificates
     """
 
     def __init__(self, 
-                 local: bool = DEFAULT_LOCAL,
-                 logger: bool = DEFAULT_LOGGER,
-                 freeze: bool = DEFAULT_FREEZE,
-                 regex_max_black_list: int = DEFAULT_REGEX_MAX_BLACKLISTED,
-                 regex_max_time_limit: int = DEFAULT_REGEX_MAX_TIME_LIMIT,
-                 restrict_relay: bool = DEFAULT_RESTRICT_RELAY,
-                 snapshot_location: Optional[str] = None, 
-                 snapshot_auto_update_interval: Optional[int] = None,
-                 silent_mode: Optional[str] = None,
-                 throttle_max_workers: Optional[int] = None):
+                local: bool = DEFAULT_LOCAL,
+                logger: bool = DEFAULT_LOGGER,
+                freeze: bool = DEFAULT_FREEZE,
+                regex_max_black_list: int = DEFAULT_REGEX_MAX_BLACKLISTED,
+                regex_max_time_limit: int = DEFAULT_REGEX_MAX_TIME_LIMIT,
+                restrict_relay: bool = DEFAULT_RESTRICT_RELAY,
+                snapshot_location: Optional[str] = None, 
+                snapshot_auto_update_interval: Optional[int] = None,
+                silent_mode: Optional[str] = None,
+                throttle_max_workers: Optional[int] = None,
+                cert_path: Optional[str] = None):
         self.local = local
         self.logger = logger
         self.freeze = freeze
@@ -43,6 +45,7 @@ class ContextOptions:
         self.throttle_max_workers = throttle_max_workers
         self.regex_max_black_list = regex_max_black_list
         self.regex_max_time_limit = regex_max_time_limit
+        self.cert_path = cert_path
 
 class Context:
     def __init__(self, 

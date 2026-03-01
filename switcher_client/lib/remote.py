@@ -1,4 +1,5 @@
 import json
+import ssl
 import httpx
 
 from typing import Optional
@@ -15,7 +16,7 @@ class Remote:
     @staticmethod
     def auth(context: Context):
         url = f'{context.url}/criteria/auth'
-        response = Remote._do_post(url, {
+        response = Remote._do_post(context, url, {
             'domain': context.domain,
             'component': context.component,
             'environment': context.environment,
@@ -32,7 +33,7 @@ class Remote:
     @staticmethod
     def check_api_health(context: Context) -> bool:
         url = f'{context.url}/check'
-        response = Remote._do_get(url)
+        response = Remote._do_get(context, url)
         
         return response.status_code == 200
     
@@ -40,7 +41,7 @@ class Remote:
     def check_criteria(token: Optional[str], context: Context, switcher: SwitcherData) -> ResultDetail:
         url = f'{context.url}/criteria?showReason={str(switcher._show_details).lower()}&key={switcher._key}'
         entry = get_entry(switcher._input)
-        response = Remote._do_post(url, { 'entry': [e.to_dict() for e in entry] }, Remote._get_header(token))
+        response = Remote._do_post(context, url, { 'entry': [e.to_dict() for e in entry] }, Remote._get_header(token))
         
         if response.status_code == 200:
             json_response = response.json()
@@ -55,7 +56,7 @@ class Remote:
     @staticmethod
     def check_snapshot_version(token: Optional[str], context: Context, snapshot_version: int) -> bool:
         url = f'{context.url}/criteria/snapshot_check/{snapshot_version}'
-        response = Remote._do_get(url, Remote._get_header(token))
+        response = Remote._do_get(context, url, Remote._get_header(token))
         
         if response.status_code == 200:
             return response.json().get('status', False)
@@ -85,7 +86,7 @@ class Remote:
             """
         }
 
-        response = Remote._do_post(f'{context.url}/graphql', data, Remote._get_header(token))
+        response = Remote._do_post(context, f'{context.url}/graphql', data, Remote._get_header(token))
 
         if response.status_code == 200:
             return json.dumps(response.json().get('data', {}), indent=4)
@@ -93,7 +94,7 @@ class Remote:
         raise RemoteError(f'[resolve_snapshot] failed with status: {response.status_code}')
     
     @classmethod
-    def _get_client(cls) -> httpx.Client:
+    def _get_client(cls, context: Context) -> httpx.Client:
         if cls._client is None or cls._client.is_closed:
             cls._client = httpx.Client(
                 timeout=30.0,
@@ -102,23 +103,35 @@ class Remote:
                     max_connections=100,
                     keepalive_expiry=30.0
                 ),
-                http2=True
+                http2=True,
+                verify=cls._get_context(context)
             )
         return cls._client
 
     @staticmethod
-    def _do_post(url, data, headers) -> httpx.Response:
-        client = Remote._get_client()
+    def _do_post(context: Context, url: str, data: dict, headers: Optional[dict] = None) -> httpx.Response:
+        client = Remote._get_client(context)
         return client.post(url, json=data, headers=headers)
 
     @staticmethod
-    def _do_get(url, headers=None) -> httpx.Response:
-        client = Remote._get_client()
+    def _do_get(context: Context, url: str, headers: Optional[dict] = None) -> httpx.Response:
+        client = Remote._get_client(context)
         return client.get(url, headers=headers)
 
     @staticmethod
-    def _get_header(token: Optional[str]):
+    def _get_header(token: Optional[str]) -> dict:
         return {
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json',
         }
+    
+    @staticmethod
+    def _get_context(context: Context) -> bool | ssl.SSLContext:
+        cert_path = context.options.cert_path
+        if cert_path is None:
+            return True
+        
+        ctx = ssl.create_default_context()
+        ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+        ctx.load_cert_chain(certfile=cert_path)
+        return ctx
