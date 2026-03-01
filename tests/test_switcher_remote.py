@@ -3,6 +3,7 @@ import time
 
 from typing import Optional
 from pytest_httpx import HTTPXMock
+from unittest.mock import Mock, patch
 
 from switcher_client.errors import RemoteAuthError
 from switcher_client import Client
@@ -119,6 +120,28 @@ def test_remote_with_remote_required_request(httpx_mock):
 
     # test
     assert switcher.remote().is_on(key)
+
+def test_remote_with_custom_cert(httpx_mock):
+    """ Should call the remote API with success using a custom certificate """
+
+    # Reset Remote client to ensure fresh SSL context creation
+    from switcher_client.lib.remote import Remote
+    Remote._client = None
+
+    # given
+    given_auth(httpx_mock)
+    given_check_criteria(httpx_mock, response={'result': True})
+    given_context(options=ContextOptions(cert_path='tests/fixtures/dummy_cert.pem'))
+    
+    switcher = Client.get_switcher()
+
+    # test
+    mock_ssl_context = Mock()
+    with patch('ssl.create_default_context', return_value=mock_ssl_context):
+        assert switcher.is_on('MY_SWITCHER')
+        mock_ssl_context.load_cert_chain.assert_called_once_with(
+            certfile='tests/fixtures/dummy_cert.pem'
+        )
 
 def test_remote_err_with_remote_reqquired_request_no_local():
     """ Should raise an exception when local mode is not enabled and remote is forced """

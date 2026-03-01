@@ -159,7 +159,7 @@ switcher = Client.get_switcher()
 | `throttle_max_workers` | `int` | Max workers for throttling feature checks | `None` |
 | `regex_max_black_list` | `int` | Max cached entries for failed regex | `100` |
 | `regex_max_time_limit` | `int` | Regex execution time limit (ms) | `3000` |
-| `cert_path` | `str` | 🚧 TODO - Path to custom certificate for API connections | `None` |
+| `cert_path` | `str` | Path to custom certificate for secure API connections | `None` |
 
 #### Security Features
 
