@@ -6,7 +6,7 @@ from .lib.globals.global_context import Context, ContextOptions, DEFAULT_ENVIRON
 from .lib.remote_auth import RemoteAuth
 from .lib.remote import Remote
 from .lib.snapshot_auto_updater import SnapshotAutoUpdater
-from .lib.snapshot_loader import load_domain, validate_snapshot, save_snapshot
+from .lib.snapshot_loader import check_switchers, load_domain, validate_snapshot, save_snapshot
 from .lib.utils.execution_logger import ExecutionLogger
 from .lib.utils.timed_match.timed_match import TimedMatch
 from .lib.utils import get
@@ -171,7 +171,10 @@ class Client:
     @staticmethod
     def check_switchers(switcher_keys: list[str]) -> None:
         """ Verifies if switchers are properly configured """
-        Client._check_switchers_remote(switcher_keys)
+        if Client._context.options.local:
+            check_switchers(GlobalSnapshot.snapshot(), switcher_keys)
+        else:
+            Client._check_switchers_remote(switcher_keys)
 
     @staticmethod
     def get_execution(switcher: Switcher) -> ExecutionLogger:
