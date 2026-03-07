@@ -1,8 +1,10 @@
 from typing import Optional, Callable
 
+from .lib.globals.global_auth import GlobalAuth
 from .lib.globals.global_snapshot import GlobalSnapshot, LoadSnapshotOptions
 from .lib.globals.global_context import Context, ContextOptions, DEFAULT_ENVIRONMENT
 from .lib.remote_auth import RemoteAuth
+from .lib.remote import Remote
 from .lib.snapshot_auto_updater import SnapshotAutoUpdater
 from .lib.snapshot_loader import load_domain, validate_snapshot, save_snapshot
 from .lib.utils.execution_logger import ExecutionLogger
@@ -165,6 +167,11 @@ class Client:
             return 0
         
         return snapshot.domain.version
+    
+    @staticmethod
+    def check_switchers(switcher_keys: list[str]) -> None:
+        """ Verifies if switchers are properly configured """
+        Client._check_switchers_remote(switcher_keys)
 
     @staticmethod
     def get_execution(switcher: Switcher) -> ExecutionLogger:
@@ -195,3 +202,11 @@ class Client:
     @staticmethod
     def _is_check_snapshot_available(fetch_remote = False) -> bool:
         return Client.snapshot_version() == 0 and (fetch_remote or not Client._context.options.local)
+    
+    @staticmethod
+    def _check_switchers_remote(switcher_keys: list[str]) -> None:
+        RemoteAuth.auth()
+        Remote.check_switchers(
+            token=GlobalAuth.get_token(), 
+            switcher_keys=switcher_keys, 
+            context=Client._context)

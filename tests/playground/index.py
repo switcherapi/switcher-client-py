@@ -77,6 +77,18 @@ def auto_update_snapshot():
         )
     )
 
+def check_switchers():
+    """ Use case: Check switchers """
+    global LOOP
+    LOOP = False
+
+    setup_context()
+
+    try:
+        Client.check_switchers([SWITCHER_KEY, 'NON_EXISTENT_SWITCHER'])
+    except Exception as e:
+        print(f"❌ Configuration error: {e}")
+
 try:
     # Replace with use case
     simple_api_call()
