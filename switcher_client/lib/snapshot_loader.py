@@ -5,6 +5,7 @@ from .globals.global_auth import GlobalAuth
 from .globals.global_context import Context
 from .remote import Remote
 from .types import Snapshot
+from ..errors import LocalSwitcherError
 
 def load_domain(snapshot_location: str, environment: str):
     """ Load Domain from snapshot file """
@@ -57,3 +58,20 @@ def save_snapshot(snapshot: Snapshot, snapshot_location: str, environment: str):
     snapshot_file = f"{snapshot_location}/{environment}.json"
     with open(snapshot_file, 'w') as file:
         json.dump(snapshot.to_dict(), file, indent=4)
+
+def check_switchers(snapshot: Snapshot | None, switcher_keys: list[str]) -> None:
+    """ Check if switchers are properly configured in snapshot """
+    groups = getattr(snapshot.domain, 'group', []) if snapshot else []
+    not_found = []
+
+    for switcher in switcher_keys:
+        found = False
+        for group in groups:
+            if any(c.key == switcher for c in getattr(group, 'config', [])):
+                found = True
+                break
+        if not found:
+            not_found.append(switcher)
+
+    if not_found:
+        raise LocalSwitcherError(not_found)
