@@ -4,7 +4,7 @@ import httpx
 
 from typing import Optional
 
-from ..errors import RemoteAuthError, RemoteError, RemoteCriteriaError
+from ..errors import RemoteAuthError, RemoteError, RemoteCriteriaError, RemoteSwitcherError
 from ..lib.globals.global_context import DEFAULT_ENVIRONMENT, Context
 from ..lib.types import ResultDetail
 from ..lib.utils import get, get_entry
@@ -52,6 +52,18 @@ class Remote:
             )
 
         raise RemoteCriteriaError(f'[check_criteria] failed with status: {response.status_code}')
+    
+    @staticmethod
+    def check_switchers(token: Optional[str], switcher_keys: list[str], context: Context) -> None:
+        url = f'{context.url}/criteria/switchers_check'
+        response = Remote._do_post(context, url, { 'switchers': switcher_keys }, Remote._get_header(token))
+
+        if response.status_code != 200:
+            raise RemoteError(f'[check_switchers] failed with status: {response.status_code}')
+        
+        not_found = response.json().get('not_found', [])
+        if len(not_found) > 0:
+            raise RemoteSwitcherError(not_found)
     
     @staticmethod
     def check_snapshot_version(token: Optional[str], context: Context, snapshot_version: int) -> bool:
