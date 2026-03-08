@@ -1,0 +1,8 @@
+{
+    "domain": {
+        "name": "Business",
+        "description": "Business description",
+        "version": 1,
+        "activated": true//
+    }
+}

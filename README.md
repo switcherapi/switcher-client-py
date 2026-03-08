@@ -293,13 +293,13 @@ Client.schedule_snapshot_auto_update(
 )
 ```
 
-### Snapshot Monitoring (Coming Soon)
+### Snapshot Monitoring
 
 ```python
-# 🚧 TODO: Watch for snapshot file changes
+# Watch for snapshot file changes
 Client.watch_snapshot({
-    'success': lambda: print('In-memory snapshot updated'),
-    'reject': lambda err: print(f'Update failed: {err}')
+    'success': lambda: print("✅ Snapshot loaded successfully"),
+    'reject': lambda e: print(f"❌ Error loading snapshot: {e}")
 })
 ```
 
