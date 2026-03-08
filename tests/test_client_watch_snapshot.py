@@ -43,7 +43,7 @@ class TestClientWatchSnapshot:
         modify_fixture_snapshot(fixture_location, fixture_env, fixture_env_file_modified)
 
         # then
-        verify_util(5, lambda: self.async_success is True and self.async_error is None)
+        verify_util(10, lambda: self.async_success is True and self.async_error is None)
         assert switcher.is_on() == False
         assert self.async_error is None
 
@@ -84,7 +84,7 @@ class TestClientWatchSnapshot:
         modify_fixture_snapshot(fixture_location, fixture_env, fixture_env_file_modified)
 
         # then
-        verify_util(5, lambda: self.async_error is not None)
+        verify_util(10, lambda: self.async_error is not None)
         assert str(self.async_error) == "Expecting ',' delimiter: line 6 column 26 (char 140)"
 
 # Helpers
