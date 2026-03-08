@@ -14,7 +14,7 @@ class TestClientWatchSnapshot:
         self.async_success = None
         self.async_error = None
 
-    def teardown_method(self):
+    def teardown_class(self):
         Client.unwatch_snapshot()
         temp_folder = 'tests/snapshots/temp'
         if os.path.exists(temp_folder):
