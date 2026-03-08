@@ -113,5 +113,5 @@ def verify_util(max_time: int, condition_fn) -> bool:
     while time.time() - start_time < max_time:
         if condition_fn():
             return True
-        time.sleep(0.1)
+        time.sleep(1)
     return False
