@@ -7,6 +7,7 @@ from .lib.remote_auth import RemoteAuth
 from .lib.remote import Remote
 from .lib.snapshot_auto_updater import SnapshotAutoUpdater
 from .lib.snapshot_loader import check_switchers, load_domain, validate_snapshot, save_snapshot
+from .lib.snapshot_watcher import SnapshotWatcher
 from .lib.utils.execution_logger import ExecutionLogger
 from .lib.utils.timed_match.timed_match import TimedMatch
 from .lib.utils import get
@@ -21,6 +22,7 @@ class SwitcherOptions:
 class Client:
     _context: Context = Context.empty()
     _switcher: dict[str, Switcher] = {}
+    _snapshot_watcher: SnapshotWatcher = SnapshotWatcher()
 
     @staticmethod
     def build_context(
@@ -159,6 +161,24 @@ class Client:
         SnapshotAutoUpdater.terminate()
 
     @staticmethod
+    def watch_snapshot(callback: Optional[dict] = None) -> None:
+        """ Watch snapshot file for changes and invoke callbacks on result """
+        callback = get(callback, {})
+        snapshot_location = Client._context.options.snapshot_location
+        
+        if snapshot_location is None:
+            reject = callback.get('reject', lambda _: None)
+            return reject(Exception("Snapshot location is not defined in the context options"))
+        
+        environment = get(Client._context.environment, DEFAULT_ENVIRONMENT)
+        Client._snapshot_watcher.watch_snapshot(snapshot_location, environment, callback)
+
+    @staticmethod
+    def unwatch_snapshot() -> None:
+        """ Stop watching the snapshot file """
+        Client._snapshot_watcher.unwatch_snapshot()
+
+    @staticmethod
     def snapshot_version() -> int:
         """ Get the version of the snapshot """
         snapshot = GlobalSnapshot.snapshot()
@@ -190,6 +210,7 @@ class Client:
     def clear_resources() -> None:
         """ Clear all resources used by the Client """
         Client.terminate_snapshot_auto_update()
+        Client.unwatch_snapshot()
         ExecutionLogger.clear_logger()
         GlobalSnapshot.clear()
         TimedMatch.terminate_worker()
@@ -201,7 +222,7 @@ class Client:
         It is usually used when throttle and silent mode are enabled.
         """
         ExecutionLogger.subscribe_notify_error(callback)
-    
+
     @staticmethod
     def _is_check_snapshot_available(fetch_remote = False) -> bool:
         return Client.snapshot_version() == 0 and (fetch_remote or not Client._context.options.local)

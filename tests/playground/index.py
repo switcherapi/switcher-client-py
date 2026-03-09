@@ -19,7 +19,9 @@ def setup_context(options: ContextOptions = ContextOptions(), environment = DEFA
         options=options
     )
 
-def simple_api_call():
+# Use cases
+
+def uc_simple_api_call():
     """ Use case: Check Switcher using remote API """
     setup_context(ContextOptions(
         local=False
@@ -30,7 +32,7 @@ def simple_api_call():
     monitor_thread = threading.Thread(target=monitor_run, args=(switcher,), daemon=True)
     monitor_thread.start()
 
-def simple_api_call_with_throttle():
+def uc_simple_api_call_with_throttle():
     """ Use case: Check Switcher using remote API with throttle """
     setup_context(ContextOptions(
         local=False
@@ -42,7 +44,7 @@ def simple_api_call_with_throttle():
     monitor_thread = threading.Thread(target=monitor_run, args=(switcher,True), daemon=True)
     monitor_thread.start()
 
-def load_snapshot_from_remote():
+def uc_load_snapshot_from_remote():
     """ Use case: Load snapshot from remote API """
     global LOOP
     LOOP = False
@@ -58,7 +60,7 @@ def load_snapshot_from_remote():
 
     print(f"Snapshot version: {Client.snapshot_version()}")
 
-def auto_update_snapshot():
+def uc_auto_update_snapshot():
     """ Use case: Auto update snapshot """
     setup_context(ContextOptions(
         local=True,
@@ -77,7 +79,7 @@ def auto_update_snapshot():
         )
     )
 
-def check_switchers():
+def uc_check_switchers():
     """ Use case: Check switchers """
     global LOOP
     LOOP = False
@@ -89,9 +91,28 @@ def check_switchers():
     except Exception as e:
         print(f"❌ Configuration error: {e}")
 
+def uc_watch_snapshot():
+    """ Use case: Watch snapshot file for changes """
+    setup_context(
+        environment='default_load_1',
+        options=ContextOptions(
+            local=True,
+            snapshot_location='../../tests/snapshots'
+    ))
+
+    Client.load_snapshot()
+    Client.watch_snapshot({
+        'success': lambda: print("✅ Snapshot loaded successfully"),
+        'reject': lambda e: print(f"❌ Error loading snapshot: {e}")
+    })
+    
+    switcher = Client.get_switcher('FF2FOR2030')
+    monitor_thread = threading.Thread(target=monitor_run, args=(switcher,True), daemon=True)
+    monitor_thread.start()
+
 try:
     # Replace with use case
-    simple_api_call()
+    uc_simple_api_call()
     while LOOP:
         time.sleep(1)
 except KeyboardInterrupt:
