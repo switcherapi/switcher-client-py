@@ -6,6 +6,7 @@ from typing import Optional
 
 from switcher_client.client import Client, ContextOptions
 from switcher_client.lib.globals.global_context import DEFAULT_ENVIRONMENT
+from switcher_client.lib.snapshot_watcher import SnapshotWatcher
 
 class TestClientWatchSnapshot:
     """ Test suite for Client.watch_snapshot """
@@ -13,6 +14,7 @@ class TestClientWatchSnapshot:
     def setup_method(self):
         self.async_success = None
         self.async_error = None
+        Client._snapshot_watcher = SnapshotWatcher()
 
     def teardown_method(self):
         Client.unwatch_snapshot()

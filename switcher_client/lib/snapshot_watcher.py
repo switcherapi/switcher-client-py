@@ -16,10 +16,6 @@ class SnapshotWatcher:
 
     def watch_snapshot(self, snapshot_location: str, environment: str, callback: dict) -> None:
         """ Watch snapshot file for changes and invoke callbacks on result """
-        if self._thread is not None and self._thread.is_alive():
-            self._stop_event.set()
-            self._thread.join(timeout=5.0)
-
         self._stop_event.clear()
         self._ready_event.clear()
         self._thread = threading.Thread(
