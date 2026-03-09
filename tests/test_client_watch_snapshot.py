@@ -14,8 +14,10 @@ class TestClientWatchSnapshot:
         self.async_success = None
         self.async_error = None
 
-    def teardown_class(self):
+    def teardown_method(self):
         Client.unwatch_snapshot()
+
+    def teardown_class(self):
         temp_folder = 'tests/snapshots/temp'
         if os.path.exists(temp_folder):
             shutil.rmtree(temp_folder)
