@@ -22,6 +22,7 @@ class SwitcherOptions:
 class Client:
     _context: Context = Context.empty()
     _switcher: dict[str, Switcher] = {}
+    _snapshot_auto_updater: SnapshotAutoUpdater = SnapshotAutoUpdater()
     _snapshot_watcher: SnapshotWatcher = SnapshotWatcher()
 
     @staticmethod
@@ -149,7 +150,7 @@ class Client:
 
         if Client._context.options.snapshot_auto_update_interval is not None and \
             Client._context.options.snapshot_auto_update_interval > 0:
-            SnapshotAutoUpdater.schedule(
+            Client._snapshot_auto_updater.schedule(
                 interval=Client._context.options.snapshot_auto_update_interval,
                 check_snapshot=Client.check_snapshot,
                 callback=callback
@@ -158,7 +159,7 @@ class Client:
     @staticmethod
     def terminate_snapshot_auto_update():
         """ Terminate Snapshot auto update """
-        SnapshotAutoUpdater.terminate()
+        Client._snapshot_auto_updater.terminate()
 
     @staticmethod
     def watch_snapshot(callback: Optional[dict] = None) -> None:
