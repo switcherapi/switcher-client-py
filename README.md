@@ -297,10 +297,10 @@ Client.schedule_snapshot_auto_update(
 
 ```python
 # Watch for snapshot file changes
-Client.watch_snapshot({
-    'success': lambda: print("✅ Snapshot loaded successfully"),
-    'reject': lambda e: print(f"❌ Error loading snapshot: {e}")
-})
+Client.watch_snapshot(WatchSnapshotCallback(
+    success=lambda: print("✅ Snapshot loaded successfully"),
+    reject=lambda e: print(f"❌ Error loading snapshot: {e}")
+))
 ```
 
 ## Testing & Development

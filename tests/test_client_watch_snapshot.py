@@ -6,7 +6,7 @@ from typing import Optional
 
 from switcher_client.client import Client, ContextOptions
 from switcher_client.lib.globals.global_context import DEFAULT_ENVIRONMENT
-from switcher_client.lib.snapshot_watcher import SnapshotWatcher
+from switcher_client.lib.snapshot_watcher import SnapshotWatcher, WatchSnapshotCallback
 
 class TestClientWatchSnapshot:
     """ Test suite for Client.watch_snapshot """
@@ -38,10 +38,10 @@ class TestClientWatchSnapshot:
 
         # test
         switcher = Client.get_switcher('FF2FOR2030')
-        Client.watch_snapshot({
-            'success': lambda: setattr(self, 'async_success', True),
-            'reject': lambda err: setattr(self, 'async_error', err)
-        })
+        Client.watch_snapshot(WatchSnapshotCallback(
+            success=lambda: setattr(self, 'async_success', True),
+            reject=lambda err: setattr(self, 'async_error', err)
+        ))
 
         assert switcher.is_on()
         modify_fixture_snapshot(fixture_location, fixture_env, fixture_env_file_modified)
@@ -61,10 +61,10 @@ class TestClientWatchSnapshot:
         given_context()
 
         # test
-        Client.watch_snapshot({
-            'success': lambda: setattr(self, 'async_success', True),
-            'reject': lambda err: setattr(self, 'async_error', err)
-        })
+        Client.watch_snapshot(WatchSnapshotCallback(
+            success=lambda: setattr(self, 'async_success', True),
+            reject=lambda err: setattr(self, 'async_error', err)
+        ))
 
         # then
         assert self.async_success is None
@@ -83,10 +83,10 @@ class TestClientWatchSnapshot:
         Client.load_snapshot()
 
         # test
-        Client.watch_snapshot({
-            'success': lambda: setattr(self, 'async_success', True),
-            'reject': lambda err: setattr(self, 'async_error', err)
-        })
+        Client.watch_snapshot(WatchSnapshotCallback(
+            success=lambda: setattr(self, 'async_success', True),
+            reject=lambda err: setattr(self, 'async_error', err)
+        ))
 
         modify_fixture_snapshot(fixture_location, fixture_env, fixture_env_file_modified)
 
