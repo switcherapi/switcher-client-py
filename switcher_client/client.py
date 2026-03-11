@@ -7,7 +7,7 @@ from .lib.remote_auth import RemoteAuth
 from .lib.remote import Remote
 from .lib.snapshot_auto_updater import SnapshotAutoUpdater
 from .lib.snapshot_loader import check_switchers, load_domain, validate_snapshot, save_snapshot
-from .lib.snapshot_watcher import SnapshotWatcher
+from .lib.snapshot_watcher import SnapshotWatcher, WatchSnapshotCallback
 from .lib.utils.execution_logger import ExecutionLogger
 from .lib.utils.timed_match.timed_match import TimedMatch
 from .lib.utils import get
@@ -162,14 +162,13 @@ class Client:
         Client._snapshot_auto_updater.terminate()
 
     @staticmethod
-    def watch_snapshot(callback: Optional[dict] = None) -> None:
+    def watch_snapshot(callback: Optional[WatchSnapshotCallback] = None) -> None:
         """ Watch snapshot file for changes and invoke callbacks on result """
-        callback = get(callback, {})
+        callback = get(callback, WatchSnapshotCallback())
         snapshot_location = Client._context.options.snapshot_location
         
         if snapshot_location is None:
-            reject = callback.get('reject', lambda _: None)
-            return reject(Exception("Snapshot location is not defined in the context options"))
+            return callback.reject(Exception("Snapshot location is not defined in the context options"))
         
         environment = get(Client._context.environment, DEFAULT_ENVIRONMENT)
         Client._snapshot_watcher.watch_snapshot(snapshot_location, environment, callback)
