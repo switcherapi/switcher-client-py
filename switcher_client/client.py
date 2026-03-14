@@ -11,13 +11,13 @@ from .lib.snapshot_watcher import SnapshotWatcher, WatchSnapshotCallback
 from .lib.utils.execution_logger import ExecutionLogger
 from .lib.utils.timed_match.timed_match import TimedMatch
 from .lib.utils import get
+from .errors import SnapshpotNotFoundError
 from .switcher import Switcher
 
-class SwitcherOptions:
-    REGEX_MAX_BLACK_LIST = 'regex_max_black_list'
-    REGEX_MAX_TIME_LIMIT = 'regex_max_time_limit'
-    SNAPSHOT_AUTO_UPDATE_INTERVAL = 'snapshot_auto_update_interval'
-    SILENT_MODE = 'silent_mode'
+REGEX_MAX_BLACK_LIST = 'regex_max_black_list'
+REGEX_MAX_TIME_LIMIT = 'regex_max_time_limit'
+SNAPSHOT_AUTO_UPDATE_INTERVAL = 'snapshot_auto_update_interval'
+SILENT_MODE = 'silent_mode'
 
 class Client:
     _context: Context = Context.empty()
@@ -25,16 +25,17 @@ class Client:
     _snapshot_auto_updater: SnapshotAutoUpdater = SnapshotAutoUpdater()
     _snapshot_watcher: SnapshotWatcher = SnapshotWatcher()
 
+    # pylint: disable=too-many-arguments
     @staticmethod
-    def build_context(
-        domain: str, 
+    def build_context(*,
+        domain: str,
         url: Optional[str] = None,
         api_key: Optional[str] = None,
         component: Optional[str] = None,
         environment: Optional[str] = DEFAULT_ENVIRONMENT,
         options = ContextOptions()):
-        """ 
-        Build the context for the client 
+        """
+        Build the context for the client
 
         :param domain: Domain name
         :param url:Switcher-API URL
@@ -42,9 +43,14 @@ class Client:
         :param component: Application/component name
         :param environment: Environment name
         :param options: Optional parameters
-            
+
         """
-        Client._context = Context(domain, url, api_key, component, environment, options)
+        Client._context = Context(
+            domain=domain, url=url,
+            api_key=api_key,
+            component=component,
+            environment=environment,
+            options=options)
 
         # Default values
         GlobalSnapshot.clear()
@@ -59,12 +65,12 @@ class Client:
     @staticmethod
     def _build_options(options: ContextOptions):
         options_handler = {
-            SwitcherOptions.SNAPSHOT_AUTO_UPDATE_INTERVAL: lambda: Client.schedule_snapshot_auto_update(),
-            SwitcherOptions.SILENT_MODE: lambda: Client._init_silent_mode(get(options.silent_mode, '')),
-            SwitcherOptions.REGEX_MAX_BLACK_LIST: lambda: TimedMatch.set_max_blacklisted(options.regex_max_black_list),
-            SwitcherOptions.REGEX_MAX_TIME_LIMIT: lambda: TimedMatch.set_max_time_limit(options.regex_max_time_limit)
+            SNAPSHOT_AUTO_UPDATE_INTERVAL: Client.schedule_snapshot_auto_update,
+            SILENT_MODE: lambda: Client._init_silent_mode(get(options.silent_mode, '')),
+            REGEX_MAX_BLACK_LIST: lambda: TimedMatch.set_max_blacklisted(options.regex_max_black_list),
+            REGEX_MAX_TIME_LIMIT: lambda: TimedMatch.set_max_time_limit(options.regex_max_time_limit)
         }
-        
+
         for option_key, handler in options_handler.items():
             if hasattr(options, option_key) and getattr(options, option_key) is not None:
                 handler()
@@ -78,7 +84,7 @@ class Client:
 
     @staticmethod
     def get_switcher(key: Optional[str] = None) -> Switcher:
-        """ 
+        """
         Creates a new instance of Switcher.
         Provide a key if you want to persist the instance.
         """
@@ -87,7 +93,7 @@ class Client:
 
         if persisted_switcher is not None:
             return persisted_switcher
-        
+
         switcher = Switcher(Client._context, key_value) \
             .restrict_relay(Client._context.options.restrict_relay)
 
@@ -95,7 +101,7 @@ class Client:
             Client._switcher[key_value] = switcher
 
         return switcher
-    
+
 
     @staticmethod
     def load_snapshot(options: Optional[LoadSnapshotOptions] = None) -> int:
@@ -111,7 +117,7 @@ class Client:
             Client.check_snapshot()
 
         return Client.snapshot_version()
-    
+
     @staticmethod
     def check_snapshot():
         """ Verifies if the current snapshot file is updated
@@ -129,18 +135,18 @@ class Client:
         if snapshot is not None:
             if Client._context.options.snapshot_location is not None:
                 save_snapshot(
-                    snapshot=snapshot, 
-                    snapshot_location=get(Client._context.options.snapshot_location, ''), 
+                    snapshot=snapshot,
+                    snapshot_location=get(Client._context.options.snapshot_location, ''),
                     environment=get(Client._context.environment, DEFAULT_ENVIRONMENT)
                 )
 
             GlobalSnapshot.init(snapshot)
             return True
-        
+
         return False
-    
+
     @staticmethod
-    def schedule_snapshot_auto_update(interval: Optional[int] = None, 
+    def schedule_snapshot_auto_update(interval: Optional[int] = None,
                                       callback: Optional[Callable[[Optional[Exception], bool], None]] = None):
         """ Schedule Snapshot auto update """
         callback = get(callback, lambda *_: None)
@@ -155,7 +161,7 @@ class Client:
                 check_snapshot=Client.check_snapshot,
                 callback=callback
             )
-    
+
     @staticmethod
     def terminate_snapshot_auto_update():
         """ Terminate Snapshot auto update """
@@ -166,10 +172,11 @@ class Client:
         """ Watch snapshot file for changes and invoke callbacks on result """
         callback = get(callback, WatchSnapshotCallback())
         snapshot_location = Client._context.options.snapshot_location
-        
+
         if snapshot_location is None:
-            return callback.reject(Exception("Snapshot location is not defined in the context options"))
-        
+            callback.reject(SnapshpotNotFoundError("Snapshot location is not defined in the context options"))
+            return
+
         environment = get(Client._context.environment, DEFAULT_ENVIRONMENT)
         Client._snapshot_watcher.watch_snapshot(snapshot_location, environment, callback)
 
@@ -185,9 +192,9 @@ class Client:
 
         if snapshot is None:
             return 0
-        
+
         return snapshot.domain.version
-    
+
     @staticmethod
     def check_switchers(switcher_keys: list[str]) -> None:
         """ Verifies if switchers are properly configured """
@@ -199,7 +206,7 @@ class Client:
     @staticmethod
     def get_execution(switcher: Switcher) -> ExecutionLogger:
         """Retrieve execution log given a switcher"""
-        return ExecutionLogger.get_execution(switcher._key, switcher._input)
+        return ExecutionLogger.get_execution(switcher.key, switcher.inputs)
 
     @staticmethod
     def clear_logger() -> None:
@@ -226,11 +233,11 @@ class Client:
     @staticmethod
     def _is_check_snapshot_available(fetch_remote = False) -> bool:
         return Client.snapshot_version() == 0 and (fetch_remote or not Client._context.options.local)
-    
+
     @staticmethod
     def _check_switchers_remote(switcher_keys: list[str]) -> None:
         RemoteAuth.auth()
         Remote.check_switchers(
-            token=GlobalAuth.get_token(), 
-            switcher_keys=switcher_keys, 
+            token=GlobalAuth.get_token(),
+            switcher_keys=switcher_keys,
             context=Client._context)

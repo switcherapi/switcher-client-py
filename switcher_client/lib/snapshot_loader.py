@@ -22,11 +22,11 @@ def load_domain(snapshot_location: str, environment: str):
 
         if snapshot_location:
             os.makedirs(snapshot_location, exist_ok=True)
-            with open(snapshot_file, 'w') as file:
+            with open(snapshot_file, 'w', encoding='utf-8') as file:
                 json.dump(json_data, file, indent=4)
-                
+
     elif os.path.exists(snapshot_file):
-        with open(snapshot_file, 'r') as file:
+        with open(snapshot_file, 'r', encoding='utf-8') as file:
             json_data = json.load(file)
 
     snapshot = Snapshot(json_data.get('domain', {}))
@@ -40,15 +40,15 @@ def validate_snapshot(
     """ Validate the snapshot data """
 
     status = Remote.check_snapshot_version(
-        token=GlobalAuth.get_token(), 
+        token=GlobalAuth.get_token(),
         context=context,
         snapshot_version=snapshot_version)
-    
+
     if not status:
         snapshot_str = Remote.resolve_snapshot(GlobalAuth.get_token(), context)
         graphql_response = json.loads(snapshot_str or '{}')
         return Snapshot(graphql_response.get('domain', '{}'))
-    
+
     return None
 
 def save_snapshot(snapshot: Snapshot, snapshot_location: str, environment: str):
@@ -56,7 +56,7 @@ def save_snapshot(snapshot: Snapshot, snapshot_location: str, environment: str):
 
     os.makedirs(snapshot_location, exist_ok=True)
     snapshot_file = f"{snapshot_location}/{environment}.json"
-    with open(snapshot_file, 'w') as file:
+    with open(snapshot_file, 'w', encoding='utf-8') as file:
         json.dump(snapshot.to_dict(), file, indent=4)
 
 def check_switchers(snapshot: Snapshot | None, switcher_keys: list[str]) -> None:

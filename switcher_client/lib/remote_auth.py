@@ -32,20 +32,20 @@ class RemoteAuth:
     def check_health():
         if GlobalAuth.get_token() != 'SILENT':
             return
-        
+
         if RemoteAuth.is_token_expired():
             RemoteAuth.update_silent_token()
             if Remote.check_api_health(RemoteAuth.__context):
                 RemoteAuth.auth()
-    
+
     @staticmethod
     def is_token_expired() -> bool:
         exp = GlobalAuth.get_exp()
         if exp is None:
             return True
-        
+
         return float(exp) < time()
-    
+
     @staticmethod
     def update_silent_token():
         expiration_time = DateMoment(datetime.now()).add(
@@ -55,7 +55,7 @@ class RemoteAuth:
 
         GlobalAuth.set_token('SILENT')
         GlobalAuth.set_exp(str(round(expiration_time)))
-    
+
     @staticmethod
     def is_valid():
         required_fields = [

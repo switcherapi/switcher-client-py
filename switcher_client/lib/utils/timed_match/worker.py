@@ -30,10 +30,10 @@ class WorkerResult:
 def persistent_regex_worker(task_queue: multiprocessing.Queue, result_queue: multiprocessing.Queue):
     """
     Persistent worker function that processes regex matching tasks in a loop.
-    
+
     This worker runs continuously, processing tasks from the task queue until
     it receives a shutdown signal or encounters an error.
-    
+
     Args:
         task_queue: Queue to receive WorkerTask objects
         result_queue: Queue to send WorkerResult objects back to main process
@@ -42,32 +42,29 @@ def persistent_regex_worker(task_queue: multiprocessing.Queue, result_queue: mul
         while True:
             try:
                 task = task_queue.get(timeout=30.0)
-                
+
                 if task.task_type == TaskType.SHUTDOWN:
                     result_queue.put(WorkerResult(success=True, task_id=task.task_id))
                     break
-                elif task.task_type == TaskType.MATCH:
+                if task.task_type == TaskType.MATCH:
                     result = _process_match_task(task)
                     result_queue.put(result)
-                        
-            except Exception:
+
+            except Exception:  # pylint: disable=broad-exception-caught
                 # Timeout or other error getting task, continue
                 continue
-                
-    except Exception:
+
+    except Exception:  # pylint: disable=broad-exception-caught
         # Worker process error, exit
-        try:
-            result_queue.put(WorkerResult(success=False, error="Worker process error"))
-        except Exception:
-            pass
+        result_queue.put(WorkerResult(success=False, error="Worker process error"))
 
 def _process_match_task(task: WorkerTask) -> WorkerResult:
     """
     Process a regex matching task.
-    
+
     Args:
         task: WorkerTask containing the matching parameters
-        
+
     Returns:
         WorkerResult with the matching result
     """
@@ -78,7 +75,7 @@ def _process_match_task(task: WorkerTask) -> WorkerResult:
                 error="Invalid task parameters",
                 task_id=task.task_id
             )
-        
+
         match_result = False
         for pattern in task.patterns:
             if task.use_fullmatch:
@@ -89,15 +86,15 @@ def _process_match_task(task: WorkerTask) -> WorkerResult:
                 if re.search(pattern, task.input_value):
                     match_result = True
                     break
-        
+
         return WorkerResult(
-            success=True, 
-            result=match_result, 
+            success=True,
+            result=match_result,
             task_id=task.task_id
         )
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         return WorkerResult(
-            success=False, 
-            error=str(e), 
+            success=False,
+            error=str(e),
             task_id=task.task_id
         )

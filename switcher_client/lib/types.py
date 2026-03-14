@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Optional
 
 class ResultDetail:
@@ -25,6 +26,7 @@ class ResultDetail:
             'metadata': self.metadata
         }
 
+@dataclass
 class Domain:
     def __init__(self):
         self.name: str
@@ -32,12 +34,14 @@ class Domain:
         self.activated: bool
         self.group: list[Group]
 
+@dataclass
 class Group:
     def __init__(self):
         self.name: str
         self.activated: bool
         self.config: list[Config]
 
+@dataclass
 class Config:
     def __init__(self):
         self.key: str
@@ -45,6 +49,7 @@ class Config:
         self.strategies: Optional[list[StrategyConfig]] = None
         self.relay: Optional[Relay] = None
 
+@dataclass
 class StrategyConfig:
     def __init__(self):
         self.strategy: str
@@ -52,7 +57,9 @@ class StrategyConfig:
         self.operation: str
         self.values: list[str]
 
+@dataclass
 class Entry:
+    # pylint: disable=redefined-builtin
     def __init__(self, strategy: str, input: str):
         self.strategy = strategy
         self.input = input
@@ -63,11 +70,13 @@ class Entry:
             'input': self.input
         }
 
+@dataclass
 class Relay:
     def __init__(self):
         self.type: str
         self.activated: bool
 
+@dataclass
 class Snapshot:
     def __init__(self, json_data: dict):
         self._original_data = json_data
@@ -80,12 +89,12 @@ class Snapshot:
         domain.name = domain_data.get('name', '')
         domain.activated = domain_data.get('activated', False)
         domain.version = domain_data.get('version', 0)
-        
+
         if 'group' in domain_data and domain_data['group']:
             domain.group = []
             for group_data in domain_data['group']:
                 domain.group.append(self._parse_group(group_data))
-        
+
         return domain
 
     def _parse_group(self, group_data: dict) -> Group:
@@ -99,7 +108,7 @@ class Snapshot:
             group.config = []
             for config_data in group_data['config']:
                 group.config.append(self._parse_config(config_data))
-        
+
         return group
 
     def _parse_config(self, config_data: dict) -> Config:
@@ -113,10 +122,10 @@ class Snapshot:
             config.strategies = []
             for strategy_data in config_data['strategies']:
                 config.strategies.append(self._parse_strategy(strategy_data))
-        
+
         if 'relay' in config_data and config_data['relay']:
             config.relay = self._parse_relay(config_data['relay'])
-        
+
         return config
 
     def _parse_strategy(self, strategy_data: dict) -> StrategyConfig:
@@ -127,7 +136,7 @@ class Snapshot:
         strategy.activated = strategy_data.get('activated', False)
         strategy.operation = strategy_data.get('operation', '')
         strategy.values = strategy_data.get('values', [])
-        
+
         return strategy
 
     def _parse_relay(self, relay_data: dict) -> Relay:
@@ -141,5 +150,5 @@ class Snapshot:
 
     def to_dict(self) -> dict:
         """ Convert Snapshot back to dictionary format for JSON serialization """
-        
+
         return {'domain': self._original_data}

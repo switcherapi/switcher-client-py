@@ -4,12 +4,10 @@ class RemoteError(Exception):
         super().__init__(self.message)
 
 class RemoteAuthError(RemoteError):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 class RemoteCriteriaError(RemoteError):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 class RemoteSwitcherError(RemoteError):
     def __init__(self, not_found: list):
@@ -25,6 +23,11 @@ class LocalCriteriaError(Exception):
         self.message = message
         super().__init__(self.message)
 
+class SnapshpotNotFoundError(Exception):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
 __all__ = [
     'RemoteError',
     'RemoteAuthError',
@@ -32,4 +35,5 @@ __all__ = [
     'RemoteSwitcherError',
     'LocalSwitcherError',
     'LocalCriteriaError',
+    'SnapshpotNotFoundError'
 ]
