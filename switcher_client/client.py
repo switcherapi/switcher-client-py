@@ -11,6 +11,7 @@ from .lib.snapshot_watcher import SnapshotWatcher, WatchSnapshotCallback
 from .lib.utils.execution_logger import ExecutionLogger
 from .lib.utils.timed_match.timed_match import TimedMatch
 from .lib.utils import get
+from .errors import SnapshpotNotFoundError
 from .switcher import Switcher
 
 REGEX_MAX_BLACK_LIST = 'regex_max_black_list'
@@ -173,7 +174,7 @@ class Client:
         snapshot_location = Client._context.options.snapshot_location
 
         if snapshot_location is None:
-            callback.reject(Exception("Snapshot location is not defined in the context options"))
+            callback.reject(SnapshpotNotFoundError("Snapshot location is not defined in the context options"))
             return
 
         environment = get(Client._context.environment, DEFAULT_ENVIRONMENT)
