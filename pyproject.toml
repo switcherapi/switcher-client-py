@@ -31,3 +31,20 @@ include = ["switcher_client*"]
 version = { attr = "switcher_client.version.__version__" }
 readme = { file = ["README.md"], content-type = "text/markdown" }
 dependencies = { file = ["requirements.txt"] }
+
+[tool.pylint.main]
+source-roots = ["switcher_client"]
+
+[tool.pylint.messages_control]
+max-line-length = 120
+disable = [
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+    # Relative imports are valid within the installed package; pylint reports
+    # false positives when invoked from the project root without install.
+    "relative-beyond-top-level"
+]
+
+[tool.pylint.format]
+max-line-length = 120

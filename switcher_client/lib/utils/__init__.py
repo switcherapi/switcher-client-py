@@ -5,12 +5,13 @@ def get(value, default_value):
     """ Return value if not None, otherwise return default_value """
     return value if value is not None else default_value
 
+# pylint: disable=redefined-builtin
 def get_entry(input: list) -> list[Entry]:
     """ Prepare entry dictionary from input strategy handling """
     entry: list[Entry] = []
     for strategy_type, input_value in input:
         entry.append(Entry(strategy_type, input_value))
-    
+
     return entry
 
 __all__ = [

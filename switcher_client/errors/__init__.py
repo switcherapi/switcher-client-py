@@ -4,12 +4,10 @@ class RemoteError(Exception):
         super().__init__(self.message)
 
 class RemoteAuthError(RemoteError):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 class RemoteCriteriaError(RemoteError):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 class RemoteSwitcherError(RemoteError):
     def __init__(self, not_found: list):

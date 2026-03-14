@@ -63,5 +63,5 @@ class SnapshotWatcher:
             snapshot = load_domain(snapshot_location, environment)
             GlobalSnapshot.init(snapshot)
             callback.success()
-        except Exception as error:
+        except Exception as error:  # pylint: disable=broad-exception-caught
             callback.reject(error)

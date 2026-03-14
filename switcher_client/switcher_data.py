@@ -1,11 +1,16 @@
+# pylint: disable=redefined-builtin
+import json
+
 from datetime import datetime
 from abc import ABCMeta
 from typing import Optional, Self, Union
 
+from .lib.utils import get
 from .lib.globals.global_context import Context
 from .lib.snapshot import StrategiesType
 
 class SwitcherData(metaclass=ABCMeta):
+    # pylint: disable=too-many-instance-attributes
     def __init__(self, context: Context,key: Optional[str] = None):
         self._context = context
         self._key = key
@@ -26,25 +31,24 @@ class SwitcherData(metaclass=ABCMeta):
     def check_value(self, input: str) -> Self:
         """ Adds VALUE_VALIDATION input for strategy validation """
         return self.check(StrategiesType.VALUE.value, input)
-    
+
     def check_network(self, input: str) -> Self:
         """ Adds NETWORK_VALIDATION input for strategy validation """
         return self.check(StrategiesType.NETWORK.value, input)
-    
+
     def check_regex(self, input: str) -> Self:
         """ Adds REGEX_VALIDATION input for strategy validation """
         return self.check(StrategiesType.REGEX.value, input)
-    
+
     def check_payload(self, input: Union[str, dict]) -> Self:
         """ Adds PAYLOAD_VALIDATION input for strategy validation """
         if isinstance(input, dict):
-            import json
             payload_str = json.dumps(input)
         else:
             payload_str = input
-            
+
         return self.check(StrategiesType.PAYLOAD.value, payload_str)
-    
+
     def throttle(self, period: int) -> Self:
         """ Sets throttle period in milliseconds """
         self._throttle_period = period
@@ -56,7 +60,7 @@ class SwitcherData(metaclass=ABCMeta):
             self._context.options.logger = True
 
         return self
-    
+
     def remote(self, force_remote: bool = True) -> Self:
         """ Force the use of the remote API when local is enabled """
         if not self._context.options.local:
@@ -64,18 +68,37 @@ class SwitcherData(metaclass=ABCMeta):
 
         self._force_remote = force_remote
         return self
-    
+
     def default_result(self, result: bool) -> Self:
         """ Sets the default result for the switcher """
         self._default_result = result
         return self
-    
+
     def restrict_relay(self, restrict: bool = True) -> Self:
         """ Allow local snapshots to ignore or require Relay verification """
         self._restrict_relay = restrict
         return self
-    
+
     def reset_inputs(self) -> Self:
         """ Resets all strategy inputs """
         self._input = []
         return self
+
+    @property
+    def inputs(self) -> list[list[str]]:
+        """ Gets all strategy inputs """
+        return self._input
+
+    @property
+    def key(self) -> str:
+        """ Gets the switcher key """
+        return get(self._key, '')
+
+    @property
+    def show_details(self) -> bool:
+        """ Gets the show_details setting """
+        return self._show_details
+
+    def is_restrict_relay(self) -> bool:
+        """ Gets the restrict_relay setting """
+        return self._restrict_relay

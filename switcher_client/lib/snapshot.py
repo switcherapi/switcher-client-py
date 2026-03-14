@@ -29,13 +29,13 @@ class OperationsType(Enum):
     HAS_ONE = "HAS_ONE"
     HAS_ALL = "HAS_ALL"
 
-def process_operation(strategy_config: StrategyConfig, input_value: str) -> Optional[bool]:
+def process_operation(strategy_config: StrategyConfig, input_value: str) -> Optional[bool]:  # pylint: disable=too-many-return-statements
     """Process the operation based on strategy configuration and input value."""
 
     strategy = strategy_config.strategy
     operation = strategy_config.operation
     values = strategy_config.values
-    
+
     match strategy:
         case StrategiesType.VALUE.value:
             return _process_value(operation, values, input_value)
@@ -51,7 +51,7 @@ def process_operation(strategy_config: StrategyConfig, input_value: str) -> Opti
             return _process_network(operation, values, input_value)
         case StrategiesType.REGEX.value:
             return _process_regex(operation, values, input_value)
-            
+
 def _process_value(operation: str, values: list, input_value: str) -> Optional[bool]:
     """ Process VALUE strategy operations."""
 
@@ -64,17 +64,17 @@ def _process_value(operation: str, values: list, input_value: str) -> Optional[b
             return input_value in values
         case OperationsType.NOT_EQUAL.value:
             return input_value not in values
-        
-def _process_numeric(operation: str, values: list, input_value: str) -> Optional[bool]:
+
+def _process_numeric(operation: str, values: list, input_value: str) -> Optional[bool]:  # pylint: disable=too-many-return-statements
     """ Process NUMERIC strategy operations."""
 
     try:
         numeric_input = float(input_value)
     except ValueError:
         return None
-    
+
     numeric_values = [float(v) for v in values]
-    
+
     match operation:
         case OperationsType.EXIST.value:
             return numeric_input in numeric_values
@@ -89,7 +89,7 @@ def _process_numeric(operation: str, values: list, input_value: str) -> Optional
         case OperationsType.LOWER.value:
             return any(numeric_input < v for v in numeric_values)
         case OperationsType.BETWEEN.value:
-            return numeric_input >= numeric_values[0] and numeric_input <= numeric_values[1]
+            return numeric_values[0] <= numeric_input <= numeric_values[1]
 
 def _process_date(operation: str, values: list, input_value: str) -> Optional[bool]:
     """ Process DATE strategy operations."""
@@ -107,7 +107,7 @@ def _process_date(operation: str, values: list, input_value: str) -> Optional[bo
             return any(date_input >= v for v in date_values)
         case OperationsType.BETWEEN.value:
             return date_values[0] <= date_input <= date_values[1]
-        
+
 def _process_time(operation: str, values: list, input_value: str) -> Optional[bool]:
     """ Process TIME strategy operations."""
 
@@ -124,16 +124,16 @@ def _process_time(operation: str, values: list, input_value: str) -> Optional[bo
             return any(time_input >= v for v in time_values)
         case OperationsType.BETWEEN.value:
             return time_values[0] <= time_input <= time_values[1]
-        
+
 def _process_payload(operation: str, values: list, input_value: str) -> Optional[bool]:
     """ Process PAYLOAD strategy operations."""
 
     input_json = parse_json(input_value)
     if input_json is None:
         return False
-    
+
     keys = payload_reader(input_json)
-    
+
     match operation:
         case OperationsType.HAS_ONE.value:
             return any(value in keys for value in values)
@@ -144,13 +144,13 @@ def _process_network(operation: str, values: list, input_value: str) -> Optional
     """Process NETWORK strategy operations."""
 
     cidr_regex = re.compile(r'^(\d{1,3}\.){3}\d{1,3}(\/(\d|[1-2]\d|3[0-2]))$')
-    
+
     match operation:
         case OperationsType.EXIST.value:
             return _process_network_exist(input_value, values, cidr_regex)
         case OperationsType.NOT_EXIST.value:
             return _process_network_not_exist(input_value, values, cidr_regex)
-    
+
     return False
 
 def _process_network_exist(input_value: str, values: list, cidr_regex) -> bool:
@@ -164,7 +164,7 @@ def _process_network_exist(input_value: str, values: list, cidr_regex) -> bool:
         else:
             if input_value in values:
                 return True
-                
+
     return False
 
 def _process_network_not_exist(input_value: str, values: list, cidr_regex) -> bool:
@@ -179,7 +179,7 @@ def _process_network_not_exist(input_value: str, values: list, cidr_regex) -> bo
         else:
             if input_value in values:
                 result.append(element)
-    
+
     return len(result) == 0
 
 def _process_regex(operation: str, values: list, input_value: str) -> Optional[bool]:
@@ -196,7 +196,7 @@ def _process_regex(operation: str, values: list, input_value: str) -> Optional[b
         case OperationsType.NOT_EQUAL.value:
             result = TimedMatch.try_match(values, input_value, use_fullmatch=True)
             return not result
-        
+
 def _parse_datetime(date_str: str):
     """Parse datetime string that can be either date-only or datetime format."""
 
@@ -206,5 +206,5 @@ def _parse_datetime(date_str: str):
             return datetime.strptime(date_str, fmt)
         except ValueError:
             continue
-        
+
     raise ValueError(f"Unable to parse date: {date_str}")

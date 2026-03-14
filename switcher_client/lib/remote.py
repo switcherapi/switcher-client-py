@@ -1,8 +1,8 @@
 import json
 import ssl
-import httpx
-
 from typing import Optional
+
+import httpx
 
 from ..errors import RemoteAuthError, RemoteError, RemoteCriteriaError, RemoteSwitcherError
 from ..lib.globals.global_context import DEFAULT_ENVIRONMENT, Context
@@ -24,25 +24,25 @@ class Remote:
             'switcher-api-key': context.api_key,
             'Content-Type': 'application/json',
         })
-        
+
         if response.status_code == 200:
             return response.json()['token'], response.json()['exp']
 
         raise RemoteAuthError('Invalid API key')
-    
+
     @staticmethod
     def check_api_health(context: Context) -> bool:
         url = f'{context.url}/check'
         response = Remote._do_get(context, url)
-        
+
         return response.status_code == 200
-    
+
     @staticmethod
     def check_criteria(token: Optional[str], context: Context, switcher: SwitcherData) -> ResultDetail:
-        url = f'{context.url}/criteria?showReason={str(switcher._show_details).lower()}&key={switcher._key}'
-        entry = get_entry(switcher._input)
+        url = f'{context.url}/criteria?showReason={str(switcher.show_details).lower()}&key={switcher.key}'
+        entry = get_entry(switcher.inputs)
         response = Remote._do_post(context, url, { 'entry': [e.to_dict() for e in entry] }, Remote._get_header(token))
-        
+
         if response.status_code == 200:
             json_response = response.json()
             return ResultDetail(
@@ -52,7 +52,7 @@ class Remote:
             )
 
         raise RemoteCriteriaError(f'[check_criteria] failed with status: {response.status_code}')
-    
+
     @staticmethod
     def check_switchers(token: Optional[str], switcher_keys: list[str], context: Context) -> None:
         url = f'{context.url}/criteria/switchers_check'
@@ -60,21 +60,21 @@ class Remote:
 
         if response.status_code != 200:
             raise RemoteError(f'[check_switchers] failed with status: {response.status_code}')
-        
+
         not_found = response.json().get('not_found', [])
         if len(not_found) > 0:
             raise RemoteSwitcherError(not_found)
-    
+
     @staticmethod
     def check_snapshot_version(token: Optional[str], context: Context, snapshot_version: int) -> bool:
         url = f'{context.url}/criteria/snapshot_check/{snapshot_version}'
         response = Remote._do_get(context, url, Remote._get_header(token))
-        
+
         if response.status_code == 200:
             return response.json().get('status', False)
 
         raise RemoteError(f'[check_snapshot_version] failed with status: {response.status_code}')
-    
+
     @staticmethod
     def resolve_snapshot(token: Optional[str], context: Context) -> str | None:
         domain = get(context.domain, '')
@@ -102,9 +102,9 @@ class Remote:
 
         if response.status_code == 200:
             return json.dumps(response.json().get('data', {}), indent=4)
-        
+
         raise RemoteError(f'[resolve_snapshot] failed with status: {response.status_code}')
-    
+
     @classmethod
     def _get_client(cls, context: Context) -> httpx.Client:
         if cls._client is None or cls._client.is_closed:
@@ -136,13 +136,13 @@ class Remote:
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json',
         }
-    
+
     @staticmethod
     def _get_context(context: Context) -> bool | ssl.SSLContext:
         cert_path = context.options.cert_path
         if cert_path is None:
             return True
-        
+
         ctx = ssl.create_default_context()
         ctx.minimum_version = ssl.TLSVersion.TLSv1_2
         ctx.load_cert_chain(certfile=cert_path)

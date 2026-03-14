@@ -10,10 +10,13 @@ class SnapshotAutoUpdater:
         self._timer_thread: Optional[threading.Thread] = None
         self._stop_event: Optional[threading.Event] = None
 
-    def schedule(self, interval: int, check_snapshot: Callable[[], bool], callback: Callable[[Optional[Exception], bool], None]) -> None:
+    def schedule(
+            self, interval: int,
+            check_snapshot: Callable[[], bool],
+            callback: Callable[[Optional[Exception], bool], None]) -> None:
         """
         Schedule periodic snapshot updates in a background thread.
-        
+
         :param interval: Update interval in seconds
         :param check_snapshot: Function that checks and updates snapshot, returns True if updated
         :param callback: Callback function called with (error, updated) after each check
@@ -43,7 +46,10 @@ class SnapshotAutoUpdater:
         self._timer_thread = None
         self._stop_event = None
 
-    def _update_worker(self, interval: int, check_snapshot: Callable[[], bool], callback: Callable[[Optional[Exception], bool], None]) -> None:
+    def _update_worker(
+            self, interval: int,
+            check_snapshot: Callable[[], bool],
+            callback: Callable[[Optional[Exception], bool], None]) -> None:
         stop_event = self._stop_event
 
         time.sleep(interval) # delay start
@@ -51,7 +57,7 @@ class SnapshotAutoUpdater:
             try:
                 updated = check_snapshot()
                 callback(None, updated)
-            except Exception as error:
+            except Exception as error:  # pylint: disable=broad-exception-caught
                 callback(error, False)
 
             stop_event.wait(interval)

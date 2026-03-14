@@ -3,5 +3,7 @@
         "tests", "-s", "-v"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "editor.renderWhitespace": "trailing",
+    "files.trimTrailingWhitespace": true
 }
