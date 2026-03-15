@@ -1,12 +1,17 @@
 from time import time
 from datetime import datetime
 
-from .remote import Remote
-from .globals.global_context import Context
-from .globals import GlobalAuth, RetryOptions
-from .utils.date_moment import DateMoment
+from switcher_client.lib.remote import Remote
+from switcher_client.lib.globals.global_context import Context
+from switcher_client.lib.globals import GlobalAuth, RetryOptions
+from switcher_client.lib.utils.date_moment import DateMoment
 
 class RemoteAuth:
+    """
+    RemoteAuth handles authentication with the remote switcher service.
+    It manages the authentication token, checks for token expiration, and handles silent mode token updates.
+    """
+
     __context: Context = Context.empty()
     __retry_options: RetryOptions
 

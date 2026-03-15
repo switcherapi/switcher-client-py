@@ -4,8 +4,8 @@ import threading
 from dataclasses import dataclass, field
 from typing import Callable
 
-from .snapshot_loader import load_domain
-from .globals.global_snapshot import GlobalSnapshot
+from switcher_client.lib.snapshot_loader import load_domain
+from switcher_client.lib.globals.global_snapshot import GlobalSnapshot
 
 _POLL_INTERVAL = 1  # seconds between file stat checks
 

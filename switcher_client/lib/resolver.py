@@ -1,13 +1,19 @@
 from typing import Optional
 
-from ..lib.types import Config, Domain, Entry, Group, ResultDetail, Snapshot, StrategyConfig
-from ..lib.snapshot import process_operation
-from ..lib.utils import get, get_entry
-from ..errors import LocalCriteriaError
-from ..switcher_data import SwitcherData
+from switcher_client.lib.types import Config, Domain, Entry, Group, ResultDetail, Snapshot, StrategyConfig
+from switcher_client.lib.snapshot import process_operation
+from switcher_client.lib.utils import get, get_entry
+from switcher_client.errors import LocalCriteriaError
+from switcher_client.switcher_data import SwitcherData
 
 # pylint: disable=too-few-public-methods
 class Resolver:
+    """
+    Resolver is responsible for resolving the criteria against the snapshot domain.
+    It provides methods to check the criteria for a given switcher request and return the result.
+    The resolution process involves checking the domain, groups, configs, and strategies in a hierarchical manner,
+    ensuring that all conditions are evaluated correctly to determine the final result.
+    """
 
     @staticmethod
     def check_criteria(snapshot: Snapshot | None, switcher: SwitcherData) -> ResultDetail:

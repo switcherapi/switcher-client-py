@@ -1,16 +1,20 @@
-import json
-import ssl
 from typing import Optional
 
+import json
+import ssl
 import httpx
 
-from ..errors import RemoteAuthError, RemoteError, RemoteCriteriaError, RemoteSwitcherError
-from ..lib.globals.global_context import DEFAULT_ENVIRONMENT, Context
-from ..lib.types import ResultDetail
-from ..lib.utils import get, get_entry
-from ..switcher_data import SwitcherData
+from switcher_client.errors import RemoteAuthError, RemoteError, RemoteCriteriaError, RemoteSwitcherError
+from switcher_client.lib.globals.global_context import DEFAULT_ENVIRONMENT, Context
+from switcher_client.lib.types import ResultDetail
+from switcher_client.lib.utils import get, get_entry
+from switcher_client.switcher_data import SwitcherData
 
 class Remote:
+    """
+    Remote handles all interactions with the remote switcher service,
+    including authentication, criteria checks, and snapshot resolution.
+    """
     _client: Optional[httpx.Client] = None
 
     @staticmethod

@@ -1,18 +1,18 @@
 from typing import Optional, Callable
 
-from .lib.globals.global_auth import GlobalAuth
-from .lib.globals.global_snapshot import GlobalSnapshot, LoadSnapshotOptions
-from .lib.globals.global_context import Context, ContextOptions, DEFAULT_ENVIRONMENT
-from .lib.remote_auth import RemoteAuth
-from .lib.remote import Remote
-from .lib.snapshot_auto_updater import SnapshotAutoUpdater
-from .lib.snapshot_loader import check_switchers, load_domain, validate_snapshot, save_snapshot
-from .lib.snapshot_watcher import SnapshotWatcher, WatchSnapshotCallback
-from .lib.utils.execution_logger import ExecutionLogger
-from .lib.utils.timed_match.timed_match import TimedMatch
-from .lib.utils import get
-from .errors import SnapshpotNotFoundError
-from .switcher import Switcher
+from switcher_client.lib.globals.global_auth import GlobalAuth
+from switcher_client.lib.globals.global_snapshot import GlobalSnapshot, LoadSnapshotOptions
+from switcher_client.lib.globals.global_context import Context, ContextOptions, DEFAULT_ENVIRONMENT
+from switcher_client.lib.remote_auth import RemoteAuth
+from switcher_client.lib.remote import Remote
+from switcher_client.lib.snapshot_auto_updater import SnapshotAutoUpdater
+from switcher_client.lib.snapshot_loader import check_switchers, load_domain, validate_snapshot, save_snapshot
+from switcher_client.lib.snapshot_watcher import SnapshotWatcher, WatchSnapshotCallback
+from switcher_client.lib.utils.execution_logger import ExecutionLogger
+from switcher_client.lib.utils.timed_match.timed_match import TimedMatch
+from switcher_client.lib.utils import get
+from switcher_client.errors import SnapshotNotFoundError
+from switcher_client.switcher import Switcher
 
 REGEX_MAX_BLACK_LIST = 'regex_max_black_list'
 REGEX_MAX_TIME_LIMIT = 'regex_max_time_limit'
@@ -20,6 +20,25 @@ SNAPSHOT_AUTO_UPDATE_INTERVAL = 'snapshot_auto_update_interval'
 SILENT_MODE = 'silent_mode'
 
 class Client:
+    """
+    Quick start with the following steps:
+
+    1. Use `Client.build_context()` to build the context for the client.
+    2. Use `Client.get_switcher()` to create a new instance of Switcher.
+    3. Use the instance created to evaluate criteria.
+
+        Example:
+            Client.build_context(
+                domain='My Domain',                 # Your Switcher domain name
+                url='https://api.switcherapi.com',  # Switcher-API endpoint (optional)
+                api_key='[YOUR_API_KEY]',           # Your component's API key (optional)
+                component='MyApp',                  # Your application name (optional)
+                environment='default'               # Environment ('default' for production)
+            )
+
+            switcher = Client.get_switcher()
+            result = switcher.is_on('my_criteria')
+    """
     _context: Context = Context.empty()
     _switcher: dict[str, Switcher] = {}
     _snapshot_auto_updater: SnapshotAutoUpdater = SnapshotAutoUpdater()
@@ -174,7 +193,7 @@ class Client:
         snapshot_location = Client._context.options.snapshot_location
 
         if snapshot_location is None:
-            callback.reject(SnapshpotNotFoundError("Snapshot location is not defined in the context options"))
+            callback.reject(SnapshotNotFoundError("Snapshot location is not defined in the context options"))
             return
 
         environment = get(Client._context.environment, DEFAULT_ENVIRONMENT)

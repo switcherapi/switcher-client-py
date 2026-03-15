@@ -1,4 +1,8 @@
+from dataclasses import dataclass
+
+@dataclass
 class GlobalAuth:
+    """ GlobalAuth manages the global authentication state, including the token and its expiration time. """
     __token = None
     __exp = None
 

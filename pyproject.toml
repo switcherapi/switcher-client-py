@@ -4,25 +4,34 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "switcher_client"
-dynamic = ["version", "readme", "dependencies"]
-authors = [{name='Roger Floriano (petruki)', email='switcher.project@gmail.com'}]
 description = "Switcher Client SDK for Python"
-license = { text = "MIT" }
+dynamic = ["version", "readme"]
+dependencies = ["httpx[http2]>=0.28.1"]
+authors = [{name='Roger Floriano (petruki)', email='switcher.project@gmail.com'}]
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
 classifiers = [
+	"Development Status :: 4 - Beta",
+	"Intended Audience :: Developers",
+	"Programming Language :: Python",
+	"Programming Language :: Python :: 3",
 	"Programming Language :: Python :: 3.9",
 	"Programming Language :: Python :: 3.10",
 	"Programming Language :: Python :: 3.11",
 	"Programming Language :: Python :: 3.12",
 	"Programming Language :: Python :: 3.13",
 	"Programming Language :: Python :: 3.14",
+	"Programming Language :: Python :: 3 :: Only",
 	"Programming Language :: Python :: Implementation :: CPython",
-	"License :: OSI Approved :: MIT License",
 	"Operating System :: OS Independent",
 ]
-requires-python = ">=3.9"
 
 [project.urls]
-Homepage = "https://github.com/switcherapi"
+homepage = "https://github.com/switcherapi"
+source = "https://github.com/switcherapi/switcher-client-py"
+issue-tracker = "https://github.com/switcherapi/switcher-client-py/issues"
+release-notes = "https://github.com/switcherapi/switcher-client-py/releases"
 
 [tool.setuptools.packages.find]
 include = ["switcher_client*"]
@@ -30,7 +39,6 @@ include = ["switcher_client*"]
 [tool.setuptools.dynamic]
 version = { attr = "switcher_client.version.__version__" }
 readme = { file = ["README.md"], content-type = "text/markdown" }
-dependencies = { file = ["requirements.txt"] }
 
 [tool.pylint.main]
 source-roots = ["switcher_client"]
@@ -39,11 +47,7 @@ source-roots = ["switcher_client"]
 max-line-length = 120
 disable = [
     "missing-module-docstring",
-    "missing-class-docstring",
-    "missing-function-docstring",
-    # Relative imports are valid within the installed package; pylint reports
-    # false positives when invoked from the project root without install.
-    "relative-beyond-top-level"
+    "missing-function-docstring"
 ]
 
 [tool.pylint.format]

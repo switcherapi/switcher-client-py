@@ -1,12 +1,9 @@
-import pytest
 import time
 
 from typing import Optional
 from pytest_httpx import HTTPXMock
 
-from switcher_client.errors import RemoteAuthError
 from switcher_client import Client
-from switcher_client.lib.globals.global_auth import GlobalAuth
 from switcher_client.lib.globals.global_context import ContextOptions
 from switcher_client.lib.utils.execution_logger import ExecutionLogger
 
@@ -22,7 +19,7 @@ def test_remote_with_logger(httpx_mock):
 
     # test
     assert switcher.is_on('MY_SWITCHER')
-    
+
     logged = Client.get_execution(switcher)
     assert logged.key == 'MY_SWITCHER'
     assert logged.response.result is True
@@ -45,7 +42,7 @@ def test_clear_logger(httpx_mock):
 
     # test
     assert switcher.is_on('MY_SWITCHER')
-    
+
     # test clear
     Client.clear_logger()
     logged = Client.get_execution(switcher)
@@ -71,7 +68,7 @@ def test_remote_with_input_and_logger(httpx_mock):
     assert switcher \
         .check_value('user_id') \
         .is_on('MY_SWITCHER')
-    
+
     logged = Client.get_execution(switcher)
     assert logged.key == 'MY_SWITCHER'
     assert logged.response.result is True
@@ -96,7 +93,7 @@ def test_remote_with_input_not_logged(httpx_mock):
     assert switcher \
         .check_value('user_id') \
         .is_on('MY_SWITCHER')
-    
+
     logged = Client.get_execution(Client.get_switcher('MY_SWITCHER').check_value('other_id'))
     assert logged.key is None
 
@@ -112,7 +109,7 @@ def test_remote_renew_logged_execution(httpx_mock):
 
     # test 1
     assert switcher.is_on('MY_SWITCHER')
-    
+
     logged = Client.get_execution(switcher)
     assert logged.key == 'MY_SWITCHER'
     assert logged.response.result is True
@@ -120,7 +117,7 @@ def test_remote_renew_logged_execution(httpx_mock):
     # test 2 - change response
     given_check_criteria(httpx_mock, response={'result': False})
     assert switcher.is_on('MY_SWITCHER') is False
-    
+
     logged = Client.get_execution(switcher)
     assert logged.key == 'MY_SWITCHER'
     assert logged.response.result is False
@@ -137,7 +134,7 @@ def test_execution_logger_not_found(httpx_mock):
 
     # test
     assert switcher.is_on('MY_SWITCHER')
-    
+
     logged = Client.get_execution(Client.get_switcher('ANOTHER_SWITCHER'))
     assert logged.key is None
 

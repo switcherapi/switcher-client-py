@@ -2,6 +2,11 @@ from dataclasses import dataclass
 from typing import Optional
 
 class ResultDetail:
+    """
+    ResultDetail holds the result of a criteria check, including the boolean result,
+    reason for the result, and any additional metadata.
+    It provides static methods to create instances for success, disabled, or custom results.
+    """
     def __init__(self, result: bool, reason: Optional[str], metadata: Optional[dict] = None):
         self.result = result
         self.reason = reason
@@ -28,6 +33,7 @@ class ResultDetail:
 
 @dataclass
 class Domain:
+    """ Domain represents the top-level structure of the snapshot, containing groups and their configurations. """
     def __init__(self):
         self.name: str
         self.version: int = 0
@@ -36,6 +42,7 @@ class Domain:
 
 @dataclass
 class Group:
+    """ Group represents a collection of configurations within a domain. """
     def __init__(self):
         self.name: str
         self.activated: bool
@@ -43,6 +50,7 @@ class Group:
 
 @dataclass
 class Config:
+    """ Config represents a specific configuration within a group. """
     def __init__(self):
         self.key: str
         self.activated: bool
@@ -51,6 +59,7 @@ class Config:
 
 @dataclass
 class StrategyConfig:
+    """ StrategyConfig represents a specific strategy within a configuration. """
     def __init__(self):
         self.strategy: str
         self.activated: bool
@@ -59,6 +68,7 @@ class StrategyConfig:
 
 @dataclass
 class Entry:
+    """ Entry represents an input entry for strategy evaluation, containing the strategy type and input value. """
     # pylint: disable=redefined-builtin
     def __init__(self, strategy: str, input: str):
         self.strategy = strategy
@@ -72,12 +82,17 @@ class Entry:
 
 @dataclass
 class Relay:
+    """ Relay represents a relay configuration within a configuration. """
     def __init__(self):
         self.type: str
         self.activated: bool
 
 @dataclass
 class Snapshot:
+    """
+    Snapshot represents the entire snapshot data structure,
+    including the domain and its nested groups and configurations.
+    """
     def __init__(self, json_data: dict):
         self._original_data = json_data
         self.domain = self._parse_domain(json_data)
