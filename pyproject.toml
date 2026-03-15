@@ -4,7 +4,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "switcher_client"
-version = "0.1.0"
 description = "Switcher Client SDK for Python"
 dynamic = ["version", "readme", "dependencies"]
 authors = [{name='Roger Floriano (petruki)', email='switcher.project@gmail.com'}]
