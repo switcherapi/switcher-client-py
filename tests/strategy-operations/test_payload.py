@@ -1,5 +1,6 @@
 import json
 import pytest
+
 from typing import List
 
 from switcher_client.lib.types import StrategyConfig
@@ -7,19 +8,19 @@ from switcher_client.lib.utils.payload_reader import payload_reader
 from switcher_client.lib.snapshot import OperationsType, StrategiesType, process_operation
 
 class TestPayloadStrategy:
-    """Test suite for Strategy [PAYLOAD] tests."""
-    
+    """ Test suite for Strategy [PAYLOAD] tests """
+
     @pytest.fixture
     def fixture_1(self) -> str:
-        """Simple JSON payload fixture."""
+        """ Simple JSON payload fixture """
         return json.dumps({
             'id': '1',
             'login': 'petruki'
         })
-    
-    @pytest.fixture  
+
+    @pytest.fixture
     def fixture_values2(self) -> str:
-        """Complex nested JSON payload fixture."""
+        """ Complex nested JSON payload fixture """
         return json.dumps({
             'product': 'product-1',
             'order': {
@@ -40,10 +41,10 @@ class TestPayloadStrategy:
                 }
             }
         })
-    
-    @pytest.fixture  
+
+    @pytest.fixture
     def fixture_values3(self) -> str:
-        """Configuration-style JSON payload fixture."""
+        """ Configuration-style JSON payload fixture """
         return json.dumps({
             'description': 'Allowed IP address',
             'strategy': 'NETWORK_VALIDATION',
@@ -51,19 +52,19 @@ class TestPayloadStrategy:
             'operation': 'EXIST',
             'env': 'default'
         })
-    
+
     def given_strategy_config(self, operation: str, values: List[str]) -> StrategyConfig:
-        """Create a strategy configuration for PAYLOAD strategy."""
+        """ Create a strategy configuration for PAYLOAD strategy """
         strategy_config = StrategyConfig()
         strategy_config.strategy = StrategiesType.PAYLOAD.value
         strategy_config.operation = operation
         strategy_config.values = values
         strategy_config.activated = True
         return strategy_config
-    
+
     def test_should_read_keys_from_payload_1(self, fixture_values2):
-        """Should read keys from payload #1."""
-        
+        """ Should read keys from payload #1 """
+
         keys = payload_reader(json.loads(fixture_values2))
         expected_keys = [
             'product',
@@ -77,10 +78,10 @@ class TestPayloadStrategy:
             'order.deliver.tracking.comments'
         ]
         assert all(key in keys for key in expected_keys)
-    
+
     def test_should_read_keys_from_payload_2(self, fixture_values3):
-        """Should read keys from payload #2."""
-        
+        """ Should read keys from payload #2 """
+
         keys = payload_reader(json.loads(fixture_values3))
         expected_keys = [
             'description',
@@ -90,10 +91,10 @@ class TestPayloadStrategy:
             'env'
         ]
         assert all(key in keys for key in expected_keys)
-    
+
     def test_should_read_keys_from_payload_with_array_values(self):
-        """Should read keys from payload with array values."""
-        
+        """ Should read keys from payload with array values """
+
         test_payload = {
             'order': {
                 'items': ['item_1', 'item_2']
@@ -105,41 +106,41 @@ class TestPayloadStrategy:
             'order.items'
         ]
         assert all(key in keys for key in expected_keys)
-    
+
     def test_should_return_true_when_payload_has_field(self, fixture_1):
-        """Should return TRUE when payload has field."""
+        """ Should return TRUE when payload has field """
 
         strategy_config = self.given_strategy_config(OperationsType.HAS_ONE.value, ['login'])
         result = process_operation(strategy_config, fixture_1)
         assert result is True
-    
+
     def test_should_return_false_when_payload_does_not_have_field(self, fixture_1):
-        """Should return FALSE when payload does not have field."""
+        """ Should return FALSE when payload does not have field """
 
         strategy_config = self.given_strategy_config(OperationsType.HAS_ONE.value, ['user'])
         result = process_operation(strategy_config, fixture_1)
         assert result is False
-    
+
     def test_should_return_true_when_payload_has_nested_field(self, fixture_values2):
-        """Should return TRUE when payload has nested field."""
+        """ Should return TRUE when payload has nested field """
 
         strategy_config = self.given_strategy_config(OperationsType.HAS_ONE.value, [
             'order.qty', 'order.total'
         ])
         result = process_operation(strategy_config, fixture_values2)
         assert result is True
-    
+
     def test_should_return_true_when_payload_has_nested_field_with_arrays(self, fixture_values2):
-        """Should return TRUE when payload has nested field with arrays."""
+        """ Should return TRUE when payload has nested field with arrays """
 
         strategy_config = self.given_strategy_config(OperationsType.HAS_ONE.value, [
             'order.deliver.tracking.status'
         ])
         result = process_operation(strategy_config, fixture_values2)
         assert result is True
-    
+
     def test_should_return_true_when_payload_has_all(self, fixture_values2):
-        """Should return TRUE when payload has all."""
+        """ Should return TRUE when payload has all """
 
         strategy_config = self.given_strategy_config(OperationsType.HAS_ALL.value, [
             'product',
@@ -153,9 +154,9 @@ class TestPayloadStrategy:
         ])
         result = process_operation(strategy_config, fixture_values2)
         assert result is True
-    
+
     def test_should_return_false_when_payload_does_not_have_all(self, fixture_values2):
-        """Should return FALSE when payload does not have all."""
+        """ Should return FALSE when payload does not have all """
 
         strategy_config = self.given_strategy_config(OperationsType.HAS_ALL.value, [
             'product',
@@ -164,10 +165,10 @@ class TestPayloadStrategy:
         ])
         result = process_operation(strategy_config, fixture_values2)
         assert result is False
-    
+
     def test_should_return_false_when_payload_is_not_json_string(self):
-        """Should return FALSE when payload is not a JSON string."""
-        
+        """ Should return FALSE when payload is not a JSON string """
+
         strategy_config = self.given_strategy_config(OperationsType.HAS_ALL.value, [])
         result = process_operation(strategy_config, 'NOT_JSON')
         assert result is False

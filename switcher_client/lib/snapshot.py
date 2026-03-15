@@ -4,12 +4,13 @@ from enum import Enum
 from typing import Optional
 from datetime import datetime
 
-from ..lib.types import StrategyConfig
-from .utils.payload_reader import parse_json, payload_reader
-from .utils.ipcidr import IPCIDR
-from .utils.timed_match import TimedMatch
+from switcher_client.lib.types import StrategyConfig
+from switcher_client.lib.utils.payload_reader import parse_json, payload_reader
+from switcher_client.lib.utils.ipcidr import IPCIDR
+from switcher_client.lib.utils.timed_match import TimedMatch
 
 class StrategiesType(Enum):
+    """ Enum for strategy types used in criteria evaluation. """
     VALUE = "VALUE_VALIDATION"
     NUMERIC = "NUMERIC_VALIDATION"
     DATE = "DATE_VALIDATION"
@@ -19,6 +20,7 @@ class StrategiesType(Enum):
     REGEX = "REGEX_VALIDATION"
 
 class OperationsType(Enum):
+    """ Enum for operation types used in strategy evaluation. """
     EXIST = "EXIST"
     NOT_EXIST = "NOT_EXIST"
     EQUAL = "EQUAL"
@@ -29,7 +31,8 @@ class OperationsType(Enum):
     HAS_ONE = "HAS_ONE"
     HAS_ALL = "HAS_ALL"
 
-def process_operation(strategy_config: StrategyConfig, input_value: str) -> Optional[bool]:  # pylint: disable=too-many-return-statements
+# pylint: disable=too-many-return-statements
+def process_operation(strategy_config: StrategyConfig, input_value: str) -> Optional[bool]:
     """Process the operation based on strategy configuration and input value."""
 
     strategy = strategy_config.strategy
@@ -65,7 +68,8 @@ def _process_value(operation: str, values: list, input_value: str) -> Optional[b
         case OperationsType.NOT_EQUAL.value:
             return input_value not in values
 
-def _process_numeric(operation: str, values: list, input_value: str) -> Optional[bool]:  # pylint: disable=too-many-return-statements
+# pylint: disable=too-many-return-statements
+def _process_numeric(operation: str, values: list, input_value: str) -> Optional[bool]:
     """ Process NUMERIC strategy operations."""
 
     try:

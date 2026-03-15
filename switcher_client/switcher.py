@@ -2,17 +2,29 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from typing import Optional
 
-from .lib.globals.global_context import Context
-from .lib.globals.global_snapshot import GlobalSnapshot
-from .lib.remote_auth import RemoteAuth
-from .lib.globals import GlobalAuth
-from .lib.remote import Remote
-from .lib.resolver import Resolver
-from .lib.types import ResultDetail
-from .lib.utils.execution_logger import ExecutionLogger
-from .switcher_data import SwitcherData
+from switcher_client.lib.globals.global_context import Context
+from switcher_client.lib.globals.global_snapshot import GlobalSnapshot
+from switcher_client.lib.remote_auth import RemoteAuth
+from switcher_client.lib.globals import GlobalAuth
+from switcher_client.lib.remote import Remote
+from switcher_client.lib.resolver import Resolver
+from switcher_client.lib.types import ResultDetail
+from switcher_client.lib.utils.execution_logger import ExecutionLogger
+from switcher_client.switcher_data import SwitcherData
 
 class Switcher(SwitcherData):
+    """
+    Switcher handles criteria execution and validations.
+
+    The class provides methods to execute criteria with both boolean and detailed results,
+    and supports both synchronous and asynchronous execution modes.
+
+        Example usage:
+            switcher = Client.get_switcher('FEATURE_LOGIN_V2')
+            switcher.is_on()              # returns boolean result
+            switcher.is_on_with_details() # returns detailed result
+
+    """
     def __init__(self, context: Context, key: Optional[str] = None):
         super().__init__(context, key)
         self._context = context

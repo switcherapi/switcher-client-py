@@ -1,15 +1,22 @@
 # pylint: disable=redefined-builtin
+from dataclasses import dataclass
 import json
 
 from datetime import datetime
 from abc import ABCMeta
 from typing import Optional, Self, Union
 
-from .lib.utils import get
-from .lib.globals.global_context import Context
-from .lib.snapshot import StrategiesType
+from switcher_client.lib.utils import get
+from switcher_client.lib.globals.global_context import Context
+from switcher_client.lib.snapshot import StrategiesType
 
+@dataclass
 class SwitcherData(metaclass=ABCMeta):
+    """
+    SwitcherData holds the data for a switcher execution.
+    It is used by the Switcher class to execute criteria and return results.
+    """
+
     # pylint: disable=too-many-instance-attributes
     def __init__(self, context: Context,key: Optional[str] = None):
         self._context = context

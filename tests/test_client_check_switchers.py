@@ -1,12 +1,11 @@
 import time
-from typing import Optional
 
+from typing import Optional
 from pytest_httpx import HTTPXMock
 
 from switcher_client.client import Client
 from switcher_client.errors import LocalSwitcherError, RemoteSwitcherError
 from switcher_client.lib.globals.global_context import ContextOptions
-
 
 def test_check_remote_switchers(httpx_mock):
     """ Should check remote switchers with success """

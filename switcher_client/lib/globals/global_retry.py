@@ -2,6 +2,11 @@ from dataclasses import dataclass
 
 @dataclass
 class RetryOptions:
+    """
+    RetryOptions holds the configuration for retrying authentication in silent mode,
+    including the retry time and the duration to wait between retries.
+    """
+
     def __init__(self, retry_time: int, retry_duration_in: str):
         """
         :param retry_time: The maximum number of retries

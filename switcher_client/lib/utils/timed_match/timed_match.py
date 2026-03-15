@@ -4,8 +4,8 @@ import time
 from typing import List, Optional, Any
 from dataclasses import dataclass
 
-from ...globals.global_context import DEFAULT_REGEX_MAX_BLACKLISTED, DEFAULT_REGEX_MAX_TIME_LIMIT
-from .worker import TaskType, WorkerResult, WorkerTask, persistent_regex_worker
+from switcher_client.lib.globals.global_context import DEFAULT_REGEX_MAX_BLACKLISTED, DEFAULT_REGEX_MAX_TIME_LIMIT
+from switcher_client.lib.utils.timed_match.worker import TaskType, WorkerResult, WorkerTask, persistent_regex_worker
 
 @dataclass
 class Blacklist:

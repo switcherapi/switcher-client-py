@@ -1,5 +1,5 @@
-from ...lib.types import Entry
-from .execution_logger import ExecutionLogger
+from switcher_client.lib.types import Entry
+from switcher_client.lib.utils.execution_logger import ExecutionLogger
 
 def get(value, default_value):
     """ Return value if not None, otherwise return default_value """

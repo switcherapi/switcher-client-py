@@ -37,8 +37,7 @@ class ContextOptions:
     :param cert_path: The path to the SSL certificate file for secure connections.
         If not set, it will use the default system certificates
     """
-    # pylint: disable=too-many-arguments
-    # pylint: disable=too-many-instance-attributes
+    # pylint: disable=too-many-arguments, too-many-instance-attributes
     def __init__(self, *,
                 local: bool = DEFAULT_LOCAL,
                 logger: bool = DEFAULT_LOGGER,

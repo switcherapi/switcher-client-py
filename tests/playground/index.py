@@ -1,7 +1,7 @@
 import threading
 import time
 
-from util import monitor_run
+from .util import monitor_run
 from switcher_client.lib.globals.global_context import DEFAULT_ENVIRONMENT
 from switcher_client.lib.globals.global_snapshot import LoadSnapshotOptions
 from switcher_client import Client, ContextOptions, WatchSnapshotCallback
@@ -28,7 +28,7 @@ def uc_simple_api_call():
     ))
 
     switcher = Client.get_switcher(SWITCHER_KEY)
-    
+
     monitor_thread = threading.Thread(target=monitor_run, args=(switcher,), daemon=True)
     monitor_thread.start()
 
@@ -105,7 +105,7 @@ def uc_watch_snapshot():
         success=lambda: print("✅ Snapshot loaded successfully"),
         reject=lambda e: print(f"❌ Error loading snapshot: {e}")
     ))
-    
+
     switcher = Client.get_switcher('FF2FOR2030')
     monitor_thread = threading.Thread(target=monitor_run, args=(switcher,True), daemon=True)
     monitor_thread.start()
