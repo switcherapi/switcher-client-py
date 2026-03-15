@@ -5,11 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "switcher_client"
 description = "Switcher Client SDK for Python"
-dynamic = ["version", "readme", "dependencies"]
+dynamic = ["version", "readme"]
+dependencies = ["httpx[http2]>=0.28.1"]
 authors = [{name='Roger Floriano (petruki)', email='switcher.project@gmail.com'}]
 license = "MIT"
 license-files = ["LICENSE"]
-readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
 	"Development Status :: 4 - Beta",
@@ -39,7 +39,6 @@ include = ["switcher_client*"]
 [tool.setuptools.dynamic]
 version = { attr = "switcher_client.version.__version__" }
 readme = { file = ["README.md"], content-type = "text/markdown" }
-dependencies = { file = ["requirements.txt"] }
 
 [tool.pylint.main]
 source-roots = ["switcher_client"]
