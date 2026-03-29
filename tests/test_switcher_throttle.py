@@ -1,10 +1,14 @@
 import time
 
-from typing import Optional
-from pytest_httpx import HTTPXMock
+from tests.helpers import given_context, given_auth, given_check_criteria
 
 from switcher_client import Client
 from switcher_client.lib.globals.global_context import ContextOptions
+
+context_options = ContextOptions(
+    throttle_max_workers=2,
+    freeze=False
+)
 
 def test_throttle(httpx_mock):
     """ Should throttle remote API calls and use cached response """
@@ -13,7 +17,7 @@ def test_throttle(httpx_mock):
     key = 'MY_SWITCHER_THROTTLE'
     given_auth(httpx_mock)
     given_check_criteria(httpx_mock, key=key, show_details=True, response={'result': True})
-    given_context()
+    given_context(options=context_options)
 
     switcher = Client.get_switcher()
     switcher.throttle(1000)  # 1 second throttle
@@ -40,11 +44,14 @@ def test_throttle(httpx_mock):
 def test_throttle_with_freeze_options(httpx_mock):
     """ Should prevents the background execution when using throttle with freeze option as True """
 
-    # given
     key = 'MY_SWITCHER_THROTTLE_FREEZE'
+    options = ContextOptions(**vars(context_options))
+    options.freeze = True
+
+    # given
     given_auth(httpx_mock)
     given_check_criteria(httpx_mock, key=key, show_details=True, response={'result': True})
-    given_context(freeze=True)
+    given_context(options=options)
 
     switcher = Client.get_switcher()
     switcher.throttle(1000)  # 1 second throttle
@@ -60,36 +67,3 @@ def test_throttle_with_freeze_options(httpx_mock):
     response = switcher.is_on_with_details(key)
     assert response.result is True
     assert response.metadata == {'cached': True}
-
-# Helpers
-
-def given_context(url='https://api.switcherapi.com', api_key='[API_KEY]', freeze=False):
-    Client.build_context(
-        url=url,
-        api_key=api_key,
-        domain='Playground',
-        component='switcher-playground',
-        options=ContextOptions(
-            throttle_max_workers=2,
-            freeze=freeze
-        )
-    )
-
-def given_auth(httpx_mock: HTTPXMock, status=200, token: Optional[str]='[token]', exp=int(round(time.time() * 1000))):
-    httpx_mock.add_response(
-        url='https://api.switcherapi.com/criteria/auth',
-        method='POST',
-        status_code=status,
-        json={'token': token, 'exp': exp}
-    )
-
-def given_check_criteria(httpx_mock: HTTPXMock, status=200, key='MY_SWITCHER', response={}, show_details=False, match=None):
-    httpx_mock.add_response(
-        is_reusable=False,
-        url=f'https://api.switcherapi.com/criteria?showReason={str(show_details).lower()}&key={key}',
-        method='POST',
-        status_code=status,
-        json=response,
-        match_json=match
-    )
-

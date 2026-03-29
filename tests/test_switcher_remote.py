@@ -1,9 +1,9 @@
 import pytest
 import time
 
-from typing import Optional
-from pytest_httpx import HTTPXMock
 from unittest.mock import Mock, patch
+
+from tests.helpers import given_context, given_auth, given_check_criteria
 
 from switcher_client.errors import RemoteAuthError
 from switcher_client import Client
@@ -63,7 +63,7 @@ def test_remote_with_prepare(httpx_mock):
     # test
     switcher.check_value('user_id').prepare('MY_SWITCHER')
     assert switcher.is_on()
-    
+
 def test_remote_with_details(httpx_mock):
     """ Should call the remote API with success using detailed response """
 
@@ -132,7 +132,7 @@ def test_remote_with_custom_cert(httpx_mock):
     given_auth(httpx_mock)
     given_check_criteria(httpx_mock, response={'result': True})
     given_context(options=ContextOptions(cert_path='tests/fixtures/dummy_cert.pem'))
-    
+
     switcher = Client.get_switcher()
 
     # test
@@ -165,7 +165,7 @@ def test_remote_err_no_key(httpx_mock):
     given_context()
 
     switcher = Client.get_switcher()
-    
+
     # test
     with pytest.raises(ValueError) as excinfo:
         switcher.is_on()
@@ -236,33 +236,3 @@ def test_remote_err_check_criteria_default_result(httpx_mock):
     assert feature.result is True
     assert feature.reason == 'Default result'
     assert async_error == '[check_criteria] failed with status: 500'
-
-# Helpers
-
-def given_context(url='https://api.switcherapi.com', api_key='[API_KEY]', options = ContextOptions()):
-    Client.build_context(
-        url=url,
-        api_key=api_key,
-        domain='Playground',
-        component='switcher-playground',
-        options=options
-    )
-
-def given_auth(httpx_mock: HTTPXMock, status=200, token: Optional[str]='[token]', exp=int(round(time.time() * 1000))):
-    httpx_mock.add_response(
-        url='https://api.switcherapi.com/criteria/auth',
-        method='POST',
-        status_code=status,
-        json={'token': token, 'exp': exp}
-    )
-
-def given_check_criteria(httpx_mock: HTTPXMock, status=200, key='MY_SWITCHER', response={}, show_details=False, match=None):
-    httpx_mock.add_response(
-        is_reusable=True,
-        url=f'https://api.switcherapi.com/criteria?showReason={str(show_details).lower()}&key={key}',
-        method='POST',
-        status_code=status,
-        json=response,
-        match_json=match
-    )
-

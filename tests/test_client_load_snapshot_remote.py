@@ -3,13 +3,15 @@ import os
 import pytest
 import time
 
-from typing import Optional
-from pytest_httpx import HTTPXMock
+from tests.helpers import given_context, given_auth, given_check_snapshot_version, given_resolve_snapshot
 
 from switcher_client import Client
 from switcher_client.errors import RemoteError
-from switcher_client.lib.globals.global_context import DEFAULT_ENVIRONMENT, ContextOptions
+from switcher_client.lib.globals.global_context import ContextOptions
 from switcher_client.lib.globals.global_snapshot import LoadSnapshotOptions
+
+context_options_snapshot = ContextOptions(snapshot_location='./tests/snapshots')
+context_options_snapshot_temp = ContextOptions(snapshot_location='./tests/snapshots/temp')
 
 def test_load_from_snapshot_in_memory(httpx_mock):
     """ Should load in-memory Domain from snapshot remote """
@@ -34,7 +36,7 @@ def test_load_from_snapshot_no_update(httpx_mock):
     # given
     given_auth(httpx_mock)
     given_check_snapshot_version(httpx_mock, version=1588557288040, status=True)
-    given_context(snapshot_location='tests/snapshots', environment='default_load_1')
+    given_context(options=context_options_snapshot, environment='default_load_1')
 
     # test
     version = Client.load_snapshot() # load from file
@@ -50,7 +52,7 @@ def test_check_snapshot_version_error(httpx_mock):
     # given
     given_auth(httpx_mock)
     given_check_snapshot_version(httpx_mock, status_code=500, version=1588557288040)
-    given_context(snapshot_location='tests/snapshots', environment='default_load_1')
+    given_context(options=context_options_snapshot, environment='default_load_1')
 
     Client.load_snapshot() # load from file
 
@@ -67,7 +69,7 @@ def test_resolve_snapshot_error(httpx_mock):
     given_auth(httpx_mock)
     given_check_snapshot_version(httpx_mock, version=1588557288040, status=False)
     given_resolve_snapshot(httpx_mock, status_code=500)
-    given_context(snapshot_location='tests/snapshots', environment='default_load_1')
+    given_context(options=context_options_snapshot, environment='default_load_1')
 
     Client.load_snapshot() # load from file
 
@@ -90,16 +92,17 @@ def test_auto_update_snapshot_from_context(httpx_mock):
     given_resolve_snapshot(httpx_mock, data=load_snapshot_fixture('tests/snapshots/default_load_2.json'))
 
     # given - context
+    options = ContextOptions(**vars(context_options_snapshot_temp))
+    options.snapshot_auto_update_interval = 1
     given_context(
-        snapshot_location='tests/snapshots/temp', 
-        environment='generated-auto-update',
-        snapshot_auto_update_interval=1
+        options=options,
+        environment='generated-auto-update'
     )
 
     # test
     Client.load_snapshot(LoadSnapshotOptions(fetch_remote=True))
     assert Client.snapshot_version() == 1588557288040
-    
+
     time.sleep(1.5) # wait for auto-update to trigger
     assert Client.snapshot_version() == 1588557288041
 
@@ -121,10 +124,10 @@ def test_auto_update_snapshot(httpx_mock):
 
     # given - context
     given_context(
-        snapshot_location='tests/snapshots/temp', 
+        options=context_options_snapshot_temp,
         environment='generated-auto-update'
     )
-    
+
     Client.load_snapshot(LoadSnapshotOptions(fetch_remote=True))
 
     # test
@@ -157,10 +160,10 @@ def test_not_auto_update_snapshot_when_error(httpx_mock):
 
     # given - context
     given_context(
-        snapshot_location='tests/snapshots/temp', 
+        options=context_options_snapshot_temp,
         environment='generated-auto-update-error'
     )
-    
+
     Client.load_snapshot(LoadSnapshotOptions(fetch_remote=True))
 
     # test
@@ -182,55 +185,10 @@ def test_not_auto_update_snapshot_when_error(httpx_mock):
 
 # Helpers
 
-def given_auth(httpx_mock: HTTPXMock, status=200, token: Optional[str]='[token]', exp=int(round(time.time() * 1000)), is_reusable=False):
-    httpx_mock.add_response(
-        url='https://api.switcherapi.com/criteria/auth',
-        method='POST',
-        status_code=status,
-        json={'token': token, 'exp': exp},
-        is_reusable=is_reusable
-    )
-
-def given_check_snapshot_version(httpx_mock: HTTPXMock, status_code=200, version=0, status=False, is_reusable=False):
-    httpx_mock.add_response(
-        url=f'https://api.switcherapi.com/criteria/snapshot_check/{version}',
-        method='GET',
-        status_code=status_code,
-        json={'status': status},
-        is_reusable=is_reusable
-    )
-
-def given_resolve_snapshot(httpx_mock: HTTPXMock, status_code=200, data=[], is_reusable=False):
-    httpx_mock.add_response(
-        url='https://api.switcherapi.com/graphql',
-        method='POST',
-        status_code=status_code,
-        json={'data': { 'domain': data}},
-        is_reusable=is_reusable
-    )
-
-def given_context(url='https://api.switcherapi.com', 
-                  api_key='[API_KEY]', 
-                  environment=DEFAULT_ENVIRONMENT,
-                  snapshot_location=None,
-                  snapshot_auto_update_interval=None):
-    Client.build_context(
-        url=url,
-        api_key=api_key,
-        domain='Switcher API',
-        component='switcher-client-python',
-        environment=environment,
-        options=ContextOptions(
-            local=True,
-            snapshot_location=snapshot_location,
-            snapshot_auto_update_interval=snapshot_auto_update_interval
-        )
-    )
-
 def load_snapshot_fixture(file_path: str):
     with open(file_path, 'r') as f:
         return json.loads(f.read()).get('domain', {})
-    
+
 def delete_snapshot_file(snapshot_location: str, environment: str):
     snapshot_file = f"{snapshot_location}/{environment}.json"
     if os.path.exists(snapshot_file):

@@ -1,21 +1,24 @@
 import time
 
-from typing import Optional
-from pytest_httpx import HTTPXMock
+from tests.helpers import given_context, given_auth, given_check_criteria, given_check_health
 
 from switcher_client import Client
 from switcher_client.lib.globals.global_context import ContextOptions
 
 async_error = None
+context_options = ContextOptions(silent_mode='5m', snapshot_location='tests/snapshots')
 
 def test_silent_mode_for_check_criteria(httpx_mock):
     """ Should use the silent mode when the remote API is not available for check criteria """
+
+    options = ContextOptions(**vars(context_options))
+    options.silent_mode = '1s'
 
     # given
     given_auth(httpx_mock)
     given_check_criteria(httpx_mock, key='FF2FOR2022', response={'error': 'Too many requests'}, status=429)
     given_check_health(httpx_mock, status=500)
-    given_context(silent_mode='1s')
+    given_context(options=options)
 
     Client.subscribe_notify_error(lambda error: globals().update(async_error=str(error)))
     switcher = Client.get_switcher('FF2FOR2022')
@@ -34,10 +37,13 @@ def test_silent_mode_for_check_criteria(httpx_mock):
 def test_silent_mode_for_check_criteria_restabilished(httpx_mock):
     """ Should retry check criteria once the remote API is restabilished and the token is renewed """
 
+    options = ContextOptions(**vars(context_options))
+    options.silent_mode = '1s'
+
     # given
-    given_auth(httpx_mock)
+    given_auth(httpx_mock, is_reusable=True)
     given_check_criteria(httpx_mock, key='FF2FOR2022', response={'error': 'Too many requests'}, status=429)
-    given_context(silent_mode='1s')
+    given_context(options=options)
 
     Client.subscribe_notify_error(lambda error: globals().update(async_error=str(error)))
     switcher = Client.get_switcher('FF2FOR2022')
@@ -55,44 +61,3 @@ def test_silent_mode_for_check_criteria_restabilished(httpx_mock):
     globals().update(async_error=None)
     assert switcher.is_on('FF2FOR2022')
     assert async_error is None
-
-# Helpers
-
-def given_context(silent_mode: Optional[str] = '5m'):
-    Client.build_context(
-        url='https://api.switcherapi.com',
-        api_key='[API_KEY]',
-        domain='Playground',
-        component='switcher-playground',
-        options=ContextOptions(
-            silent_mode=silent_mode,
-            snapshot_location='tests/snapshots',
-        )
-    )
-
-def given_auth(httpx_mock: HTTPXMock, status=200, token: Optional[str]='[token]', exp=int(round(time.time() * 1000))):
-    httpx_mock.add_response(
-        is_reusable=True,
-        url='https://api.switcherapi.com/criteria/auth',
-        method='POST',
-        status_code=status,
-        json={'token': token, 'exp': exp}
-    )
-
-def given_check_criteria(httpx_mock: HTTPXMock, status=200, key='MY_SWITCHER', response={}, show_details=False, match=None):
-    httpx_mock.add_response(
-        is_reusable=False,
-        url=f'https://api.switcherapi.com/criteria?showReason={str(show_details).lower()}&key={key}',
-        method='POST',
-        status_code=status,
-        json=response,
-        match_json=match
-    )
-
-def given_check_health(httpx_mock: HTTPXMock, status=200):
-    httpx_mock.add_response(
-        is_reusable=False,
-        url='https://api.switcherapi.com/check',
-        method='GET',
-        status_code=status,
-    )
