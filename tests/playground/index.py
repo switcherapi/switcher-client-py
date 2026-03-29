@@ -1,11 +1,16 @@
 import threading
 import time
+import os
 
-from .util import monitor_run
+from dotenv import load_dotenv
+
+from util import monitor_run
 from switcher_client.lib.globals.global_context import DEFAULT_ENVIRONMENT
 from switcher_client.lib.globals.global_snapshot import LoadSnapshotOptions
 from switcher_client import Client, ContextOptions, WatchSnapshotCallback
 
+load_dotenv()
+API_KEY = os.getenv('SWITCHER_API_KEY')
 SWITCHER_KEY = 'CLIENT_PYTHON_FEATURE'
 LOOP = True
 
@@ -13,7 +18,7 @@ def setup_context(options: ContextOptions = ContextOptions(), environment = DEFA
     Client.build_context(
         domain='Switcher API',
         url='https://api.switcherapi.com',
-        api_key='[API_KEY]',
+        api_key=API_KEY,
         component='switcher-client-python',
         environment=environment,
         options=options
@@ -112,7 +117,7 @@ def uc_watch_snapshot():
 
 try:
     # Replace with use case
-    uc_watch_snapshot()
+    uc_simple_api_call()
     while LOOP:
         time.sleep(1)
 except KeyboardInterrupt:
