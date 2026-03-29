@@ -1,11 +1,10 @@
-import time
-
-from typing import Optional
-from pytest_httpx import HTTPXMock
+from tests.helpers import given_context, given_auth, given_check_criteria
 
 from switcher_client import Client
 from switcher_client.lib.globals.global_context import ContextOptions
 from switcher_client.lib.utils.execution_logger import ExecutionLogger
+
+context_options_logger = ContextOptions(logger=True)
 
 def test_remote_with_logger(httpx_mock):
     """ Should log remote calls successfully """
@@ -13,7 +12,7 @@ def test_remote_with_logger(httpx_mock):
     # given
     given_auth(httpx_mock)
     given_check_criteria(httpx_mock, response={'result': True})
-    given_context(options=ContextOptions(logger=True))
+    given_context(options=context_options_logger)
 
     switcher = Client.get_switcher()
 
@@ -36,7 +35,7 @@ def test_clear_logger(httpx_mock):
     # given
     given_auth(httpx_mock)
     given_check_criteria(httpx_mock, response={'result': True})
-    given_context(options=ContextOptions(logger=True))
+    given_context(options=context_options_logger)
 
     switcher = Client.get_switcher()
 
@@ -60,7 +59,7 @@ def test_remote_with_input_and_logger(httpx_mock):
             'input': 'user_id'
         }]
     })
-    given_context(options=ContextOptions(logger=True))
+    given_context(options=context_options_logger)
 
     switcher = Client.get_switcher()
 
@@ -85,7 +84,7 @@ def test_remote_with_input_not_logged(httpx_mock):
             'input': 'user_id'
         }]
     })
-    given_context(options=ContextOptions(logger=True))
+    given_context(options=context_options_logger)
 
     switcher = Client.get_switcher()
 
@@ -103,7 +102,7 @@ def test_remote_renew_logged_execution(httpx_mock):
     # given
     given_auth(httpx_mock)
     given_check_criteria(httpx_mock, response={'result': True})
-    given_context(options=ContextOptions(logger=True))
+    given_context(options=context_options_logger)
 
     switcher = Client.get_switcher()
 
@@ -128,7 +127,7 @@ def test_execution_logger_not_found(httpx_mock):
     # given
     given_auth(httpx_mock)
     given_check_criteria(httpx_mock, response={'result': True})
-    given_context(options=ContextOptions(logger=True))
+    given_context(options=context_options_logger)
 
     switcher = Client.get_switcher()
 
@@ -137,33 +136,3 @@ def test_execution_logger_not_found(httpx_mock):
 
     logged = Client.get_execution(Client.get_switcher('ANOTHER_SWITCHER'))
     assert logged.key is None
-
-# Helpers
-
-def given_context(url='https://api.switcherapi.com', api_key='[API_KEY]', options=ContextOptions()):
-    Client.build_context(
-        url=url,
-        api_key=api_key,
-        domain='Playground',
-        component='switcher-playground',
-        options=options
-    )
-
-def given_auth(httpx_mock: HTTPXMock, status=200, token: Optional[str]='[token]', exp=int(round(time.time() * 1000))):
-    httpx_mock.add_response(
-        url='https://api.switcherapi.com/criteria/auth',
-        method='POST',
-        status_code=status,
-        json={'token': token, 'exp': exp}
-    )
-
-def given_check_criteria(httpx_mock: HTTPXMock, status=200, key='MY_SWITCHER', response={}, show_details=False, match=None):
-    httpx_mock.add_response(
-        is_reusable=True,
-        url=f'https://api.switcherapi.com/criteria?showReason={str(show_details).lower()}&key={key}',
-        method='POST',
-        status_code=status,
-        json=response,
-        match_json=match
-    )
-

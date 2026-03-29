@@ -2,11 +2,12 @@ import os
 import shutil
 import time
 
-from typing import Optional
+from tests.helpers import given_context
 
 from switcher_client.client import Client, ContextOptions
-from switcher_client.lib.globals.global_context import DEFAULT_ENVIRONMENT
 from switcher_client.lib.snapshot_watcher import SnapshotWatcher, WatchSnapshotCallback
+
+context_options_local = ContextOptions(local=True, snapshot_location='tests/snapshots/temp')
 
 class TestClientWatchSnapshot:
     """ Test suite for Client.watch_snapshot """
@@ -33,7 +34,7 @@ class TestClientWatchSnapshot:
 
         # given
         modify_fixture_snapshot(fixture_location, fixture_env, f'tests/snapshots/{fixture_env}.json')
-        given_context(snapshot_location=fixture_location, environment=fixture_env)
+        given_context(options=context_options_local, environment=fixture_env)
         Client.load_snapshot()
 
         # test
@@ -79,7 +80,7 @@ class TestClientWatchSnapshot:
 
         # given
         modify_fixture_snapshot(fixture_location, fixture_env, f'tests/snapshots/{fixture_env}.json')
-        given_context(snapshot_location=fixture_location, environment=fixture_env)
+        given_context(options=context_options_local, environment=fixture_env)
         Client.load_snapshot()
 
         # test
@@ -98,16 +99,6 @@ class TestClientWatchSnapshot:
             print("Warning: Snapshot watcher did not detect the change within the time limit")
 
 # Helpers
-
-def given_context(environment: str = DEFAULT_ENVIRONMENT, snapshot_location: Optional[str] = None):
-    Client.build_context(
-        domain='Playground',
-        environment=environment,
-        options=ContextOptions(
-            local=True,
-            snapshot_location=snapshot_location
-        )
-    )
 
 def modify_fixture_snapshot(location: str, environment: str, fixture_modified_location: str):
     with open(fixture_modified_location, 'r') as file:

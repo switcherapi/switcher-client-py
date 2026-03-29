@@ -1,7 +1,4 @@
-import time
-
-from typing import Optional
-from pytest_httpx import HTTPXMock
+from tests.helpers import given_context, given_auth, given_check_switchers
 
 from switcher_client.client import Client
 from switcher_client.errors import LocalSwitcherError, RemoteSwitcherError
@@ -100,30 +97,3 @@ def test_check_local_switchers_no_snapshot():
         assert False, 'Expected LocalSwitcherError to be raised'
     except LocalSwitcherError as e:
         assert str(e) == 'FF2FOR2020, NON_EXISTENT_SWITCHER not found'
-
-# Helpers
-
-def given_context(url='https://api.switcherapi.com', api_key='[API_KEY]', options = ContextOptions()):
-    Client.build_context(
-        url=url,
-        api_key=api_key,
-        domain='Playground',
-        component='switcher-playground',
-        options=options
-    )
-
-def given_auth(httpx_mock: HTTPXMock, status=200, token: Optional[str]='[token]', exp=int(round(time.time() * 1000))):
-    httpx_mock.add_response(
-        url='https://api.switcherapi.com/criteria/auth',
-        method='POST',
-        status_code=status,
-        json={'token': token, 'exp': exp}
-    )
-
-def given_check_switchers(httpx_mock: HTTPXMock, status=200, not_found: Optional[list[str]]=None):
-    httpx_mock.add_response(
-        url='https://api.switcherapi.com/criteria/switchers_check',
-        method='POST',
-        status_code=status,
-        json={'not_found': not_found or []}
-    )
