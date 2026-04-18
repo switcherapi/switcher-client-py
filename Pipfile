@@ -5,12 +5,14 @@ name = "pypi"
 
 [packages]
 httpx = {extras = ["http2"], version = "==0.28.1"}
+typing-extensions = {version = "==4.15.0", markers = "python_version <= '3.12'"}
 
 [dev-packages]
+exceptiongroup = "*"
+tomli = "*"
 pylint = "==4.0.5"
 pytest = "==9.0.3"
 pytest-cov = "==7.1.0"
 pytest-httpx = "==0.36.2"
 python-dotenv = "==1.2.2"
-typing-extensions = "4.15.0"
 switcher-client = {file = ".", editable = true}

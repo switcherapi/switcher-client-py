@@ -9,7 +9,6 @@ A Python SDK for Switcher API
 
 [![Master CI](https://github.com/switcherapi/switcher-client-py/actions/workflows/master.yml/badge.svg)](https://github.com/switcherapi/switcher-client-py/actions/workflows/master.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=switcherapi_switcher-client-py&metric=alert_status)](https://sonarcloud.io/dashboard?id=switcherapi_switcher-client-py)
-[![Known Vulnerabilities](https://snyk.io/test/github/switcherapi/switcher-client-py/badge.svg)](https://snyk.io/test/github/switcherapi/switcher-client-py)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Slack: Switcher-HQ](https://img.shields.io/badge/slack-@switcher/hq-blue.svg?logo=slack)](https://switcher-hq.slack.com/)
 
@@ -165,7 +164,7 @@ switcher = Client.get_switcher()
 
 - **ReDoS Protection**: Built-in ReDoS attack prevention with regex safety features
 - **Time Limits**: Configurable timeouts prevent long-running regex operations
-- **Certificate Support**: Use custom certificates for secure API connections  
+- **Certificate Support**: Use custom certificates for secure API connections
 
 ## Usage Examples
 
