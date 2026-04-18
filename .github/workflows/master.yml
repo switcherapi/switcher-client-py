@@ -29,7 +29,7 @@ jobs:
 
       - name: Lint
         run: pipenv run python -m pylint switcher_client
-      
+
       - name: Test
         run: pipenv run pytest -v --cov=./switcher_client --cov-report xml --cov-config=.coveragerc
 
@@ -62,8 +62,5 @@ jobs:
           pip install pipenv
           pipenv install --dev
 
-      - name: Lint
-        run: pipenv run python -m pylint switcher_client
-      
       - name: Test
         run: pipenv run pytest -v

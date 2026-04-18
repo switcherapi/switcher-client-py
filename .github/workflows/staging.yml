@@ -12,6 +12,10 @@ on:
         description: 'Operating System (ubuntu-20.04, ubuntu-latest, windows-latest)'
         required: true
         default: 'ubuntu-latest'
+      skip-lint:
+        description: 'Skip linting step'
+        required: false
+        default: 'false'
 
 jobs:
   build-test:
@@ -35,7 +39,8 @@ jobs:
           pipenv install --dev
 
       - name: Lint
+        if: ${{ github.event.inputs.skip-lint != 'true' }}
         run: pipenv run python -m pylint switcher_client
-      
+
       - name: Test
         run: pipenv run pytest -v
