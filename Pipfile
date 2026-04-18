@@ -8,6 +8,7 @@ httpx = {extras = ["http2"], version = "==0.28.1"}
 
 [dev-packages]
 exceptiongroup = "*"
+tomli = "*"
 pylint = "==4.0.5"
 pytest = "==9.0.2"
 pytest-cov = "==7.1.0"
