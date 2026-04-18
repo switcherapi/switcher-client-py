@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e5d4d4f0b1d70407c41791527d986e3b2133c55ae84cbd0255b521e3367a347f"
+            "sha256": "09540cebd003e76c28411766b469baa8dfc9656847344d1d0e67162219f64ba4"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -88,6 +88,10 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==3.11"
+        },
+        "typing_extensions": {
+            "markers": "python_version < '3.11'",
+            "version": "==>=4.0"
         }
     },
     "develop": {

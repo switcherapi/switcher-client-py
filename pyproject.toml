@@ -6,7 +6,10 @@ build-backend = "setuptools.build_meta"
 name = "switcher_client"
 description = "Switcher Client SDK for Python"
 dynamic = ["version", "readme"]
-dependencies = ["httpx[http2]>=0.28.1"]
+dependencies = [
+	"httpx[http2]>=0.28.1",
+	"typing_extensions>=4.0; python_version < '3.11'",
+]
 authors = [{name='Roger Floriano (petruki)', email='switcher.project@gmail.com'}]
 license = "MIT"
 license-files = ["LICENSE"]

@@ -1,11 +1,12 @@
 # pylint: disable=redefined-builtin
-from dataclasses import dataclass
 import json
 
+from dataclasses import dataclass
 from datetime import datetime
 from abc import ABCMeta
-from typing import Optional, Self, Union
+from typing import Optional, Union
 
+from switcher_client.lib.compat import Self
 from switcher_client.lib.utils import get
 from switcher_client.lib.globals.global_context import Context
 from switcher_client.lib.snapshot import StrategiesType
