@@ -34,7 +34,7 @@ jobs:
         run: pipenv run pytest -v --cov=./switcher_client --cov-report xml --cov-config=.coveragerc
 
       - name: SonarCloud Scan
-        uses: sonarsource/sonarqube-scan-action@v7.0.0
+        uses: sonarsource/sonarqube-scan-action@v7.1.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         if: env.SONAR_TOKEN != ''
