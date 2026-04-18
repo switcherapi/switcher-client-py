@@ -1,7 +1,8 @@
 [run]
-omit = 
+omit =
     switcher_client/lib/utils/timed_match/worker.py
-    switcher_client/version.py
+    switcher_client/lib/compat.py,
+    switcher_client/version.py,
     */tests/*
     */test_*
 
