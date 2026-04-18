@@ -13,12 +13,12 @@ class RemoteCriteriaError(RemoteError):
 class RemoteSwitcherError(RemoteError):
     """ Raised when there is a switcher error with the remote service """
     def __init__(self, not_found: list):
-        super().__init__(f'{', '.join(not_found)} not found')
+        super().__init__(f'{", ".join(not_found)} not found')
 
 class LocalSwitcherError(Exception):
     """ Raised when there is a switcher error with the local service """
     def __init__(self, not_found: list):
-        self.message = f'{', '.join(not_found)} not found'
+        self.message = f'{", ".join(not_found)} not found'
         super().__init__(self.message)
 
 class LocalCriteriaError(Exception):
