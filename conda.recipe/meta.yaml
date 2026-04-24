@@ -1,0 +1,38 @@
+{% set version = load_file_regex(load_file="../switcher_client/version.py", regex_pattern='__version__ = "([^"]+)"').group(1) %}
+
+package:
+  name: switcher-client
+  version: {{ version }}
+
+source:
+  path: ..
+
+build:
+  number: 0
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+
+requirements:
+  host:
+    - python
+    - pip
+    - setuptools
+  run:
+    - python >=3.9
+    - httpx >=0.28.1
+    - typing_extensions >=4.0  # [py<=312]
+
+test:
+  imports:
+    - switcher_client
+
+about:
+  home: https://github.com/switcherapi/switcher-client-py
+  license: MIT
+  license_file: LICENSE
+  summary: Switcher Client SDK for Python
+  description: A Python SDK for interacting with the Switcher API
+  dev_url: https://github.com/switcherapi/switcher-client-py
+
+extra:
+  recipe-maintainers:
+    - petruki

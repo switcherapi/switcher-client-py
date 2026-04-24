@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "switcher_client"
+name = "switcher-client"
 description = "Switcher Client SDK for Python"
 dynamic = ["version", "readme"]
 dependencies = [

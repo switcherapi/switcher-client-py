@@ -10,6 +10,7 @@ A Python SDK for Switcher API
 [![Master CI](https://github.com/switcherapi/switcher-client-py/actions/workflows/master.yml/badge.svg)](https://github.com/switcherapi/switcher-client-py/actions/workflows/master.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=switcherapi_switcher-client-py&metric=alert_status)](https://sonarcloud.io/dashboard?id=switcherapi_switcher-client-py)
 [![Pypi: switcher-client](https://img.shields.io/pypi/v/switcher-client.svg)](https://pypi.org/project/switcher-client/)
+[![Conda: switcher-client](https://img.shields.io/conda/vn/switcherapi/switcher-client.svg)](https://anaconda.org/switcherapi/switcher-client)
 [![Python: 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Slack: Switcher-HQ](https://img.shields.io/badge/slack-@switcher/hq-blue.svg?logo=slack)](https://switcher-hq.slack.com/)
@@ -75,11 +76,18 @@ if switcher.is_on('FEATURE_TOGGLE'):
 
 ## Installation
 
-Install the Switcher Client SDK using pip:
+Install the Switcher Client SDK:
 
 ```bash
+# Pip
 pip install switcher-client
 ```
+
+```bash
+# Conda
+conda install -c switcherapi switcher-client
+```
+
 
 ### System Requirements
 - **Python**: 3.9+ (supports 3.9, 3.10, 3.11, 3.12, 3.13, 3.14)
@@ -243,10 +251,6 @@ Client.subscribe_notify_error(lambda error: print(f"Switcher Error: {error}"))
 ```
 
 ## Advanced Features
-
-### Planned Features
-
-The following features are currently in development:
 
 #### Throttling
 ```python

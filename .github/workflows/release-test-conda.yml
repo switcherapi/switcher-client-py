@@ -1,0 +1,38 @@
+name: Package Release Test Anaconda.org
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish-to-anaconda:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: anaconda
+      url: https://anaconda.org/switcherapi/switcher-client
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Set up Miniconda
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        auto-update-conda: true
+        python-version: "3.12"
+
+    - name: Install build tools
+      shell: bash -el {0}
+      run: conda install -y conda-build anaconda-client
+
+    - name: Build conda package
+      shell: bash -el {0}
+      run: conda build conda.recipe/ --output-folder dist/ -c conda-forge
+
+    - name: Publish distribution to Anaconda.org
+      shell: bash -el {0}
+      run: |
+        anaconda upload \
+          --token ${{ secrets.ANACONDA_TOKEN }} \
+          --user switcherapi \
+          --label test \
+          $(find dist/ -name "*.tar.bz2" -o -name "*.conda")
