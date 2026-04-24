@@ -26,7 +26,10 @@ jobs:
 
     - name: Get package version
       shell: bash -el {0}
-      run: echo "PKG_VERSION=$(grep '__version__' switcher_client/version.py | cut -d'"' -f2)" >> $GITHUB_ENV
+      run: |
+        PKG_VER=$(grep '__version__' switcher_client/version.py | cut -d'"' -f2)
+        echo "PKG_VERSION=$PKG_VER" >> $GITHUB_ENV
+        printf "pkg_version:\n  - $PKG_VER\n" > conda.recipe/conda_build_config.yaml
 
     - name: Build conda package
       shell: bash -el {0}
@@ -35,8 +38,9 @@ jobs:
     - name: Publish distribution to Anaconda.org
       shell: bash -el {0}
       run: |
-        anaconda upload \
+        anaconda \
           --token ${{ secrets.ANACONDA_TOKEN }} \
+          upload \
           --user switcherapi \
           --label test \
           $(find dist/ -name "*.tar.bz2" -o -name "*.conda")

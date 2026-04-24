@@ -1,4 +1,4 @@
-{% set version = environ.get('PKG_VERSION', '0.0.0') %}
+{% set version = pkg_version %}
 
 package:
   name: switcher-client
