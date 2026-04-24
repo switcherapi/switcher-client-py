@@ -1,4 +1,4 @@
-{% set version = load_file_regex(load_file="../switcher_client/version.py", regex_pattern='__version__ = "([^"]+)"').group(1) %}
+{% set version = environ.get('PKG_VERSION', '0.0.0') %}
 
 package:
   name: switcher-client

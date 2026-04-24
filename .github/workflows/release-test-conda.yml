@@ -24,6 +24,10 @@ jobs:
       shell: bash -el {0}
       run: conda install -y conda-build anaconda-client
 
+    - name: Get package version
+      shell: bash -el {0}
+      run: echo "PKG_VERSION=$(grep '__version__' switcher_client/version.py | cut -d'"' -f2)" >> $GITHUB_ENV
+
     - name: Build conda package
       shell: bash -el {0}
       run: conda build conda.recipe/ --output-folder dist/ -c conda-forge
