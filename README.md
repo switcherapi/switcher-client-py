@@ -85,7 +85,7 @@ pip install switcher-client
 
 ```bash
 # Conda
-conda install -c switcherapi switcher-client
+conda install switcherapi::switcher-client
 ```
 
 

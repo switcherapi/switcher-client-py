@@ -46,4 +46,5 @@ jobs:
           upload \
           --user switcherapi \
           --label test \
+          --force \
           $(find dist/ -name "*.tar.bz2" -o -name "*.conda")
