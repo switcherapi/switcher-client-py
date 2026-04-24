@@ -19,6 +19,9 @@ jobs:
       with:
         auto-update-conda: true
         python-version: "3.12"
+        channels: conda-forge
+        channel-priority: strict
+        conda-remove-defaults: true
 
     - name: Install build tools
       shell: bash -el {0}

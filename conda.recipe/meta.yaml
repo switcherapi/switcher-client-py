@@ -11,10 +11,6 @@ build:
   number: 0
   script: {{ PYTHON }} -m pip install . --no-deps -vv
 
-extra:
-  channels:
-    - conda-forge
-
 requirements:
   host:
     - python
