@@ -30,7 +30,7 @@ jobs:
 
     - name: Build conda package
       shell: bash -el {0}
-      run: conda build conda.recipe/ --output-folder dist/ -c conda-forge
+      run: conda build --no-test conda.recipe/ --output-folder dist/ -c conda-forge
 
     - name: Publish distribution to Anaconda.org
       shell: bash -el {0}

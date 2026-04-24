@@ -19,7 +19,7 @@ requirements:
   run:
     - python >=3.9
     - httpx >=0.28.1
-    - typing_extensions >=4.0  # [py<=312]
+    - typing_extensions >=4.0
 
 test:
   imports:
