@@ -65,6 +65,8 @@ jobs:
       url: https://pypi.org/p/switcher-client
     permissions:
       id-token: write
+      attestations: write
+      contents: read
 
     steps:
     - name: Download all the dists
@@ -72,6 +74,10 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
+    - name: Generate artifact attestation
+      uses: actions/attest@v4
+      with:
+        subject-path: 'dist/**'
     - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
 
