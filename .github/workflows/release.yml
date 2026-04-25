@@ -5,8 +5,35 @@ on:
     types: [ created ]
 
 jobs:
+  test:
+    name: Test - Python ${{ matrix.python-version }} on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        os: [ ubuntu-latest, windows-latest ]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          pip install pipenv
+          pipenv install --dev
+
+      - name: Test
+        run: pipenv run pytest -v
+
   build:
     name: Build distribution
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
@@ -35,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/switcher_client
+      url: https://pypi.org/p/switcher-client
     permissions:
       id-token: write
 
@@ -47,3 +74,48 @@ jobs:
         path: dist/
     - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
+
+  publish-to-anaconda:
+    needs:
+    - build
+    runs-on: ubuntu-latest
+    environment:
+      name: anaconda
+      url: https://anaconda.org/switcherapi/switcher-client
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Set up Miniconda
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        auto-update-conda: true
+        python-version: "3.12"
+        channels: conda-forge
+        channel-priority: strict
+        conda-remove-defaults: true
+
+    - name: Install build tools
+      shell: bash -el {0}
+      run: conda install -y conda-build anaconda-client
+
+    - name: Get package version
+      shell: bash -el {0}
+      run: |
+        PKG_VER=$(grep '__version__' switcher_client/version.py | cut -d'"' -f2)
+        echo "PKG_VERSION=$PKG_VER" >> $GITHUB_ENV
+        printf "pkg_version:\n  - $PKG_VER\n" > conda.recipe/conda_build_config.yaml
+
+    - name: Build conda package
+      shell: bash -el {0}
+      run: conda build --no-test conda.recipe/ --output-folder dist/ -c conda-forge
+
+    - name: Publish distribution to Anaconda.org
+      shell: bash -el {0}
+      run: |
+        anaconda \
+          --token ${{ secrets.ANACONDA_TOKEN }} \
+          upload \
+          --user switcherapi \
+          --label main \
+          $(find dist/ -name "*.tar.bz2" -o -name "*.conda")
