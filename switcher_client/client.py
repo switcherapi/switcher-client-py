@@ -1,5 +1,6 @@
 from typing import Optional, Callable
 
+from switcher_client.lib.bypasser import Bypasser, Key
 from switcher_client.lib.globals.global_auth import GlobalAuth
 from switcher_client.lib.globals.global_snapshot import GlobalSnapshot, LoadSnapshotOptions
 from switcher_client.lib.globals.global_context import Context, ContextOptions, DEFAULT_ENVIRONMENT
@@ -248,6 +249,16 @@ class Client:
         It is usually used when throttle and silent mode are enabled.
         """
         ExecutionLogger.subscribe_notify_error(callback)
+
+    @staticmethod
+    def assume(key: str) -> Key:
+        """ Force a switcher value to return a given value by calling one of both methods - true() false() """
+        return Bypasser.assume(key)
+
+    @staticmethod
+    def forget(key: str) -> None:
+        """ Remove forced value from a switcher """
+        Bypasser.forget(key)
 
     @staticmethod
     def _is_check_snapshot_available(fetch_remote = False) -> bool:

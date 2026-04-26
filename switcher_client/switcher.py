@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from typing import Optional
 
+from switcher_client.lib.bypasser import Bypasser
 from switcher_client.lib.globals.global_context import Context
 from switcher_client.lib.globals.global_snapshot import GlobalSnapshot
 from switcher_client.lib.remote_auth import RemoteAuth
@@ -50,6 +51,11 @@ class Switcher(SwitcherData):
         """ Execute criteria """
         self._show_details = False
         self._validate_args(key, details=False)
+
+        # verify if query from Bypasser
+        bypass_key = Bypasser.search_key(self._key)
+        if bypass_key is not None:
+            return bypass_key.get_response(self._input).result
 
         # try get cached result
         cached_result = self._try_cached_result()
