@@ -118,9 +118,11 @@ jobs:
 
     - name: Publish distribution to Anaconda.org
       shell: bash -el {0}
+      env:
+        ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
       run: |
         anaconda \
-          --token ${{ secrets.ANACONDA_TOKEN }} \
+          --token "$ANACONDA_TOKEN" \
           upload \
           --user switcherapi \
           --label main \
