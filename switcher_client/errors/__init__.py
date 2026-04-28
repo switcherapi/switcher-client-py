@@ -33,6 +33,12 @@ class SnapshotNotFoundError(Exception):
         self.message = message
         super().__init__(self.message)
 
+class TestModeError(Exception):
+    """ Raised when an operation is not allowed in test mode """
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
 __all__ = [
     'RemoteError',
     'RemoteAuthError',
@@ -40,5 +46,6 @@ __all__ = [
     'RemoteSwitcherError',
     'LocalSwitcherError',
     'LocalCriteriaError',
-    'SnapshotNotFoundError'
+    'SnapshotNotFoundError',
+    'TestModeError'
 ]

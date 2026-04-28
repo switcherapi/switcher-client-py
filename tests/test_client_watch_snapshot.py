@@ -8,6 +8,7 @@ from switcher_client.client import Client, ContextOptions
 from switcher_client.lib.snapshot_watcher import SnapshotWatcher, WatchSnapshotCallback
 
 context_options_local = ContextOptions(local=True, snapshot_location='tests/snapshots/temp')
+async_error = None
 
 class TestClientWatchSnapshot:
     """ Test suite for Client.watch_snapshot """
@@ -97,6 +98,26 @@ class TestClientWatchSnapshot:
             assert str(self.async_error) == "Expecting ',' delimiter: line 6 column 26 (char 140)"
         else:
             print("Warning: Snapshot watcher did not detect the change within the time limit")
+
+    def test_watch_snapshot_blocked_for_test(self):
+        """ Should not watch the snapshot file when Client is configured for test mode """
+
+        globals().update(async_error=None)
+        fixture_env = 'default_load_1'
+        fixture_location = 'tests/snapshots/temp'
+
+        # given
+        modify_fixture_snapshot(fixture_location, fixture_env, f'tests/snapshots/{fixture_env}.json')
+        given_context(options=context_options_local, environment=fixture_env)
+        Client.load_snapshot()
+
+        # test
+        Client.test_mode()
+        Client.watch_snapshot(WatchSnapshotCallback(
+            reject=lambda error: globals().update(async_error=str(error))
+        ))
+
+        assert async_error == 'Snapshot watcher is not available in test mode'
 
 # Helpers
 

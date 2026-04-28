@@ -3,7 +3,7 @@ from typing import Optional, Callable
 from switcher_client.lib.bypasser import Bypasser, Key
 from switcher_client.lib.globals.global_auth import GlobalAuth
 from switcher_client.lib.globals.global_snapshot import GlobalSnapshot, LoadSnapshotOptions
-from switcher_client.lib.globals.global_context import Context, ContextOptions, DEFAULT_ENVIRONMENT
+from switcher_client.lib.globals.global_context import Context, ContextOptions, DEFAULT_ENVIRONMENT, DEFAULT_TEST_MODE
 from switcher_client.lib.remote_auth import RemoteAuth
 from switcher_client.lib.remote import Remote
 from switcher_client.lib.snapshot_auto_updater import SnapshotAutoUpdater
@@ -12,7 +12,7 @@ from switcher_client.lib.snapshot_watcher import SnapshotWatcher, WatchSnapshotC
 from switcher_client.lib.utils.execution_logger import ExecutionLogger
 from switcher_client.lib.utils.timed_match.timed_match import TimedMatch
 from switcher_client.lib.utils import get
-from switcher_client.errors import SnapshotNotFoundError
+from switcher_client.errors import SnapshotNotFoundError, TestModeError
 from switcher_client.switcher import Switcher
 
 REGEX_MAX_BLACK_LIST = 'regex_max_black_list'
@@ -44,6 +44,7 @@ class Client:
     _switcher: dict[str, Switcher] = {}
     _snapshot_auto_updater: SnapshotAutoUpdater = SnapshotAutoUpdater()
     _snapshot_watcher: SnapshotWatcher = SnapshotWatcher()
+    _test_mode: bool = DEFAULT_TEST_MODE
 
     # pylint: disable=too-many-arguments
     @staticmethod
@@ -73,6 +74,7 @@ class Client:
             options=options)
 
         # Default values
+        Client._test_mode = DEFAULT_TEST_MODE
         GlobalSnapshot.clear()
 
         # Build Options
@@ -193,6 +195,10 @@ class Client:
         callback = get(callback, WatchSnapshotCallback())
         snapshot_location = Client._context.options.snapshot_location
 
+        if Client._test_mode:
+            callback.reject(TestModeError("Snapshot watcher is not available in test mode"))
+            return
+
         if snapshot_location is None:
             callback.reject(SnapshotNotFoundError("Snapshot location is not defined in the context options"))
             return
@@ -259,6 +265,11 @@ class Client:
     def forget(key: str) -> None:
         """ Remove forced value from a switcher """
         Bypasser.forget(key)
+
+    @staticmethod
+    def test_mode() -> None:
+        """ It prevents subprocess to run during tests such as snapshot watcher """
+        Client._test_mode = True
 
     @staticmethod
     def _is_check_snapshot_available(fetch_remote = False) -> bool:
