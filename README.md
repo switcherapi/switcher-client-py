@@ -344,9 +344,11 @@ assert response.metadata['message'] == 'Feature is disabled'
 
 ### Test Mode Configuration
 
+Convenient functionality to prevent subprocess locking of snapshot files during testing.
+
 ```python
-# 🚧 TODO: Enable test mode to prevent file locking
-Client.enable_test_mode()
+# Enable test mode to prevent snapshot file locking when running tests
+Client.test_mode()
 ```
 
 ### Configuration Validation
