@@ -68,6 +68,11 @@ class Switcher(SwitcherData):
         """ Execute criteria with details """
         self._validate_args(key, details=True)
 
+        # verify if query from Bypasser
+        bypass_key = Bypasser.search_key(self._key)
+        if bypass_key is not None:
+            return bypass_key.get_response(self._input)
+
         # try get cached result
         cached_result = self._try_cached_result()
         if cached_result is not None:

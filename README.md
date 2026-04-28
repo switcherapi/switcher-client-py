@@ -310,20 +310,30 @@ Client.watch_snapshot(WatchSnapshotCallback(
 
 ## Testing & Development
 
-### Built-in Mocking (Coming Soon)
-
-> 🚧 **Note**: The mocking features are currently under development
+### Built-in Mocking
 
 The SDK will include powerful mocking capabilities for testing:
 
 ```python
-# 🚧 TODO: Mock feature states for testing
+# Mock feature states for testing
 Client.assume('FEATURE01').true()
 assert switcher.is_on('FEATURE01') == True
 
-Client.forget('FEATURE01')  # Reset to normal behavior
+# Conditional mocking based on input criteria
+Client.assume('FEATURE01').true() \
+    # value can be either 'guest' or 'admin'
+    .when(StrategiesType.VALUE.value, ['guest', 'admin']) \
+    .when(StrategiesType.NETWORK.value, '10.0.0.3')
 
-# 🚧 TODO: Mock with metadata
+assert switcher \
+    .check_value('guest') \
+    .check_network('10.0.0.3') \
+    .is_on('FEATURE01') == True
+
+# Reset to normal behavior
+Client.forget('FEATURE01')
+
+# Mock with metadata
 Client.assume('FEATURE01').false().with_metadata({
     'message': 'Feature is disabled'
 })
