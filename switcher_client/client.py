@@ -75,6 +75,7 @@ class Client:
 
         # Default values
         Client._test_mode = DEFAULT_TEST_MODE
+        Bypasser.clear()
         GlobalSnapshot.clear()
 
         # Build Options
@@ -244,6 +245,7 @@ class Client:
         """ Clear all resources used by the Client """
         Client.terminate_snapshot_auto_update()
         Client.unwatch_snapshot()
+        Bypasser.clear()
         ExecutionLogger.clear_logger()
         GlobalSnapshot.clear()
         TimedMatch.terminate_worker()
