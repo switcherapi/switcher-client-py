@@ -5,6 +5,7 @@ from switcher_client.lib.globals.global_snapshot import LoadSnapshotOptions
 from switcher_client.lib.globals.global_retry import RetryOptions
 from switcher_client.lib.snapshot_watcher import WatchSnapshotCallback
 from switcher_client.lib.snapshot import StrategiesType
+from switcher_client.testing import assume_test, switcher_test
 
 __all__ = [
     'Client',
@@ -14,4 +15,6 @@ __all__ = [
     'RetryOptions',
     'WatchSnapshotCallback',
     'StrategiesType',
+    'assume_test',
+    'switcher_test',
 ]

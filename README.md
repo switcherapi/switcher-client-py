@@ -47,7 +47,7 @@ The **Switcher Client SDK for Python** provides seamless integration with [Switc
 - **Clean & Maintainable**: Flexible and robust functions that keep your code organized
 - **Local Mode**: Work offline using snapshot files from your Switcher-API Domain
 - **Silent Mode**: Hybrid configuration with automatic fallback for connectivity issues
-- **Built-in Mocking**: Easy implementation of automated testing with scoped mock isolation for concurrent execution
+- **Built-in Mocking**: Manual and decorator-based test mocking with scoped mock isolation for concurrent execution
 - **Zero Latency**: Local snapshot execution for high-performance scenarios
 - **Secure**: Built-in protection against ReDoS attacks with regex safety features
 - **Monitoring**: Comprehensive logging and error handling capabilities
@@ -318,7 +318,9 @@ The SDK includes powerful mocking capabilities for testing. Forced values are sc
 # Mock feature states for testing
 Client.assume('FEATURE01').true()
 assert switcher.is_on('FEATURE01') == True
+```
 
+```python
 # Conditional mocking based on input criteria
 Client.assume('FEATURE01').true() \
     # value can be either 'guest' or 'admin'
@@ -329,10 +331,14 @@ assert switcher \
     .check_value('guest') \
     .check_network('10.0.0.3') \
     .is_on('FEATURE01') == True
+```
 
+```python
 # Reset to normal behavior
 Client.forget('FEATURE01')
+```
 
+```python
 # Mock with metadata
 Client.assume('FEATURE01').false().with_metadata({
     'message': 'Feature is disabled'
@@ -341,6 +347,48 @@ response = switcher.is_on_with_details('FEATURE01')
 assert response.result == False
 assert response.metadata['message'] == 'Feature is disabled'
 ```
+
+### Decorator-Based Testing
+
+Decorator-based tests can use the same fluent mocking rules while automatically cleaning up mocked flags after the test finishes:
+
+```python
+@switcher_test(assume_test('FEATURE01').true())
+def test_feature_flag():
+    assert switcher.is_on('FEATURE01') == True
+```
+
+```python
+@switcher_test(
+    assume_test('FEATURE01').true()
+        .when(StrategiesType.VALUE.value, 'guest')
+        .with_metadata({'message': 'Decorated mock'})
+)
+def test_feature_flag_with_rules():
+    response = switcher.check_value('guest').is_on_with_details('FEATURE01')
+    assert response.result == True
+    assert response.metadata['message'] == 'Decorated mock'
+````
+
+```python
+@switcher_test(
+    assume_test('FEATURE01').true(),
+    assume_test('FEATURE02').false()
+)
+def test_multiple_flags():
+    assert switcher.is_on('FEATURE01') == True
+    assert switcher.is_on('FEATURE02') == False
+```
+
+Decorator behavior:
+
+- `assume_test('FEATURE')` builds a single mocked flag assumption
+- `switcher_test(...)` accepts one or more assumptions
+- fluent mock rules are preserved, including `.true()`, `.false()`, `.when(...)`, and `.with_metadata(...)`
+- mocked flags are always cleaned up with `Client.forget(...)` after the test finishes, even when the test raises an error
+- both regular `def` tests and `async def` tests are supported
+
+This decorator API is intended as a test convenience and mock-isolation improvement. It improves the safety of mocked flags in concurrent execution within the same process, but should not be treated as full SDK-wide parallel execution support.
 
 ### Test Mode Configuration
 
