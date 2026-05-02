@@ -6,8 +6,7 @@ from dotenv import load_dotenv
 
 from util import monitor_run
 from switcher_client.lib.globals.global_context import DEFAULT_ENVIRONMENT
-from switcher_client.lib.globals.global_snapshot import LoadSnapshotOptions
-from switcher_client import Client, ContextOptions, WatchSnapshotCallback
+from switcher_client import Client, ContextOptions, WatchSnapshotCallback, LoadSnapshotOptions
 
 load_dotenv()
 API_KEY = os.getenv('SWITCHER_API_KEY')
