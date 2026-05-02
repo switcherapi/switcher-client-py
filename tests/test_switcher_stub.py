@@ -1,3 +1,5 @@
+from contextvars import Context
+
 from tests.test_switcher_integration import given_context
 
 from switcher_client.lib.snapshot import StrategiesType
@@ -105,3 +107,35 @@ class TestSwitcherStub:
         assert switcher.check_value("Canada").is_on()
         assert switcher.check_value("Brazil").is_on()
         assert not switcher.check_value("USA").is_on()
+
+    def test_switcher_stub_is_isolated_per_context(self):
+        """ Should keep bypassed keys scoped to the current execution context """
+
+        # given
+        switcher = Client.get_switcher(self.key)
+
+        # test
+        Client.assume(self.key).true()
+
+        isolated_result = Context().run(lambda: switcher.reset_inputs().is_on())
+
+        assert switcher.reset_inputs().is_on()
+        assert isolated_result is False
+
+    def test_switcher_stub_can_override_per_context(self):
+        """ Should allow different bypass values in different execution contexts """
+
+        # given
+        switcher = Client.get_switcher(self.key)
+
+        # test
+        Client.assume(self.key).true()
+
+        def isolated_context_result():
+            Client.assume(self.key).false()
+            return switcher.reset_inputs().is_on()
+
+        isolated_result = Context().run(isolated_context_result)
+
+        assert switcher.reset_inputs().is_on()
+        assert isolated_result is False

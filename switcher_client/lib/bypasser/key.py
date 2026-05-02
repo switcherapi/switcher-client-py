@@ -43,11 +43,6 @@ class Key:
 
         return ResultDetail.create(result=result, reason=self._reason, metadata=self._metadata)
 
-    @property
-    def key(self):
-        """ Return selected switcher name """
-        return self._key
-
     def _get_result_based_on_when(self, input_list: list[str]) -> bool:
         """ Evaluate the when conditions to determine the result """
         for strategy_when, input_when in self._when.items():

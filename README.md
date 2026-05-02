@@ -47,7 +47,7 @@ The **Switcher Client SDK for Python** provides seamless integration with [Switc
 - **Clean & Maintainable**: Flexible and robust functions that keep your code organized
 - **Local Mode**: Work offline using snapshot files from your Switcher-API Domain
 - **Silent Mode**: Hybrid configuration with automatic fallback for connectivity issues
-- **Built-in Mocking**: Easy implementation of automated testing with mock support
+- **Built-in Mocking**: Easy implementation of automated testing with scoped mock isolation for concurrent execution
 - **Zero Latency**: Local snapshot execution for high-performance scenarios
 - **Secure**: Built-in protection against ReDoS attacks with regex safety features
 - **Monitoring**: Comprehensive logging and error handling capabilities
@@ -312,7 +312,7 @@ Client.watch_snapshot(WatchSnapshotCallback(
 
 ### Built-in Mocking
 
-The SDK will include powerful mocking capabilities for testing:
+The SDK includes powerful mocking capabilities for testing. Forced values are scoped to the current execution context, which adds a safe-net for concurrent test runs in the same process by reducing mock leakage between overlapping test executions while keeping the mocking API unchanged.
 
 ```python
 # Mock feature states for testing
