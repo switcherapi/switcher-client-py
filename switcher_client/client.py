@@ -54,7 +54,7 @@ class Client:
         api_key: Optional[str] = None,
         component: Optional[str] = None,
         environment: Optional[str] = DEFAULT_ENVIRONMENT,
-        options = ContextOptions()):
+        options: Optional[ContextOptions] = None):
         """
         Build the context for the client
 
@@ -66,24 +66,26 @@ class Client:
         :param options: Optional parameters
 
         """
+        context_options = ContextOptions() if options is None else options
+
         Client._context = Context(
-            domain=domain, url=url,
+            url=url,
+            domain=domain,
             api_key=api_key,
             component=component,
             environment=environment,
-            options=options)
+            options=context_options)
 
         # Default values
         Client._test_mode = DEFAULT_TEST_MODE
         Bypasser.clear()
         GlobalSnapshot.clear()
 
-        # Build Options
-        if options is not None:
-            Client._build_options(options)
-
         # Initialize Auth
         RemoteAuth.init(Client._context)
+
+        # Build Options
+        Client._build_options(context_options)
 
     @staticmethod
     def _build_options(options: ContextOptions):

@@ -1,6 +1,7 @@
 import threading
 import time
 import os
+from typing import Optional
 
 from dotenv import load_dotenv
 
@@ -13,7 +14,7 @@ API_KEY = os.getenv('SWITCHER_API_KEY')
 SWITCHER_KEY = 'CLIENT_PYTHON_FEATURE'
 LOOP = True
 
-def setup_context(options: ContextOptions = ContextOptions(), environment = DEFAULT_ENVIRONMENT):
+def setup_context(options: Optional[ContextOptions] = None, environment = DEFAULT_ENVIRONMENT):
     Client.build_context(
         domain='Switcher API',
         url='https://api.switcherapi.com',

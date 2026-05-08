@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 from dotenv import load_dotenv
 
@@ -61,7 +62,7 @@ def test_check_switcher_availability():
 
 # Helpers
 
-def given_context(options=ContextOptions()):
+def given_context(options: Optional[ContextOptions] = None):
     Client.build_context(
         url='https://api.switcherapi.com',
         api_key=API_KEY,

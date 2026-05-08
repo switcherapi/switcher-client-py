@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Callable, Optional, Type
 
 import json
 import ssl
@@ -16,18 +16,26 @@ class Remote:
     including authentication, criteria checks, and snapshot resolution.
     """
     _client: Optional[httpx.Client] = None
+    _client_config: Optional[tuple[Optional[str], float, float, float, float]] = None
 
     @staticmethod
     def auth(context: Context):
         url = f'{context.url}/criteria/auth'
-        response = Remote._do_post(context, url, {
-            'domain': context.domain,
-            'component': context.component,
-            'environment': context.environment,
-        }, {
-            'switcher-api-key': context.api_key,
-            'Content-Type': 'application/json',
-        })
+        response = Remote._do_post(
+            context=context,
+            url=url,
+            data={
+                'domain': context.domain,
+                'component': context.component,
+                'environment': context.environment,
+            },
+            headers={
+                'switcher-api-key': context.api_key,
+                'Content-Type': 'application/json',
+            },
+            operation='auth',
+            error_cls=RemoteAuthError
+        )
 
         if response.status_code == 200:
             return response.json()['token'], response.json()['exp']
@@ -37,7 +45,10 @@ class Remote:
     @staticmethod
     def check_api_health(context: Context) -> bool:
         url = f'{context.url}/check'
-        response = Remote._do_get(context, url)
+        try:
+            response = Remote._do_get(context=context, url=url, operation='check_api_health')
+        except RemoteError:
+            return False
 
         return response.status_code == 200
 
@@ -45,7 +56,14 @@ class Remote:
     def check_criteria(token: Optional[str], context: Context, switcher: SwitcherData) -> ResultDetail:
         url = f'{context.url}/criteria?showReason={str(switcher.show_details).lower()}&key={switcher.key}'
         entry = get_entry(switcher.inputs)
-        response = Remote._do_post(context, url, { 'entry': [e.to_dict() for e in entry] }, Remote._get_header(token))
+        response = Remote._do_post(
+            context=context,
+            url=url,
+            data={ 'entry': [e.to_dict() for e in entry] },
+            headers=Remote._get_header(token),
+            operation='check_criteria',
+            error_cls=RemoteCriteriaError
+        )
 
         if response.status_code == 200:
             json_response = response.json()
@@ -60,7 +78,13 @@ class Remote:
     @staticmethod
     def check_switchers(token: Optional[str], switcher_keys: list[str], context: Context) -> None:
         url = f'{context.url}/criteria/switchers_check'
-        response = Remote._do_post(context, url, { 'switchers': switcher_keys }, Remote._get_header(token))
+        response = Remote._do_post(
+            context=context,
+            url=url,
+            data={ 'switchers': switcher_keys },
+            headers=Remote._get_header(token),
+            operation='check_switchers'
+        )
 
         if response.status_code != 200:
             raise RemoteError(f'[check_switchers] failed with status: {response.status_code}')
@@ -72,7 +96,12 @@ class Remote:
     @staticmethod
     def check_snapshot_version(token: Optional[str], context: Context, snapshot_version: int) -> bool:
         url = f'{context.url}/criteria/snapshot_check/{snapshot_version}'
-        response = Remote._do_get(context, url, Remote._get_header(token))
+        response = Remote._do_get(
+            context=context,
+            url=url,
+            headers=Remote._get_header(token),
+            operation='check_snapshot_version'
+        )
 
         if response.status_code == 200:
             return response.json().get('status', False)
@@ -102,7 +131,13 @@ class Remote:
             """
         }
 
-        response = Remote._do_post(context, f'{context.url}/graphql', data, Remote._get_header(token))
+        response = Remote._do_post(
+            context=context,
+            url=f'{context.url}/graphql',
+            data=data,
+            headers=Remote._get_header(token),
+            operation='resolve_snapshot'
+        )
 
         if response.status_code == 200:
             return json.dumps(response.json().get('data', {}), indent=4)
@@ -111,9 +146,18 @@ class Remote:
 
     @classmethod
     def _get_client(cls, context: Context) -> httpx.Client:
-        if cls._client is None or cls._client.is_closed:
+        client_config = cls._get_client_config(context)
+        if cls._client is None or cls._client.is_closed or cls._client_config != client_config:
+            if cls._client is not None and not cls._client.is_closed:
+                cls._client.close()
+
             cls._client = httpx.Client(
-                timeout=30.0,
+                timeout=httpx.Timeout(
+                    connect=context.options.remote.connect_timeout,
+                    read=context.options.remote.read_timeout,
+                    write=context.options.remote.write_timeout,
+                    pool=context.options.remote.pool_timeout
+                ),
                 limits=httpx.Limits(
                     max_keepalive_connections=20,
                     max_connections=100,
@@ -122,17 +166,29 @@ class Remote:
                 http2=True,
                 verify=cls._get_context(context)
             )
+            cls._client_config = client_config
         return cls._client
 
     @staticmethod
-    def _do_post(context: Context, url: str, data: dict, headers: Optional[dict] = None) -> httpx.Response:
+    # pylint: disable=too-many-arguments
+    def _do_post(*, context: Context, url: str, data: dict, headers: Optional[dict] = None,
+        operation: str, error_cls: Type[RemoteError] = RemoteError) -> httpx.Response:
         client = Remote._get_client(context)
-        return client.post(url, json=data, headers=headers)
+        return Remote._request(
+            lambda: client.post(url, json=data, headers=headers),
+            operation,
+            error_cls
+        )
 
     @staticmethod
-    def _do_get(context: Context, url: str, headers: Optional[dict] = None) -> httpx.Response:
+    def _do_get(*, context: Context, url: str, headers: Optional[dict] = None,
+        operation: str, error_cls: Type[RemoteError] = RemoteError) -> httpx.Response:
         client = Remote._get_client(context)
-        return client.get(url, headers=headers)
+        return Remote._request(
+            lambda: client.get(url, headers=headers),
+            operation,
+            error_cls
+        )
 
     @staticmethod
     def _get_header(token: Optional[str]) -> dict:
@@ -143,7 +199,7 @@ class Remote:
 
     @staticmethod
     def _get_context(context: Context) -> bool | ssl.SSLContext:
-        cert_path = context.options.cert_path
+        cert_path = context.options.remote.cert_path
         if cert_path is None:
             return True
 
@@ -151,3 +207,24 @@ class Remote:
         ctx.minimum_version = ssl.TLSVersion.TLSv1_2
         ctx.load_cert_chain(certfile=cert_path)
         return ctx
+
+    @staticmethod
+    def _get_client_config(context: Context) -> tuple[Optional[str], float, float, float, float]:
+        return (
+            context.options.remote.cert_path,
+            context.options.remote.connect_timeout,
+            context.options.remote.read_timeout,
+            context.options.remote.write_timeout,
+            context.options.remote.pool_timeout
+        )
+
+    @staticmethod
+    def _request(
+        request: Callable[[], httpx.Response],
+        operation: str,
+        error_cls: Type[RemoteError]
+    ) -> httpx.Response:
+        try:
+            return request()
+        except httpx.RequestError as exc:
+            raise error_cls(f'[{operation}] remote unavailable') from exc

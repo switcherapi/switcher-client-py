@@ -44,3 +44,16 @@ def test_context_get_switcher_from_cache():
 
     assert switcher1 is switcher2
     assert switcher1 is not switcher3
+
+def test_build_context_creates_fresh_default_options():
+    """ Should create a fresh ContextOptions instance for each default build_context call """
+
+    Client.build_context(domain='First Domain')
+    first_options = Client._context.options
+    first_options.local = True
+
+    Client.build_context(domain='Second Domain')
+    second_options = Client._context.options
+
+    assert second_options is not first_options
+    assert second_options.local == False
