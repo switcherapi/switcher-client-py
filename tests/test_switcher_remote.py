@@ -1,14 +1,22 @@
 import pytest
 import time
+import httpx
 
 from unittest.mock import Mock, patch
 
-from tests.helpers import given_context, given_auth, given_check_criteria
+from tests.helpers import (
+    given_context,
+    given_auth,
+    given_check_criteria,
+    given_check_criteria_exception,
+    given_check_health_exception
+)
 
 from switcher_client.errors import RemoteAuthError
 from switcher_client import Client
 from switcher_client.lib.globals.global_auth import GlobalAuth
-from switcher_client.lib.globals.global_context import ContextOptions
+from switcher_client.lib.globals.global_context import ContextOptions, RemoteOptions
+from switcher_client.lib.remote import Remote
 
 async_error = None
 
@@ -131,7 +139,9 @@ def test_remote_with_custom_cert(httpx_mock):
     # given
     given_auth(httpx_mock)
     given_check_criteria(httpx_mock, response={'result': True})
-    given_context(options=ContextOptions(cert_path='tests/fixtures/dummy_cert.pem'))
+    given_context(options=ContextOptions(
+        remote=RemoteOptions(cert_path='tests/fixtures/dummy_cert.pem')
+    ))
 
     switcher = Client.get_switcher()
 
@@ -236,3 +246,80 @@ def test_remote_err_check_criteria_default_result(httpx_mock):
     assert feature.result is True
     assert feature.reason == 'Default result'
     assert async_error == '[check_criteria] failed with status: 500'
+
+def test_remote_err_check_criteria_unavailable(httpx_mock):
+    """ Should raise an exception when the remote criteria endpoint is unavailable """
+
+    # given
+    given_auth(httpx_mock)
+    given_check_criteria_exception(httpx_mock, httpx.ConnectTimeout('timed out'), key='MY_SWITCHER')
+    given_context()
+
+    switcher = Client.get_switcher()
+
+    # test
+    with pytest.raises(Exception) as excinfo:
+        switcher.is_on('MY_SWITCHER')
+
+    assert '[check_criteria] remote unavailable' in str(excinfo.value)
+
+def test_remote_health_check_unavailable(httpx_mock):
+    """ Should return false when the remote health endpoint is unavailable """
+
+    # given
+    given_check_health_exception(httpx_mock, httpx.ConnectError('connection failed'))
+    given_context()
+
+    # test
+    assert not Remote.check_api_health(Client._context)
+
+def test_remote_client_rebuilds_when_timeout_changes(httpx_mock):
+    """ Should rebuild the shared remote client when timeout options change """
+
+    # given
+    Remote._client = None
+    Remote._client_config = None
+    given_auth(httpx_mock)
+    given_check_criteria(httpx_mock, response={'result': True}, match={'entry': []},
+        match_extensions={
+            'timeout': {
+                'connect': 0.3,
+                'read': 5.0,
+                'write': 5.0,
+                'pool': 5.0
+            }
+        }
+    )
+    given_auth(httpx_mock)
+    given_check_criteria(httpx_mock, response={'result': True}, match={'entry': []},
+        match_extensions={
+            'timeout': {
+                'connect': 1.2,
+                'read': 1.3,
+                'write': 1.4,
+                'pool': 1.5
+            }
+        }
+    )
+
+    given_context(options=ContextOptions(
+        remote=RemoteOptions(
+            connect_timeout=0.3,
+            read_timeout=5.0,
+            write_timeout=5.0,
+            pool_timeout=5.0
+        )
+    ))
+    assert Client.get_switcher().is_on('MY_SWITCHER')
+
+    given_context(options=ContextOptions(
+        remote=RemoteOptions(
+            connect_timeout=1.2,
+            read_timeout=1.3,
+            write_timeout=1.4,
+            pool_timeout=1.5
+        )
+    ))
+
+    # test
+    assert Client.get_switcher().is_on('MY_SWITCHER')

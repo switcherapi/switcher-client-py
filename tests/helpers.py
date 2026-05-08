@@ -1,4 +1,5 @@
 import time
+import httpx
 
 from typing import Optional
 from pytest_httpx import HTTPXMock
@@ -12,7 +13,7 @@ def given_context(*,
                 domain='Switcher API',
                 component='switcher-client-python',
                 environment=DEFAULT_ENVIRONMENT,
-                options=ContextOptions()):
+                options: Optional[ContextOptions] = None):
     Client.build_context(
         url=url,
         api_key=api_key,
@@ -22,7 +23,13 @@ def given_context(*,
         options=options
     )
 
-def given_auth(httpx_mock: HTTPXMock, status=200, token: Optional[str]='[token]', exp=int(round(time.time() * 1000)), is_reusable=False):
+def given_auth(
+        httpx_mock: HTTPXMock,
+        status=200,
+        token: Optional[str]='[token]',
+        exp=int(round(time.time() * 1000)),
+        is_reusable=False
+):
     httpx_mock.add_response(
         url='https://api.switcherapi.com/criteria/auth',
         method='POST',
@@ -31,14 +38,35 @@ def given_auth(httpx_mock: HTTPXMock, status=200, token: Optional[str]='[token]'
         is_reusable=is_reusable
     )
 
-def given_check_criteria(httpx_mock: HTTPXMock, status=200, key='MY_SWITCHER', response={}, show_details=False, match=None):
+def given_check_criteria(
+    httpx_mock: HTTPXMock,
+    status=200,
+    key='MY_SWITCHER',
+    response={},
+    show_details=False,
+    match=None,
+    match_extensions=None
+):
     httpx_mock.add_response(
         is_reusable=True,
         url=f'https://api.switcherapi.com/criteria?showReason={str(show_details).lower()}&key={key}',
         method='POST',
         status_code=status,
         json=response,
-        match_json=match
+        match_json=match,
+        match_extensions=match_extensions
+    )
+
+def given_check_criteria_exception(
+    httpx_mock: HTTPXMock,
+    exception: httpx.RequestError,
+    key='MY_SWITCHER',
+    show_details=False
+):
+    httpx_mock.add_exception(
+        exception,
+        url=f'https://api.switcherapi.com/criteria?showReason={str(show_details).lower()}&key={key}',
+        method='POST'
     )
 
 def given_check_switchers(httpx_mock: HTTPXMock, status=200, not_found: Optional[list[str]]=None):
@@ -55,6 +83,13 @@ def given_check_health(httpx_mock: HTTPXMock, status=200):
         url='https://api.switcherapi.com/check',
         method='GET',
         status_code=status,
+    )
+
+def given_check_health_exception(httpx_mock: HTTPXMock, exception: httpx.RequestError):
+    httpx_mock.add_exception(
+        exception,
+        url='https://api.switcherapi.com/check',
+        method='GET'
     )
 
 def given_check_snapshot_version(httpx_mock: HTTPXMock, status_code=200, version=0, status=False, is_reusable=False):

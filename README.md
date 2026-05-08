@@ -128,7 +128,7 @@ switcher = Client.get_switcher()
 Enable additional features like local mode, silent mode, and security options:
 
 ```python
-from switcher_client import Client, ContextOptions
+from switcher_client import Client, ContextOptions, RemoteOptions
 
 Client.build_context(
     domain='My Domain',
@@ -147,7 +147,13 @@ Client.build_context(
         throttle_max_workers=2,
         regex_max_black_list=10,
         regex_max_time_limit=100,
-        cert_path='./certs/ca.pem'
+        remote=RemoteOptions(
+            cert_path='./certs/ca.pem',
+            connect_timeout=0.3,
+            read_timeout=5.0,
+            write_timeout=5.0,
+            pool_timeout=5.0
+        )
     )
 )
 
@@ -168,7 +174,21 @@ switcher = Client.get_switcher()
 | `throttle_max_workers` | `int` | Max workers for throttling feature checks | `None` |
 | `regex_max_black_list` | `int` | Max cached entries for failed regex | `100` |
 | `regex_max_time_limit` | `int` | Regex execution time limit (ms) | `3000` |
+| `remote` | `RemoteOptions` | Remote transport settings for certificate path, connect/read/write/pool timeouts | `RemoteOptions()` |
+
+`RemoteOptions` fields:
+
+| Option | Type | Description | Default |
+|--------|------|-------------|---------|
 | `cert_path` | `str` | Path to custom certificate for secure API connections | `None` |
+| `connect_timeout` | `float` | Max seconds to establish a remote connection before failing fast | `0.3` |
+| `read_timeout` | `float` | Max seconds to wait for remote response data | `5.0` |
+| `write_timeout` | `float` | Max seconds to send remote request data | `5.0` |
+| `pool_timeout` | `float` | Max seconds to wait for a pooled HTTP connection | `5.0` |
+
+`response.status_code` is only available when the upstream returns an HTTP response such as `503`.
+When the upstream is unavailable, the client raises a transport error instead and silent mode now
+uses the configured remote timeouts to fail fast and switch back to local evaluation.
 
 #### Security Features
 
