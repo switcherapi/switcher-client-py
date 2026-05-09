@@ -1,5 +1,4 @@
 [run]
-relative_files = True
 omit =
     switcher_client/lib/utils/timed_match/worker.py
     switcher_client/lib/compat.py,
