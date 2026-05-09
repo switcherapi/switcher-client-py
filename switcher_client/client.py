@@ -141,6 +141,9 @@ class Client:
         if Client._is_check_snapshot_available(snapshot_options.fetch_remote):
             Client.check_snapshot()
 
+        if snapshot_options.watch_snapshot:
+            Client.watch_snapshot()
+
         return Client.snapshot_version()
 
     @staticmethod

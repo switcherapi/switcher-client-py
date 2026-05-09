@@ -6,6 +6,7 @@ from tests.helpers import given_context
 
 from switcher_client.client import Client, ContextOptions
 from switcher_client.lib.snapshot_watcher import SnapshotWatcher, WatchSnapshotCallback
+from switcher_client.lib.globals.global_snapshot import LoadSnapshotOptions
 
 context_options_local = ContextOptions(local=True, snapshot_location='tests/snapshots/temp')
 async_error = None
@@ -53,6 +54,31 @@ class TestClientWatchSnapshot:
         if verified:
             assert switcher.is_on() == False
             assert self.async_error is None
+        else:
+            print("Warning: Snapshot watcher did not detect the change within the time limit")
+
+    def test_watch_snapshot_from_load_snapshot(self):
+        """ Should watch the snapshot file when load_snapshot is called with watch_snapshot option """
+
+        fixture_env = 'default_load_1'
+        fixture_env_file_modified = 'tests/snapshots/default_load_2.json'
+        fixture_location = 'tests/snapshots/temp'
+
+        # given
+        modify_fixture_snapshot(fixture_location, fixture_env, f'tests/snapshots/{fixture_env}.json')
+        given_context(options=context_options_local, environment=fixture_env)
+
+        # test
+        Client.load_snapshot(LoadSnapshotOptions(watch_snapshot=True))
+        switcher = Client.get_switcher('FF2FOR2030')
+
+        assert switcher.is_on()
+        modify_fixture_snapshot(fixture_location, fixture_env, fixture_env_file_modified)
+
+        # then
+        verified = verify_util(30, lambda: switcher.is_on() == False)
+        if verified:
+            assert switcher.is_on() == False
         else:
             print("Warning: Snapshot watcher did not detect the change within the time limit")
 

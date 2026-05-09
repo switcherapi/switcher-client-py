@@ -288,11 +288,21 @@ switcher.remote().is_on('FEATURE01')
 
 ### Loading Snapshots
 
-Load configuration snapshots from the API for local/offline usage:
+Load snapshots from the API or local files:
 
 ```python
-# Download and save snapshot from API
+# Load snapshot from local file
 Client.load_snapshot()
+```
+
+```python
+# Load snapshot from API with fetch_remote option
+Client.load_snapshot(LoadSnapshotOptions(fetch_remote=True))
+```
+
+```python
+# Load snapshot with watch option to update the client in real-time when file changes
+Client.load_snapshot(LoadSnapshotOptions(watch_snapshot=True))
 ```
 
 ### Version Management
