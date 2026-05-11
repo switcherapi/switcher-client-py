@@ -23,24 +23,24 @@ jobs:
     runs-on: ${{ github.event.inputs.os }}
 
     steps:
-      - name: Git checkout
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
+    - name: Git checkout
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: ${{ github.event.inputs.python }}
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ github.event.inputs.python }}
 
-      - name: Install dependencies
-        run: |
-          pip install pipenv
-          pipenv install --dev
+    - name: Install dependencies
+      run: |
+        pip install pipenv
+        pipenv install --dev
 
-      - name: Lint
-        if: ${{ github.event.inputs.skip-lint != 'true' }}
-        run: pipenv run python -m pylint switcher_client
+    - name: Lint
+      if: ${{ github.event.inputs.skip-lint != 'true' }}
+      run: pipenv run python -m pylint switcher_client
 
-      - name: Test
-        run: pipenv run pytest -v
+    - name: Test
+      run: pipenv run pytest -v
