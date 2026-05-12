@@ -29,11 +29,30 @@ A Python SDK for Switcher API
 
 - [Quick Start](#quick-start)
 - [Installation](#installation)
+    - [System Requirements](#system-requirements)
 - [Configuration](#configuration)
+    - [Basic Setup](#basic-setup)
+    - [Advanced Configuration](#advanced-configuration)
+    - [Security Features](#security-features)
 - [Usage Examples](#usage-examples)
+    - [Basic Feature Flag Checking](#basic-feature-flag-checking)
+    - [Detailed Response Information](#detailed-response-information)
+    - [Strategy-Based Feature Flags](#strategy-based-feature-flags)
+    - [Error Handling](#error-handling)
 - [Advanced Features](#advanced-features)
+    - [Throttling](#throttling)
+    - [Hybrid Mode](#hybrid-mode)
+    - [Circuit Breaker](#circuit-breaker-silent-mode)
 - [Snapshot Management](#snapshot-management)
+    - [Loading Snapshots](#loading-snapshots)
+    - [Version Management](#version-management)
+    - [Automated Updates](#automated-updates)
+    - [Snapshot Monitoring](#snapshot-monitoring)
 - [Testing & Development](#testing--development)
+    - [Built-in Mocking](#built-in-mocking)
+    - [Decorator-Based Testing](#decorator-based-testing)
+    - [Test Mode Configuration](#test-mode-configuration)
+    - [Configuration Validation](#configuration-validation)
 - [Contributing](#contributing)
 
 ---
@@ -282,6 +301,29 @@ switcher.throttle(1000).is_on('FEATURE01')
 ```python
 # Force remote resolution for specific features
 switcher.remote().is_on('FEATURE01')
+```
+
+#### Circuit Breaker: Silent Mode
+
+This feature allows you to specify how long the client SDK should attempt to restore connectivity in case of remote API failures.
+
+When the API is unavailable, the SDK will automatically operate in silent mode, evaluating Switchers using a local snapshot. It is important to note that any Switcher Key configured must be able to resolve without external dependencies (e.g., Switcher Relay).
+
+Make sure to configure the scheduled snapshot auto-update to keep the local snapshot up to date with the remote API.
+
+Here is an example - in-memory snapshot with auto-update every 30 seconds:
+
+```python
+Client.build_context(
+    domain='My Domain',
+    url='https://api.switcherapi.com',
+    api_key='[YOUR_API_KEY]',
+    component='MyApp',
+    options=ContextOptions(
+        snapshot_auto_update_interval=30,
+        silent_mode='5m',
+    )
+)
 ```
 
 ## Snapshot Management

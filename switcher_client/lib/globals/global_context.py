@@ -43,7 +43,7 @@ class ContextOptions:
         snapshot are renewed
     :param snapshot_location: The location of the snapshot file.
         If not set, it will use the in-memory snapshot
-    :param snapshot_auto_update_interval: The interval in milliseconds to auto-update
+    :param snapshot_auto_update_interval: The interval in seconds to auto-update
         the snapshot. If not set, it will not auto-update the snapshot
     :param silent_mode: When defined it will switch to local during the specified time
         before it switches back to remote, e.g. 5s (s: seconds - m: minutes - h: hours)
