@@ -64,9 +64,10 @@ def _process_value(operation: str, values: list, input_value: str) -> Optional[b
         case OperationsType.NOT_EXIST.value:
             return input_value not in values
         case OperationsType.EQUAL.value:
-            return input_value in values
+            return input_value == values[0]
         case OperationsType.NOT_EQUAL.value:
-            return input_value not in values
+            result = [element for element in values if element == input_value]
+            return len(result) == 0
 
 # pylint: disable=too-many-return-statements
 def _process_numeric(operation: str, values: list, input_value: str) -> Optional[bool]:
