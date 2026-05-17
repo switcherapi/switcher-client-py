@@ -9,6 +9,7 @@ A Python SDK for Switcher API
 
 [![Master CI](https://github.com/switcherapi/switcher-client-py/actions/workflows/master.yml/badge.svg)](https://github.com/switcherapi/switcher-client-py/actions/workflows/master.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=switcherapi_switcher-client-py&metric=alert_status)](https://sonarcloud.io/dashboard?id=switcherapi_switcher-client-py)
+![Known Vulnerabilities](https://snyk.io/test/github/switcherapi/switcher-client-py/badge.svg)
 [![Pypi: switcher-client](https://img.shields.io/pypi/v/switcher-client.svg)](https://pypi.org/project/switcher-client/)
 [![Conda: switcher-client](https://img.shields.io/conda/vn/switcherapi/switcher-client?label=conda)](https://anaconda.org/switcherapi/switcher-client)
 [![Python: 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
