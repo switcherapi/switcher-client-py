@@ -169,6 +169,7 @@ Client.build_context(
         regex_max_time_limit=100,
         remote=RemoteOptions(
             cert_path='./certs/ca.pem',
+            auto_renew_token=True,
             connect_timeout=0.3,
             read_timeout=5.0,
             write_timeout=5.0,
@@ -201,6 +202,7 @@ switcher = Client.get_switcher()
 | Option | Type | Description | Default |
 |--------|------|-------------|---------|
 | `cert_path` | `str` | Path to custom certificate for secure API connections | `None` |
+| `auto_renew_token` | `bool` | Automatically renew the auth token in the background before it expires | `False` |
 | `connect_timeout` | `float` | Max seconds to establish a remote connection before failing fast | `0.3` |
 | `read_timeout` | `float` | Max seconds to wait for remote response data | `5.0` |
 | `write_timeout` | `float` | Max seconds to send remote request data | `5.0` |
