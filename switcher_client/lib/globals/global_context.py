@@ -12,6 +12,8 @@ DEFAULT_REMOTE_CONNECT_TIMEOUT = 0.3
 DEFAULT_REMOTE_READ_TIMEOUT = 5.0
 DEFAULT_REMOTE_WRITE_TIMEOUT = 5.0
 DEFAULT_REMOTE_POOL_TIMEOUT = 5.0
+DEFAULT_REMOTE_CERT_PATH = None
+DEFAULT_REMOTE_AUTO_RENEW_TOKEN = False
 DEFAULT_TEST_MODE = False
 
 @dataclass
@@ -19,13 +21,15 @@ class RemoteOptions:
     """
     :param cert_path: The path to the SSL certificate file for secure connections.
         If not set, it will use the default system certificates
+    :param auto_renew_token: When enabled, it will automatically renew the token before it expires.
     :param connect_timeout: Max time in seconds to establish a remote connection.
         Lower values help silent mode trip faster when the upstream is unavailable
     :param read_timeout: Max time in seconds to wait for a remote response body
     :param write_timeout: Max time in seconds to send a remote request body
     :param pool_timeout: Max time in seconds to wait for a pooled connection
     """
-    cert_path: Optional[str] = None
+    cert_path: Optional[str] = DEFAULT_REMOTE_CERT_PATH
+    auto_renew_token: bool = DEFAULT_REMOTE_AUTO_RENEW_TOKEN
     connect_timeout: float = DEFAULT_REMOTE_CONNECT_TIMEOUT
     read_timeout: float = DEFAULT_REMOTE_READ_TIMEOUT
     write_timeout: float = DEFAULT_REMOTE_WRITE_TIMEOUT

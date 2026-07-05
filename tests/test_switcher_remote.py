@@ -1,5 +1,6 @@
 import pytest
 import time
+import threading
 import httpx
 
 from unittest.mock import Mock, patch
@@ -113,6 +114,82 @@ def test_remote_renew_token(httpx_mock):
     assert GlobalAuth.get_token() == '[expired_token]'
     switcher.is_on('MY_SWITCHER')
     assert GlobalAuth.get_token() == '[new_token]'
+
+def test_remote_autorenew_token(httpx_mock):
+    """ Should refresh the token before it expires in the background """
+
+    # given
+    given_auth(httpx_mock, status=200, token='[token_1]', exp=int(round(time.time())) + 2)
+    given_auth(httpx_mock, status=200, token='[token_2]', exp=int(round(time.time())) + 3600)
+    given_check_criteria(httpx_mock, response={'result': True})
+    given_context(options=ContextOptions(
+        remote=RemoteOptions(auto_renew_token=True)
+    ))
+
+    switcher = Client.get_switcher()
+
+    # test
+    switcher.is_on('MY_SWITCHER')
+    assert GlobalAuth.get_token() == '[token_1]'
+    time.sleep(3)  # Wait for the token to expire and auto-renew
+    assert GlobalAuth.get_token() == '[token_2]'
+
+def test_remote_autorenew_token_disabled(httpx_mock):
+    """ Should not create a background renewer when auto renew is disabled """
+
+    # given
+    given_auth(httpx_mock, status=200, token='[token_1]', exp=int(round(time.time())) + 2)
+    given_check_criteria(httpx_mock, response={'result': True})
+    given_context(options=ContextOptions(
+        remote=RemoteOptions(auto_renew_token=False)
+    ))
+
+    with patch('switcher_client.lib.remote_auth.threading.Timer') as mock_timer:
+        switcher = Client.get_switcher()
+
+        # test
+        switcher.is_on('MY_SWITCHER')
+        assert GlobalAuth.get_token() == '[token_1]'
+        time.sleep(3)
+        assert GlobalAuth.get_token() == '[token_1]'
+        mock_timer.assert_not_called()
+
+def test_remote_autorenew_token_failure(httpx_mock):
+    """ Should stop auto renew after background failure and restart after foreground auth """
+
+    # given
+    real_timer = threading.Timer
+    given_auth(httpx_mock, status=200, token='[token_1]', exp=int(round(time.time())) + 6)
+    given_auth(httpx_mock, status=500, token=None, exp=int(round(time.time())) + 3600)
+    given_auth(httpx_mock, status=200, token='[token_2]', exp=int(round(time.time())) + 13)
+    given_auth(httpx_mock, status=200, token='[token_3]', exp=int(round(time.time())) + 3600)
+    given_check_criteria(httpx_mock, response={'result': True})
+    given_check_criteria(httpx_mock, response={'result': True})
+    given_context(options=ContextOptions(
+        remote=RemoteOptions(auto_renew_token=True)
+    ))
+
+    with patch('switcher_client.lib.remote_auth.threading.Timer',
+        side_effect=lambda *args, **kwargs: real_timer(*args, **kwargs)) as mock_timer:
+        switcher = Client.get_switcher()
+
+        # test
+        assert switcher.is_on('MY_SWITCHER')
+        assert GlobalAuth.get_token() == '[token_1]'
+        assert mock_timer.call_count == 1
+
+        time.sleep(2)
+        assert GlobalAuth.get_token() == '[token_1]'
+        assert mock_timer.call_count == 1
+
+        time.sleep(5)
+        assert switcher.is_on('MY_SWITCHER')
+        assert GlobalAuth.get_token() == '[token_2]'
+        assert mock_timer.call_count == 2
+
+        time.sleep(2)
+        assert GlobalAuth.get_token() == '[token_3]'
+        assert mock_timer.call_count == 3
 
 def test_remote_with_remote_required_request(httpx_mock):
     """ Should call the remote API with success for required remote request"""
