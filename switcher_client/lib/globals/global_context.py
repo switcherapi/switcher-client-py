@@ -12,6 +12,9 @@ DEFAULT_REMOTE_CONNECT_TIMEOUT = 0.3
 DEFAULT_REMOTE_READ_TIMEOUT = 5.0
 DEFAULT_REMOTE_WRITE_TIMEOUT = 5.0
 DEFAULT_REMOTE_POOL_TIMEOUT = 5.0
+DEFAULT_REMOTE_MAX_KEEPALIVE_CONNECTIONS = 20
+DEFAULT_REMOTE_MAX_CONNECTIONS = 100
+DEFAULT_REMOTE_KEEPALIVE_EXPIRY = 30.0
 DEFAULT_REMOTE_CERT_PATH = None
 DEFAULT_REMOTE_AUTO_RENEW_TOKEN = False
 DEFAULT_TEST_MODE = False
@@ -27,13 +30,20 @@ class RemoteOptions:
     :param read_timeout: Max time in seconds to wait for a remote response body
     :param write_timeout: Max time in seconds to send a remote request body
     :param pool_timeout: Max time in seconds to wait for a pooled connection
+    :param max_keepalive_connections: Max number of idle keep-alive connections to maintain
+    :param max_connections: Max number of concurrent connections allowed
+    :param keepalive_expiry: Max time in seconds a keep-alive connection can remain idle
     """
+    # pylint: disable=too-many-instance-attributes
     cert_path: Optional[str] = DEFAULT_REMOTE_CERT_PATH
     auto_renew_token: bool = DEFAULT_REMOTE_AUTO_RENEW_TOKEN
     connect_timeout: float = DEFAULT_REMOTE_CONNECT_TIMEOUT
     read_timeout: float = DEFAULT_REMOTE_READ_TIMEOUT
     write_timeout: float = DEFAULT_REMOTE_WRITE_TIMEOUT
     pool_timeout: float = DEFAULT_REMOTE_POOL_TIMEOUT
+    max_keepalive_connections: int = DEFAULT_REMOTE_MAX_KEEPALIVE_CONNECTIONS
+    max_connections: int = DEFAULT_REMOTE_MAX_CONNECTIONS
+    keepalive_expiry: float = DEFAULT_REMOTE_KEEPALIVE_EXPIRY
 
 @dataclass
 class ContextOptions:

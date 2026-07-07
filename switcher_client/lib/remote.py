@@ -16,7 +16,7 @@ class Remote:
     including authentication, criteria checks, and snapshot resolution.
     """
     _client: Optional[httpx.Client] = None
-    _client_config: Optional[tuple[Optional[str], float, float, float, float]] = None
+    _client_config: Optional[tuple[Optional[str], float, float, float, float, int, int, float]] = None
 
     @staticmethod
     def auth(context: Context):
@@ -159,9 +159,9 @@ class Remote:
                     pool=context.options.remote.pool_timeout
                 ),
                 limits=httpx.Limits(
-                    max_keepalive_connections=20,
-                    max_connections=100,
-                    keepalive_expiry=30.0
+                    max_keepalive_connections=context.options.remote.max_keepalive_connections,
+                    max_connections=context.options.remote.max_connections,
+                    keepalive_expiry=context.options.remote.keepalive_expiry
                 ),
                 http2=True,
                 verify=cls._get_context(context)
@@ -209,13 +209,16 @@ class Remote:
         return ctx
 
     @staticmethod
-    def _get_client_config(context: Context) -> tuple[Optional[str], float, float, float, float]:
+    def _get_client_config(context: Context) -> tuple[Optional[str], float, float, float, float, int, int, float]:
         return (
             context.options.remote.cert_path,
             context.options.remote.connect_timeout,
             context.options.remote.read_timeout,
             context.options.remote.write_timeout,
-            context.options.remote.pool_timeout
+            context.options.remote.pool_timeout,
+            context.options.remote.max_keepalive_connections,
+            context.options.remote.max_connections,
+            context.options.remote.keepalive_expiry
         )
 
     @staticmethod
