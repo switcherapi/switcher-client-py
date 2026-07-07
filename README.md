@@ -173,7 +173,10 @@ Client.build_context(
             connect_timeout=0.3,
             read_timeout=5.0,
             write_timeout=5.0,
-            pool_timeout=5.0
+            pool_timeout=5.0,
+            max_keepalive_connections=20,
+            max_connections=100,
+            keepalive_expiry=30.0
         )
     )
 )
@@ -207,6 +210,9 @@ switcher = Client.get_switcher()
 | `read_timeout` | `float` | Max seconds to wait for remote response data | `5.0` |
 | `write_timeout` | `float` | Max seconds to send remote request data | `5.0` |
 | `pool_timeout` | `float` | Max seconds to wait for a pooled HTTP connection | `5.0` |
+| `max_keepalive_connections` | `int` | Max number of idle keep-alive connections to maintain | `20` |
+| `max_connections` | `int` | Max number of concurrent connections allowed | `100` |
+| `keepalive_expiry` | `float` | Max seconds a keep-alive connection can remain idle | `30.0` |
 
 `response.status_code` is only available when the upstream returns an HTTP response such as `503`.
 When the upstream is unavailable, the client raises a transport error instead and silent mode now

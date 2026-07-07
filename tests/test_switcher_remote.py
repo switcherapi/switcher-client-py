@@ -13,8 +13,8 @@ from tests.helpers import (
     given_check_health_exception
 )
 
-from switcher_client.errors import RemoteAuthError
 from switcher_client import Client
+from switcher_client.errors import RemoteAuthError, RemoteCriteriaError
 from switcher_client.lib.globals.global_auth import GlobalAuth
 from switcher_client.lib.globals.global_context import ContextOptions, RemoteOptions
 from switcher_client.lib.remote import Remote
@@ -301,7 +301,7 @@ def test_remote_err_check_criteria(httpx_mock):
     switcher = Client.get_switcher()
 
     # test
-    with pytest.raises(Exception) as excinfo:
+    with pytest.raises(RemoteCriteriaError) as excinfo:
         switcher.is_on('MY_SWITCHER')
 
     assert '[check_criteria] failed with status: 500' in str(excinfo.value)
@@ -335,7 +335,7 @@ def test_remote_err_check_criteria_unavailable(httpx_mock):
     switcher = Client.get_switcher()
 
     # test
-    with pytest.raises(Exception) as excinfo:
+    with pytest.raises(RemoteCriteriaError) as excinfo:
         switcher.is_on('MY_SWITCHER')
 
     assert '[check_criteria] remote unavailable' in str(excinfo.value)
@@ -400,3 +400,54 @@ def test_remote_client_rebuilds_when_timeout_changes(httpx_mock):
 
     # test
     assert Client.get_switcher().is_on('MY_SWITCHER')
+
+def test_remote_client_uses_default_connection_limits():
+    """ Should build the shared remote client using the default connection limit options """
+
+    # given
+    Remote._client = None
+    Remote._client_config = None
+    given_context()
+
+    # test
+    client = Remote._get_client(Client._context)
+    pool = client._transport._pool # type: ignore
+    assert pool._max_keepalive_connections == 20
+    assert pool._max_connections == 100
+    assert pool._keepalive_expiry == 30.0
+
+def test_remote_client_rebuilds_when_connection_limits_change():
+    """ Should rebuild the shared remote client when connection limit options change """
+
+    # given
+    Remote._client = None
+    Remote._client_config = None
+    given_context(options=ContextOptions(
+        remote=RemoteOptions(
+            max_keepalive_connections=5,
+            max_connections=10,
+            keepalive_expiry=15.0
+        )
+    ))
+
+    # test
+    client = Remote._get_client(Client._context)
+    pool = client._transport._pool # type: ignore
+    assert pool._max_keepalive_connections == 5
+    assert pool._max_connections == 10
+    assert pool._keepalive_expiry == 15.0
+
+    given_context(options=ContextOptions(
+        remote=RemoteOptions(
+            max_keepalive_connections=8,
+            max_connections=16,
+            keepalive_expiry=25.0
+        )
+    ))
+
+    rebuilt_client = Remote._get_client(Client._context)
+    assert rebuilt_client is not client
+    rebuilt_pool = rebuilt_client._transport._pool # type: ignore
+    assert rebuilt_pool._max_keepalive_connections == 8
+    assert rebuilt_pool._max_connections == 16
+    assert rebuilt_pool._keepalive_expiry == 25.0

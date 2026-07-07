@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Package version to publish (e.g. 1.1.0). Leave empty to read from version.py'
+        description: 'Package version to publish (e.g. 1.2.0). Leave empty to read from version.py'
         required: false
 
 jobs:
