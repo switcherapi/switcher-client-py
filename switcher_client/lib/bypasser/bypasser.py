@@ -8,9 +8,12 @@ class Bypasser:
     """
 
     _bypassed_keys: ContextVar[dict[str, Key] | None] = ContextVar('bypassed_keys', default=None)
+    _bypass_enabled = False
 
     @staticmethod
     def assume(key: str) -> Key:
+        Bypasser._bypass_enabled = True
+
         # Remove previous forced value if exists to avoid conflicts
         new_key = Key(key)
         bypassed_keys = dict(Bypasser._current_keys())
@@ -29,6 +32,9 @@ class Bypasser:
     @staticmethod
     def search_key(key: str) -> Key | None:
         """ Search for key registered via 'assume' """
+        if not Bypasser._bypass_enabled:
+            return None
+
         return Bypasser._current_keys().get(key)
 
     @staticmethod
