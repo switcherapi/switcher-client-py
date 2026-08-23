@@ -64,7 +64,7 @@ def test_check_switcher_availability():
 
 def given_context(options: Optional[ContextOptions] = None):
     Client.build_context(
-        url='https://api.switcherapi.com',
+        url='http://localhost:3001',
         api_key=API_KEY,
         domain='Switcher API',
         component='switcher-client-python',

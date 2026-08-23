@@ -240,7 +240,7 @@ def test_remote_err_with_remote_reqquired_request_no_local():
 
     # test
     with pytest.raises(ValueError) as excinfo:
-        switcher.remote().is_on('MY_SWITCHER')
+        switcher.remote()
 
     assert 'Local mode is not enabled' in str(excinfo.value)
 
