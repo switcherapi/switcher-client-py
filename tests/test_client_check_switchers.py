@@ -26,7 +26,7 @@ def test_check_remote_switchers_not_found(httpx_mock):
     # test
     try:
         Client.check_switchers(['MY_SWITCHER', 'ANOTHER_SWITCHER'])
-        assert False, 'Expected RemoteSwitcherError to be raised'
+        raise AssertionError('Expected RemoteSwitcherError to be raised')
     except RemoteSwitcherError as e:
         assert str(e) == 'MY_SWITCHER not found'
 
@@ -41,7 +41,7 @@ def test_check_remote_switchers_api_error(httpx_mock):
     # test
     try:
         Client.check_switchers(['MY_SWITCHER', 'ANOTHER_SWITCHER'])
-        assert False, 'Expected RemoteError to be raised'
+        raise AssertionError('Expected RemoteError to be raised')
     except Exception as e:
         assert str(e) == '[check_switchers] failed with status: 500'
 
@@ -55,7 +55,7 @@ def test_chek_remote_switchers_auth_error(httpx_mock):
     # test
     try:
         Client.check_switchers(['MY_SWITCHER', 'ANOTHER_SWITCHER'])
-        assert False, 'Expected RemoteError to be raised'
+        raise AssertionError('Expected RemoteError to be raised')
     except Exception as e:
         assert str(e) == 'Invalid API key'
 

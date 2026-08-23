@@ -25,9 +25,11 @@ def test_context_remote_validation():
         domain='My Domain'
     )
 
+    switcher = Client.get_switcher()
+
     # test
     with pytest.raises(ValueError) as excinfo:
-        Client.get_switcher().validate() # used by is_on()
+        switcher.validate() # used by is_on()
 
     assert 'Missing or empty required fields (url, component, api_key)' in str(excinfo.value)
 
