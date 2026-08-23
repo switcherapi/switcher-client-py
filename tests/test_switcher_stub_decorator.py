@@ -71,7 +71,7 @@ def test_switcher_test_rolls_back_applied_mocks_when_setup_fails(monkeypatch: py
     )
     def decorated_test():
         """ This test should never run because setup fails before execution. """
-        assert False
+        pytest.fail('The decorated test should not run when setup fails.')
 
     with pytest.raises(RuntimeError, match='setup failed'):
         decorated_test()

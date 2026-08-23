@@ -1,4 +1,5 @@
 import pytest
+import sys
 import time
 import threading
 import httpx
@@ -206,12 +207,12 @@ def test_remote_with_remote_required_request(httpx_mock):
     # test
     assert switcher.remote().is_on(key)
 
-def test_remote_with_custom_cert(httpx_mock):
+def test_remote_with_custom_cert(httpx_mock, monkeypatch):
     """ Should call the remote API with success using a custom certificate """
 
     # Reset Remote client to ensure fresh SSL context creation
     from switcher_client.lib.remote import Remote
-    Remote._client = None
+    monkeypatch.setattr(Remote, '_client', None)
 
     # given
     given_auth(httpx_mock)
@@ -306,7 +307,7 @@ def test_remote_err_check_criteria(httpx_mock):
 
     assert '[check_criteria] failed with status: 500' in str(excinfo.value)
 
-def test_remote_err_check_criteria_default_result(httpx_mock):
+def test_remote_err_check_criteria_default_result(httpx_mock, monkeypatch):
     """ Should return the default result when the check criteria fails """
 
     # given
@@ -314,8 +315,9 @@ def test_remote_err_check_criteria_default_result(httpx_mock):
     given_check_criteria(httpx_mock, show_details=True, status=500)
     given_context()
 
-    globals().update(async_error=None)
-    Client.subscribe_notify_error(lambda error: globals().update(async_error=str(error)))
+    this_module = sys.modules[__name__]
+    monkeypatch.setattr(this_module, 'async_error', None)
+    Client.subscribe_notify_error(lambda error: monkeypatch.setattr(this_module, 'async_error', str(error)))
     switcher = Client.get_switcher()
 
     # test
@@ -350,12 +352,12 @@ def test_remote_health_check_unavailable(httpx_mock):
     # test
     assert not Remote.check_api_health(Client._context)
 
-def test_remote_client_rebuilds_when_timeout_changes(httpx_mock):
+def test_remote_client_rebuilds_when_timeout_changes(httpx_mock, monkeypatch):
     """ Should rebuild the shared remote client when timeout options change """
 
     # given
-    Remote._client = None
-    Remote._client_config = None
+    monkeypatch.setattr(Remote, '_client', None)
+    monkeypatch.setattr(Remote, '_client_config', None)
     given_auth(httpx_mock)
     given_check_criteria(httpx_mock, response={'result': True}, match={'entry': []},
         match_extensions={
@@ -401,12 +403,12 @@ def test_remote_client_rebuilds_when_timeout_changes(httpx_mock):
     # test
     assert Client.get_switcher().is_on('MY_SWITCHER')
 
-def test_remote_client_uses_default_connection_limits():
+def test_remote_client_uses_default_connection_limits(monkeypatch):
     """ Should build the shared remote client using the default connection limit options """
 
     # given
-    Remote._client = None
-    Remote._client_config = None
+    monkeypatch.setattr(Remote, '_client', None)
+    monkeypatch.setattr(Remote, '_client_config', None)
     given_context()
 
     # test
@@ -416,12 +418,12 @@ def test_remote_client_uses_default_connection_limits():
     assert pool._max_connections == 100
     assert pool._keepalive_expiry == 30.0
 
-def test_remote_client_rebuilds_when_connection_limits_change():
+def test_remote_client_rebuilds_when_connection_limits_change(monkeypatch):
     """ Should rebuild the shared remote client when connection limit options change """
 
     # given
-    Remote._client = None
-    Remote._client_config = None
+    monkeypatch.setattr(Remote, '_client', None)
+    monkeypatch.setattr(Remote, '_client_config', None)
     given_context(options=ContextOptions(
         remote=RemoteOptions(
             max_keepalive_connections=5,

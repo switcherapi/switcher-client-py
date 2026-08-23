@@ -62,7 +62,7 @@ def test_refresh_token_discards_stale_result_after_auth_returns():
     assert mock_auth.call_count == 1
     mock_schedule.assert_not_called()
 
-def test_stop_auto_renew_ignores_stale_generation():
+def test_stop_auto_renew_ignores_stale_generation(monkeypatch):
     """ Should not cancel the active renewer when stop is requested with a stale generation """
 
     # given
@@ -71,7 +71,7 @@ def test_stop_auto_renew_ignores_stale_generation():
     ))
     active_timer = Mock()
     current_generation = _current_generation()
-    RemoteAuth._RemoteAuth__auto_renew_timer = active_timer  # type: ignore
+    monkeypatch.setattr(RemoteAuth, '_RemoteAuth__auto_renew_timer', active_timer)
 
     # test
     RemoteAuth._stop_auto_renew(generation=_stale_generation())

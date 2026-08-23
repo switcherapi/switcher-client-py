@@ -1,3 +1,7 @@
+# Please, in order to run these tests, include a .env file in the root of the project with the following content:
+# SWITCHER_URL=https://api.switcherapi.com
+# SWITCHER_API_KEY=<your_api_key>
+
 import os
 from typing import Optional
 
@@ -8,13 +12,14 @@ from switcher_client.lib.globals.global_context import ContextOptions
 from switcher_client.lib.globals.global_snapshot import LoadSnapshotOptions
 
 load_dotenv()
-API_KEY = os.getenv('SWITCHER_API_KEY')
+SWITCHER_API_KEY = os.getenv('SWITCHER_API_KEY')
+SWITCHER_URL = os.getenv('SWITCHER_URL')
 WARN_SKIP = 'API key not found. Please set the SWITCHER_API_KEY environment variable.'
 
 def test_is_on():
     """ Should call the remote API with success """
 
-    if not API_KEY:
+    if not SWITCHER_API_KEY:
         print(WARN_SKIP)
         return
 
@@ -29,7 +34,7 @@ def test_is_on():
 def test_load_snapshot():
     """ Should load the snapshot from the remote API with success """
 
-    if not API_KEY:
+    if not SWITCHER_API_KEY:
         print(WARN_SKIP)
         return
 
@@ -47,7 +52,7 @@ def test_load_snapshot():
 def test_check_switcher_availability():
     """ Should check the switcher availability with success """
 
-    if not API_KEY:
+    if not SWITCHER_API_KEY:
         print(WARN_SKIP)
         return
 
@@ -64,8 +69,8 @@ def test_check_switcher_availability():
 
 def given_context(options: Optional[ContextOptions] = None):
     Client.build_context(
-        url='http://localhost:3001',
-        api_key=API_KEY,
+        url=SWITCHER_URL,
+        api_key=SWITCHER_API_KEY,
         domain='Switcher API',
         component='switcher-client-python',
         options=options
