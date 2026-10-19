@@ -1,4 +1,6 @@
 [run]
+branch = True
+source = switcher_client
 omit =
     switcher_client/lib/utils/timed_match/worker.py
     switcher_client/lib/compat.py,
@@ -7,6 +9,8 @@ omit =
     */test_*
 
 [report]
+fail_under = 98
+show_missing = True
 exclude_lines =
     pragma: no cover
     def __repr__
