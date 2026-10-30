@@ -22,7 +22,6 @@ jobs:
       uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
-        update-environment: true
 
     - name: Install dependencies
       run: |
