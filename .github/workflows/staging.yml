@@ -7,7 +7,7 @@ on:
       python:
         description: 'Python version'
         required: true
-        default: '3.14'
+        default: '3.15'
       os:
         description: 'Operating System (ubuntu-20.04, ubuntu-latest, windows-latest)'
         required: true

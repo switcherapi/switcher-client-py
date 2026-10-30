@@ -11,28 +11,60 @@ on:
         description: Publish to Anaconda.org (test label)
         type: boolean
         default: false
+      rc_number:
+        description: RC number to append to the package version (for example, 1 for rc1)
+        type: string
+        required: true
 
 jobs:
   build:
     name: Build distribution
-    if: inputs.deploy_testpypi
+    if: inputs.deploy_testpypi || inputs.deploy_anaconda
     runs-on: ubuntu-latest
+    outputs:
+      package_version: ${{ steps.version.outputs.package_version }}
 
     steps:
     - uses: actions/checkout@v7
     - name: Set up Python
       uses: actions/setup-python@v7
       with:
-        python-version: "3.14"
+        python-version: "3.15"
+
+    - name: Determine release candidate version
+      id: version
+      shell: bash
+      env:
+        RC_NUMBER: ${{ inputs.rc_number }}
+      run: |
+        BASE_VERSION=$(python -c 'from switcher_client.version import __version__; print(__version__)')
+        if [[ ! "$RC_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+          echo "RC number must be a positive integer." >&2
+          exit 1
+        fi
+
+        PACKAGE_VERSION="${BASE_VERSION}rc${RC_NUMBER}"
+        echo "package_version=$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
+        echo "Using release candidate version: $PACKAGE_VERSION"
+
     - name: Install pypa/build
+      if: inputs.deploy_testpypi
       run: >-
         python3 -m
         pip install
         build
         --user
     - name: Build a binary wheel and a source tarball
-      run: python3 -m build
+      if: inputs.deploy_testpypi
+      env:
+        PACKAGE_VERSION: ${{ steps.version.outputs.package_version }}
+      run: |
+        trap 'mv "$RUNNER_TEMP/version.py" switcher_client/version.py' EXIT
+        cp switcher_client/version.py "$RUNNER_TEMP/version.py"
+        printf '__version__ = "%s"\n' "$PACKAGE_VERSION" > switcher_client/version.py
+        python3 -m build
     - name: Store the distribution packages
+      if: inputs.deploy_testpypi
       uses: actions/upload-artifact@v7
       with:
         name: python-package-distributions
@@ -42,11 +74,9 @@ jobs:
     needs: build
     if: inputs.deploy_testpypi
     runs-on: ubuntu-latest
-
     environment:
       name: testpypi
       url: https://test.pypi.org/p/switcher-client
-
     permissions:
       id-token: write
 
@@ -66,9 +96,10 @@ jobs:
         repository-url: https://test.pypi.org/legacy/
 
   publish-to-anaconda:
-    if: inputs.deploy_anaconda
+    needs:
+    - build
+    if: always() && inputs.deploy_anaconda && needs.build.result == 'success'
     runs-on: ubuntu-latest
-
     environment:
       name: anaconda
       url: https://anaconda.org/switcherapi/switcher-client
@@ -80,7 +111,7 @@ jobs:
       uses: conda-incubator/setup-miniconda@v4
       with:
         auto-update-conda: true
-        python-version: "3.12"
+        python-version: "3.15"
         channels: conda-forge
         channel-priority: strict
         conda-remove-defaults: true
@@ -91,10 +122,11 @@ jobs:
 
     - name: Get package version
       shell: bash -el {0}
+      env:
+        PACKAGE_VERSION: ${{ needs.build.outputs.package_version }}
       run: |
-        PKG_VER=$(grep '__version__' switcher_client/version.py | cut -d'"' -f2)
-        echo "PKG_VERSION=$PKG_VER" >> $GITHUB_ENV
-        printf "pkg_version:\n  - $PKG_VER\n" > conda.recipe/conda_build_config.yaml
+        echo "PKG_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+        printf "pkg_version:\n  - $PACKAGE_VERSION\n" > conda.recipe/conda_build_config.yaml
 
     - name: Build conda package
       shell: bash -el {0}
