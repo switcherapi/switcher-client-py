@@ -12,7 +12,7 @@ A Python SDK for Switcher API
 ![Known Vulnerabilities](https://snyk.io/test/github/switcherapi/switcher-client-py/badge.svg)
 [![Pypi: switcher-client](https://img.shields.io/pypi/v/switcher-client.svg)](https://pypi.org/project/switcher-client/)
 [![Conda: switcher-client](https://img.shields.io/conda/vn/switcherapi/switcher-client?label=conda)](https://anaconda.org/switcherapi/switcher-client)
-[![Python: 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![Python: 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Slack: Switcher-HQ](https://img.shields.io/badge/slack-@switcher/hq-blue.svg?logo=slack)](https://switcher-hq.slack.com/)
 
@@ -110,7 +110,7 @@ conda install switcherapi::switcher-client
 
 
 ### System Requirements
-- **Python**: 3.9+ (supports 3.9, 3.10, 3.11, 3.12, 3.13, 3.14, 3.15)
+- **Python**: 3.10+ (supports 3.10, 3.11, 3.12, 3.13, 3.14, 3.15)
 - **Operating System**: Cross-platform (Windows, macOS, Linux)
 
 ## Configuration
@@ -506,7 +506,7 @@ We welcome contributions to the Switcher Client SDK for Python! If you have sugg
 Thank you for helping us improve the Switcher Client SDK!
 
 ### Requirements
-- Python 3.9 or higher
+- Python 3.10 or higher
 - Virtualenv - `pip install virtualenv`
 - Create a virtual environment - `python3 -m venv .venv`
 - Install Pipenv - `pip install pipenv`
