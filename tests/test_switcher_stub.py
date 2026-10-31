@@ -139,3 +139,18 @@ class TestSwitcherStub:
 
         assert switcher.reset_inputs().is_on()
         assert isolated_result is False
+
+    def test_switcher_stub_multiple_keys(self):
+        """ Should allow different bypass values for multiple keys """
+
+        # given
+        switcher1 = Client.get_switcher(self.key)
+        switcher2 = Client.get_switcher(self.key + "_2")
+
+        # test
+        Client.assume(self.key).true()
+        Client.assume(self.key + "_2").false()
+        Client.assume(self.key + "_2").true() # override previous false assumption
+
+        assert switcher1.is_on()
+        assert switcher2.is_on()

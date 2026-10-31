@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime
 from abc import ABCMeta
-from typing import Optional, Union
+from typing import Optional
 
 from switcher_client.lib.compat import Self
 from switcher_client.lib.utils import get
@@ -48,7 +48,7 @@ class SwitcherData(metaclass=ABCMeta):
         """ Adds REGEX_VALIDATION input for strategy validation """
         return self.check(StrategiesType.REGEX.value, input)
 
-    def check_payload(self, input: Union[str, dict]) -> Self:
+    def check_payload(self, input: str | dict) -> Self:
         """ Adds PAYLOAD_VALIDATION input for strategy validation """
         if isinstance(input, dict):
             payload_str = json.dumps(input)
