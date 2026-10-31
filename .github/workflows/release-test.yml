@@ -37,7 +37,11 @@ jobs:
       env:
         RC_NUMBER: ${{ inputs.rc_number }}
       run: |
-        BASE_VERSION=$(python -c 'from switcher_client.version import __version__; print(__version__)')
+        BASE_VERSION=$(sed -n 's/^__version__ = "\([^"]*\)"$/\1/p' switcher_client/version.py)
+        if [[ -z "$BASE_VERSION" ]]; then
+          echo "Could not read __version__ from switcher_client/version.py." >&2
+          exit 1
+        fi
         if [[ ! "$RC_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
           echo "RC number must be a positive integer." >&2
           exit 1
